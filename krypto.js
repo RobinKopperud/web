@@ -11,15 +11,15 @@ document.addEventListener('DOMContentLoaded', function() {
         let interval;
         let limit;
         switch(timeFrame) {
-            case '1d':
+            case 'siste dag':
                 interval = '1d';
                 limit = 1;
                 break;
-            case '7d':
+            case 'siste uke':
                 interval = '1d';
                 limit = 7;
                 break;
-            case '1y':
+            case 'siste år':
                 interval = '1w';
                 limit = 52;
                 break;
@@ -32,6 +32,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 resultDiv.innerHTML = `
                     <h3>${cryptoName} - Høyeste pris de siste ${timeFrame}:</h3>
                     <p>$${highestPrices.toFixed(2)}</p>
+                    <p>$${highestPrice.toFixed(2)}</p>
+
                 `;
             })
             .catch(error => {

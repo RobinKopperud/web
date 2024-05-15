@@ -4,32 +4,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
     form.addEventListener('submit', function(event) {
         event.preventDefault();
-        const cryptoName = document.getElementById('crypto-name').value.trim();
+        const cryptoName = document.getElementById('crypto-name').value.trim().toUpperCase();
         const timeFrame = document.getElementById('time-frame').value;
 
-        // Map timeFrame to CoinGecko API parameter
-        let days;
+        // Map timeFrame to Binance API parameter
+        let interval;
+        let limit;
         switch(timeFrame) {
             case '1d':
-                days = 1;
+                interval = '1d';
+                limit = 1;
                 break;
             case '7d':
-                days = 7;
+                interval = '1d';
+                limit = 7;
                 break;
             case '1y':
-                days = 365;
+                interval = '1w';
+                limit = 52;
                 break;
         }
 
-        fetch(`https://api.coingecko.com/api/v3/coins/${cryptoName}/market_chart?vs_currency=usd&days=${days}`)
+        fetch(`https://api.binance.com/api/v3/klines?symbol=${cryptoName}USDT&interval=${interval}&limit=${limit}`)
             .then(response => response.json())
             .then(data => {
-                const prices = data.prices;
-                const highestPrice = Math.max(...prices.map(price => price[1]));
-
+                const highestPrices = data.map(candle => parseFloat(candle[2])); // High prices are at index 2 in the response
                 resultDiv.innerHTML = `
-                    <h3>${cryptoName.charAt(0).toUpperCase() + cryptoName.slice(1)} - Høyeste pris de siste ${timeFrame}:</h3>
-                    <p>$${highestPrice.toFixed(2)}</p>
+                    <h3>${cryptoName} - Høyeste pris de siste ${timeFrame}:</h3>
+                    <p>$${highestPrices.toFixed(2)}</p>
                 `;
             })
             .catch(error => {

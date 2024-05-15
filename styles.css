@@ -159,7 +159,7 @@ iframe {
 }
 
 #chat-box {
-    width: 100%;
+    width:fit-content;
     height: 400px;
     overflow-y: auto;
     border: 1px solid #ccc;

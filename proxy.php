@@ -8,7 +8,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $data = [
         'model' => 'gpt-4',
         'messages' => [
-            ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+            ['role' => 'system', 'content' => 'you shall answer in the same language that the user inputs, you should answer with a joke.'],
             ['role' => 'user', 'content' => $message]
         ],
         'temperature' => 1,

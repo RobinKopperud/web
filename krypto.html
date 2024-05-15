@@ -13,8 +13,6 @@
     </header>
     <nav>
         <a href="index.html#about">Om Meg</a>
-        <a href="index.html#portfolio">Portefølje</a>
-        <a href="index.html#contact">Kontakt</a>
         <a href="ai.html">AI Prosjekter</a>
         <a href="krypto.html">KryptoTjenester</a>
     </nav>
@@ -38,9 +36,32 @@
             </form>
             <div id="price-result"></div>
         </section>
+        <section id="tjenester">
+            <h2>Tjenester</h2>
+            <p>Vi tilbyr en rekke tjenester relatert til kryptovaluta, inkludert:</p>
+            <ul>
+                <li>Krypto-rådgivning</li>
+                <li>Investeringstips</li>
+                <li>Sikkerhetsvurdering</li>
+                <li>Porteføljeforvaltning</li>
+            </ul>
+        </section>
     </div>
     <footer>
         <p>&copy; 2024 Robin Kopperud. All rights reserved.</p>
     </footer>
+
+        <!-- Modal -->
+        <div id="service-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <h2 id="modal-title"></h2>
+                <form id="service-form">
+                    <label for="user-message">Beskriv hva du trenger hjelp med:</label>
+                    <textarea id="user-message" name="user-message" rows="4" required></textarea>
+                    <button type="submit">Send</button>
+                </form>
+            </div>
+        </div>
 </body>
 </html>

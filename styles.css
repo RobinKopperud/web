@@ -162,3 +162,29 @@ footer {
         margin-bottom: 1.5rem;
     }
 }
+
+/* Ekstra stiler for den nye Tjenester-seksjonen */
+#tjenester {
+    margin-top: 2rem;
+    padding: 1rem;
+    background-color: #eef6ff;
+    border-radius: 10px;
+}
+
+#tjenester h2 {
+    color: #336699;
+}
+
+#tjenester p {
+    color: #333;
+}
+
+#tjenester ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+}
+
+#tjenester ul li {
+    margin-bottom: 0.5rem;
+}
+

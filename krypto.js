@@ -44,3 +44,14 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     });
 });
+
+
+// krypto.js
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('crypto-form');
+    const resultDiv = document.getElementById('price-result');
+    const serviceButtons = document.querySelectorAll('.service-btn');
+    const modal = document.getElementById('service-modal');
+    const closeBtn = document.querySelector('.close-btn');
+});

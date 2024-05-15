@@ -1,3 +1,4 @@
+/* Global styles */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -6,6 +7,7 @@ body {
     color: #333;
 }
 
+/* Header styles */
 header {
     background-color: #336699;
     color: #fff;
@@ -13,6 +15,7 @@ header {
     text-align: center;
 }
 
+/* Navigation styles */
 nav {
     display: flex;
     flex-wrap: wrap;
@@ -35,6 +38,7 @@ nav a:hover {
     color: #ffcc00;
 }
 
+/* Container styles */
 .container {
     display: flex;
     flex-wrap: wrap;
@@ -44,6 +48,7 @@ nav a:hover {
     padding: 1rem;
 }
 
+/* Section styles */
 .container > section {
     background-color: #fff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -51,10 +56,17 @@ nav a:hover {
     padding: 1rem;
     margin: 1rem;
     flex: 1;
-    min-width: 280px; /* Ensures it fits nicely on smaller screens */
-    max-width: 45%; /* Prevents it from becoming too wide on larger screens */
+    min-width: 280px;
+    max-width: 45%;
 }
 
+h2 {
+    border-bottom: 2px solid #f0f4f8;
+    padding-bottom: 0.5rem;
+    color: #336699;
+}
+
+/* Form styles */
 form {
     display: flex;
     flex-direction: column;
@@ -97,18 +109,14 @@ form button:hover {
     color: #ffcc00;
 }
 
+/* Result styles */
 #price-result {
     margin-top: 2rem;
     color: #336699;
     font-weight: bold;
 }
 
-h2 {
-    border-bottom: 2px solid #f0f4f8;
-    padding-bottom: 0.5rem;
-    color: #336699;
-}
-
+/* Footer styles */
 footer {
     text-align: center;
     padding: 1rem;
@@ -117,32 +125,32 @@ footer {
     margin-top: 2rem;
 }
 
+/* Button styles */
 .service-btn {
     background: none;
-    border: none;
+    border: 1px solid transparent;
     color: #336699;
     text-decoration: underline;
     cursor: pointer;
     font-size: 1rem;
+    padding: 0.25rem 0;
 }
 
-.service-btn:hover {
+.service-btn:hover,
+.service-btn:focus {
     color: #1b3f5c;
+    border: 1px solid #1b3f5c;
+    outline: none;
 }
 
-/* Responsiv design */
+/* Responsive design */
 @media (max-width: 768px) {
     .container {
         flex-direction: column;
         align-items: center;
     }
 
-    header {
-        padding: 1rem 0.5rem;
-    }
-
     nav a {
-        padding: 0.5rem;
         flex: 1 0 100%;
         text-align: center;
     }
@@ -155,10 +163,6 @@ footer {
 @media (max-width: 480px) {
     header h1 {
         font-size: 1.5rem;
-    }
-
-    header p {
-        font-size: 1rem;
     }
 
     nav a {
@@ -175,9 +179,5 @@ footer {
 
     h2 {
         font-size: 1.2rem;
-    }
-
-    section {
-        margin-bottom: 1.5rem;
     }
 }

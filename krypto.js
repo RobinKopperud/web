@@ -1,13 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('crypto-form');
     const resultDiv = document.getElementById('price-result');
+    const serviceButtons = document.querySelectorAll('.service-btn');
 
     form.addEventListener('submit', function(event) {
         event.preventDefault();
         const cryptoName = document.getElementById('crypto-name').value;
         const timeFrame = document.getElementById('time-frame').value;
 
-        // Map timeFrame to Binance API parameter
         let interval;
         let limit;
         switch(timeFrame) {
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch(`https://api.binance.com/api/v3/klines?symbol=${cryptoName}USDT&interval=${interval}&limit=${limit}`)
             .then(response => response.json())
             .then(data => {
-                const highestPrices = data.map(candle => parseFloat(candle[2])); // High prices are at index 2 in the response
+                const highestPrices = data.map(candle => parseFloat(candle[2]));
                 const highestPrice = Math.max(...highestPrices);
 
                 resultDiv.innerHTML = `
@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     serviceButtons.forEach(button => {
         button.addEventListener('click', function() {
+            console.log('Button clicked:', this);  // Debugging line
             const service = this.getAttribute('data-service');
             const userMessage = prompt(`Beskriv hva du trenger hjelp med for ${service}:`);
 

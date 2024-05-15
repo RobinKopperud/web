@@ -11,15 +11,15 @@ document.addEventListener('DOMContentLoaded', function() {
         let interval;
         let limit;
         switch(timeFrame) {
-            case '1d':
+            case 'Dag':
                 interval = '1d';
                 limit = 1;
                 break;
-            case '7d':
+            case 'Uke':
                 interval = '1d';
                 limit = 7;
                 break;
-            case '1y':
+            case 'ÅR':
                 interval = '1w';
                 limit = 52;
                 break;
@@ -57,10 +57,19 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function sendEmail(service, message) {
-        const email = 'robinkopperud@robinkopperud.no';
-        const subject = `Hjelp med ${service}`;
-        const body = `Hei,\n\nJeg trenger hjelp med følgende:\n\n${message}\n\nMed vennlig hilsen,\n[Ditt Navn]`;
+        const xhr = new XMLHttpRequest();
+        const url = 'send_email.php';
+        const params = `service=${encodeURIComponent(service)}&message=${encodeURIComponent(message)}`;
 
-        window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        xhr.open('POST', url, true);
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                alert(xhr.responseText);
+            }
+        };
+
+        xhr.send(params);
     }
 });

@@ -141,3 +141,7 @@ footer {
     border: 1px solid #1b3f5c;
     outline: none;
 }
+
+iframe { size: fit; 
+    width: 100%;
+}

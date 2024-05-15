@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function sendMessageToBot(message) {
-        fetch('/api/chat', {
+        fetch('proxy.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -37,8 +37,8 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            if (data.reply) {
-                addMessageToChat('bot', data.reply);
+            if (data.choices && data.choices[0].message.content) {
+                addMessageToChat('bot', data.choices[0].message.content);
             }
         })
         .catch(error => {

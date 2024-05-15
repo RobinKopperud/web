@@ -142,8 +142,10 @@ footer {
     outline: none;
 }
 
-iframe { size: fit; 
+iframe { 
+    size: fit; 
     width: 100%;
+    min-height: fit-content;
 }
 
 #chat-container {

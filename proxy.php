@@ -3,12 +3,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $input = json_decode(file_get_contents('php://input'), true);
     $message = $input['message'];
 
-    $apiKey = 'din_openai_api_nøkkel';
+    $apiKey = 'din_openai_api_nokkel';
 
     $data = [
         'model' => 'gpt-4',
         'messages' => [
-            ['role' => 'system', 'content' => 'you shall answer in the same language that the user inputs, you should answer with a joke.'],
+            ['role' => 'system', 'content' => 'You are a helpful assistant.'],
             ['role' => 'user', 'content' => $message]
         ],
         'temperature' => 1,

@@ -1,9 +1,11 @@
 <?php
+include 'api_key.php';
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $input = json_decode(file_get_contents('php://input'), true);
     $message = $input['message'];
 
-    $apiKey = 'din_openai_api_nokkel';
+    $apiKey = OPENAI_API_KEY;
 
     $data = [
         'model' => 'gpt-4',

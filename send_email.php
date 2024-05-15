@@ -10,6 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $headers = 'From: ' . $userEmail . "\r\n" .
                'Reply-To: ' . $userEmail . "\r\n" .
                'Content-Type: text/plain; charset=UTF-8' . "\r\n" .
+               'MIME-Version: 1.0' . "\r\n" .  // Ensure MIME version 1.0
                'X-Mailer: PHP/' . phpversion();
 
     if (mail($to, $subject, $body, $headers)) {

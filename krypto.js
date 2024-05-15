@@ -58,17 +58,21 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function sendEmail(service, message, userEmail) {
-        const templateParams = {
-            service: service,
-            message: message,
-            user_email: userEmail
+        const xhr = new XMLHttpRequest();
+        const url = 'send_email.php';
+        const params = `service=${encodeURIComponent(service)}&message=${encodeURIComponent(message)}&userEmail=${encodeURIComponent(userEmail)}`;
+
+        xhr.open('POST', url, true);
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                alert(xhr.responseText);
+            } else if (xhr.readyState === 4) {
+                alert('Det oppstod en feil ved sending av e-posten.');
+            }
         };
 
-        emailjs.send('service_3yxqv4v', 'template_9n1t15d', templateParams)
-            .then(function(response) {
-                alert('E-posten ble sendt.', response.status, response.text);
-            }, function(error) {
-                alert('Det oppstod en feil ved sending av e-posten.', error);
-            });
+        xhr.send(params);
     }
 });

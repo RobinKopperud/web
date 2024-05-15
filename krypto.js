@@ -46,20 +46,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     serviceButtons.forEach(button => {
         button.addEventListener('click', function() {
-            console.log('Button clicked:', this);  // Debugging line
             const service = this.getAttribute('data-service');
-            const userMessage = prompt(`Beskriv hva du trenger hjelp med for ${service}:`);
+            const userEmail = prompt('Vennligst skriv inn din e-postadresse:');
+            if (!userEmail) return; // Avbryt hvis brukeren ikke skrev inn e-post
 
-            if (userMessage) {
-                sendEmail(service, userMessage);
-            }
+            const userMessage = prompt(`Beskriv hva du trenger hjelp med for ${service}:`);
+            if (!userMessage) return; // Avbryt hvis brukeren ikke skrev inn melding
+
+            sendEmail(service, userMessage, userEmail);
         });
     });
 
-    function sendEmail(service, message) {
+    function sendEmail(service, userEmail, message) {
         const xhr = new XMLHttpRequest();
         const url = 'send_email.php';
-        const params = `service=${encodeURIComponent(service)}&message=${encodeURIComponent(message)}`;
+        const params = `service=${encodeURIComponent(service)}&userEmail=${encodeURIComponent(userEmail)}&message=${encodeURIComponent(message)}`;
 
         xhr.open('POST', url, true);
         xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');

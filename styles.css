@@ -48,6 +48,16 @@ nav a:hover {
     padding: 1rem;
 }
 
+.container > section {
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 1rem;
+    flex: 1 1 calc(50% - 2rem); /* Makes sure sections are side by side with spacing */
+    min-width: 280px;
+}
+
 h2 {
     border-bottom: 2px solid #f0f4f8;
     padding-bottom: 0.5rem;

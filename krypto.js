@@ -4,22 +4,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     form.addEventListener('submit', function(event) {
         event.preventDefault();
-        const cryptoName = document.getElementById('crypto-name').value.trim().toUpperCase();
+        const cryptoName = document.getElementById('crypto-name').value;
         const timeFrame = document.getElementById('time-frame').value;
 
         // Map timeFrame to Binance API parameter
         let interval;
         let limit;
         switch(timeFrame) {
-            case 'siste dag':
+            case '1d':
                 interval = '1d';
                 limit = 1;
                 break;
-            case 'siste uke':
+            case '7d':
                 interval = '1d';
                 limit = 7;
                 break;
-            case 'siste år':
+            case '1y':
                 interval = '1w';
                 limit = 52;
                 break;
@@ -29,11 +29,11 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 const highestPrices = data.map(candle => parseFloat(candle[2])); // High prices are at index 2 in the response
+                const highestPrice = Math.max(...highestPrices);
+
                 resultDiv.innerHTML = `
                     <h3>${cryptoName} - Høyeste pris de siste ${timeFrame}:</h3>
-                    <p>$${highestPrices.toFixed(2)}</p>
                     <p>$${highestPrice.toFixed(2)}</p>
-
                 `;
             })
             .catch(error => {

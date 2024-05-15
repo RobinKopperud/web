@@ -3,32 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robin Kopperud - Personlig Nettside</title>
+    <title>Kryptopriser</title>
     <link rel="stylesheet" href="styles.css">
     <script defer src="krypto.js"></script>
-
-
 </head>
 <body>
     <header>
-        <h1>Robin Kopperud</h1>
-        <p>Nyutdannet innen IT | Nettverk | Brukerstøtte | IoT | AI | M365 |</p>
+        <h1>Kryptopriser</h1>
     </header>
     <nav>
         <a href="index.html#about">Om Meg</a>
         <a href="index.html#portfolio">Portefølje</a>
         <a href="index.html#contact">Kontakt</a>
         <a href="ai.html">AI Prosjekter</a>
-        <a href="krypto.html">KryptoTjeneste</a>
-
-
+        <a href="krypto.html">KryptoTjenester</a>
     </nav>
     <div class="container">
         <section id="krypto-prices">
             <h2>Søk etter kryptopriser</h2>
             <form id="crypto-form">
                 <label for="crypto-name">Kryptonavn:</label>
-                <input type="text" id="crypto-name" name="crypto-name" required>
+                <select id="crypto-name" name="crypto-name" required>
+                    <option value="BTC">Bitcoin (BTC)</option>
+                    <option value="ETH">Ethereum (ETH)</option>
+                    <option value="XRP">XRP (XRP)</option>
+                </select>
                 <label for="time-frame">Tidsramme:</label>
                 <select id="time-frame" name="time-frame" required>
                     <option value="1d">Siste dag</option>
@@ -39,7 +38,6 @@
             </form>
             <div id="price-result"></div>
         </section>
-    </div>
     </div>
     <footer>
         <p>&copy; 2024 Robin Kopperud. All rights reserved.</p>

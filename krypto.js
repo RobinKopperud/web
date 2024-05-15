@@ -43,15 +43,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error fetching crypto data:', error);
             });
     });
-});
 
+    serviceButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const service = this.getAttribute('data-service');
+            const userMessage = prompt(`Beskriv hva du trenger hjelp med for ${service}:`);
 
-// krypto.js
+            if (userMessage) {
+                sendEmail(service, userMessage);
+            }
+        });
+    });
 
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('crypto-form');
-    const resultDiv = document.getElementById('price-result');
-    const serviceButtons = document.querySelectorAll('.service-btn');
-    const modal = document.getElementById('service-modal');
-    const closeBtn = document.querySelector('.close-btn');
+    function sendEmail(service, message) {
+        const email = 'robinkopperud@robinkopperud.no';
+        const subject = `Hjelp med ${service}`;
+        const body = `Hei,\n\nJeg trenger hjelp med følgende:\n\n${message}\n\nMed vennlig hilsen,\n[Ditt Navn]`;
+
+        window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
 });

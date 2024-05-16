@@ -14,8 +14,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ['role' => 'user', 'content' => $message]
         ],
         'temperature' => 0.7, // Adjust the temperature
-        'max_tokens' => 150,  // Adjust max tokens
-        'top_p' => 1,
+        'max_tokens' => 60,  // Adjust max tokens
+        'top_p' => 0.6,
         'frequency_penalty' => 0,
         'presence_penalty' => 0,
     ];

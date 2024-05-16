@@ -212,37 +212,21 @@ footer {
     box-shadow: #333;
 }
 
-/* Announcement Section */
-#announcement {
+/* New Chat Indicator */
+#new-chat {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    transform: rotate(-45deg);
     background-color: #ffcc00;
-    color: #333;
-    padding: 2rem;
-    text-align: center;
-    border-radius: 10px;
-    margin: 2rem 0;
-}
-
-#announcement h2 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-}
-
-#announcement p {
-    font-size: 1.25rem;
-    margin-bottom: 1.5rem;
-}
-
-#announcement .button {
-    background-color: #336699;
-    color: #fff;
-    padding: 0.75rem 1.5rem;
-    text-decoration: none;
+    padding: 5px 10px;
     border-radius: 5px;
-    margin: 0.5rem;
-    transition: background-color 0.3s, color 0.3s;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-#announcement .button:hover {
-    background-color: #1b3f5c;
-    color: #ffcc00;
+#new-chat p {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #336699;
 }

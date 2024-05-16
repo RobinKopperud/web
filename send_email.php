@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Auto-reply to the user
     $replySubject = 'Bekreftelse: på ' . $service;
     $replyBody = "Hei,\n\nTakk for at du kontaktet oss angående $service.\n\nVi har mottatt din forespørsel og vil komme tilbake til deg så snart som mulig.\n\nMed vennlig hilsen,\nRobin Kopperud";
-    $replyHeaders = 'From: robinkopperud@robinkopperud.no' . "\r\n" .
+    $replyHeaders = 'From: crypto@robinkopperud.no' . "\r\n" .
                     'Reply-To: robinkopperud@robinkopperud.no' . "\r\n" .
                     'Content-Type: text/plain; charset=UTF-8' . "\r\n" .
                     'MIME-Version: 1.0' . "\r\n" .

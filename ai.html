@@ -59,6 +59,20 @@
                 <button id="send-btn">Send</button>
             </div>
         </section>
+        <section id="comments">
+            <h2>Legg inn en kommentar</h2>
+            <form id="comment-form" action="submit_comment.php" method="POST">
+                <label for="username">Brukernavn:</label>
+                <input type="text" id="username" name="username" required>
+                <label for="comment">Kommentar:</label>
+                <textarea id="comment" name="comment" rows="4" required></textarea>
+                <button type="submit">Send</button>
+            </form>
+            <h2>Kommentarer</h2>
+            <div id="comment-section">
+                <?php include 'fetch_comments.php'; ?>
+            </div>
+        </section>
         
     </div>
     

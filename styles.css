@@ -225,7 +225,7 @@ footer {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
-#new-chat p {
+#new-chat a {
     margin: 0;
     font-size: 1.25rem;
     font-weight: bold;

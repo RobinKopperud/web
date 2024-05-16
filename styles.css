@@ -230,11 +230,9 @@ footer .version {
 }
 
 #iframe{
-    min-height: 700px;
+    height: auto;
     box-shadow: #333;
-    width: fit-content;
-    align-self: auto;
-    
+    width: fit-content;    
 }
 
 /* New Chat Indicator */

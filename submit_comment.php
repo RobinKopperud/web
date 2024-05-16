@@ -10,7 +10,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-$servername = "localhost";
+$servername = "cpses_jmcj4zded8@localhost";
 $username = "jmntxjwa_AI";
 $password = "ai-Admin";
 $dbname = "jmntxjwa_users";

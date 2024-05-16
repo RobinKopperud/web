@@ -124,7 +124,16 @@ footer {
     padding: 1rem;
     background-color: #336699;
     color: #fff;
-    position: relative;
+}
+
+footer .footer-left,
+footer .footer-right {
+    flex: 1;
+}
+
+footer .footer-center {
+    flex: 2;
+    text-align: center;
 }
 
 footer p {

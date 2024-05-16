@@ -146,7 +146,6 @@ footer {
 
 #chat-container {
     width: 100%;
-    max-width: 600px;
     margin: 0 auto;
     padding: 1rem;
     background-color: #fff;
@@ -171,12 +170,12 @@ footer {
 
 #chat-box .user-message {
     text-align: right;
-    color: #333;
+    color: #d40303;
 }
 
 #chat-box .bot-message {
     text-align: left;
-    color: #1b3f5c;
+    color: #059912;
 }
 
 #chat-input {

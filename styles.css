@@ -58,6 +58,7 @@ nav a:hover {
     min-width: 280px;
     max-width: 45%;
     height: fit-content;
+    text-align: center;
 }
 
 h2 {
@@ -231,6 +232,8 @@ footer .version {
 #iframe{
     min-height: 700px;
     box-shadow: #333;
+    width: fit-content;
+    align-self: auto;
     
 }
 

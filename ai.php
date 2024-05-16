@@ -13,7 +13,7 @@
     </header>
     <nav>
         <a href="index.html#about">Om Meg</a>
-        <a href="ai.html">AI Prosjekter</a>
+        <a href="ai.php">AI Prosjekter</a>
         <a href="krypto.html">KryptoTjeneste</a>
 
     </nav>

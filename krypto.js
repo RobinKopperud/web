@@ -11,15 +11,15 @@ document.addEventListener('DOMContentLoaded', function() {
         let interval;
         let limit;
         switch(timeFrame) {
-            case '1d':
+            case 'dag':
                 interval = '1d';
                 limit = 1;
                 break;
-            case '1w':
-                interval = '1w';
+            case 'uke':
+                interval = '7d';
                 limit = 7;
                 break;
-            case '1y':
+            case 'år':
                 interval = '1w';
                 limit = 52;
                 break;

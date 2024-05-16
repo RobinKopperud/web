@@ -1,22 +1,26 @@
 <?php
-include '../api_key.php';
+include '../api_key.php'; // Adjust the path if necessary
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $input = json_decode(file_get_contents('php://input'), true);
     $message = $input['message'];
+    $systemMessage = isset($input['system_message']) ? $input['system_message'] : 'You are a helpful assistant.';
+    $model = isset($input['model']) ? $input['model'] : 'gpt-4';
+    $temperature = isset($input['temperature']) ? $input['temperature'] : 1;
+    $max_tokens = isset($input['max_tokens']) ? $input['max_tokens'] : 256;
 
     $apiKey = OPENAI_API_KEY;
 
     $data = [
-        'model' => 'gpt-3.5',
+        'model' => $model,
         'messages' => [
-            ['role' => 'system', 'content' => 'Du er en som elsker krypto og vil prøve å få brukeren til å sjekke ut en av tjenestene til Robin Kopperud'],
+            ['role' => 'system', 'content' => $systemMessage],
             ['role' => 'user', 'content' => $message]
         ],
-        'temperature' => 0.8,
-        'max_tokens' => 150,
-        'top_p' => 0.7,
-        'frequency_penalty' => 1,
+        'temperature' => $temperature,
+        'max_tokens' => $max_tokens,
+        'top_p' => 1,
+        'frequency_penalty' => 0,
         'presence_penalty' => 0,
     ];
 

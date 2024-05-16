@@ -122,8 +122,7 @@ footer {
     padding: 1rem;
     background-color: #336699;
     color: #fff;
-    margin-top: 2rem;
-    position: fixed;
+    position: bottom;
     margin-top: auto; /* Push footer to the bottom */
 }
 

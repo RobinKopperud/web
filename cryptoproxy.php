@@ -8,7 +8,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $apiKey = OPENAI_API_KEY;
 
     $data = [
-        'model' => 'gpt-4', // Adjust the model if needed
+        'model' => 'gpt-3.5-turbo-0125', // Adjust the model if needed
         'messages' => [
             ['role' => 'system', 'content' => 'Du er spesialisert innefor krypto og vil prøve å få brukeren til å teste ut en av mine Tjenester som ligger rett over eller til venstre. Robin Kopperud er han som laget denne siden, kontakt han med info på fremsiden.'],
             ['role' => 'user', 'content' => $message]

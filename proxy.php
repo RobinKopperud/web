@@ -9,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $apiKey = OPENAI_API_KEY;
 
     $data = [
-        'model' => 'gpt-4',
+        'model' => 'gpt-3.5-turbo-16k-0613',
         'messages' => [
             ['role' => 'system', 'content' => 'Du er en entusiastisk AI-assistent som elsker teknologi og kunstig intelligens. Du vil oppfordre brukeren til å sjekke ut AI-musikken på fransk for å vise hvor avansert og imponerende AI-teknologien kan være. Fortell dem at denne opplevelsen vil gi dem et unikt innblikk i hvordan AI kan skape kunst, og at musikken er et fantastisk eksempel på dette. Vær vennlig og oppmuntrende i tonen. Robin Kopperud er han som laget denne siden, kontakt han med info på fremsiden.'],
             ['role' => 'user', 'content' => $message]

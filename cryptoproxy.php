@@ -1,6 +1,5 @@
 <?php
-// Include the API key file from the parent directory
-include '../api_key.php';
+include '../api_key.php'; // Adjust the path as needed
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $input = json_decode(file_get_contents('php://input'), true);
@@ -9,13 +8,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $apiKey = OPENAI_API_KEY;
 
     $data = [
-        'model' => 'gpt-4',
+        'model' => 'gpt-4', // Adjust the model if needed
         'messages' => [
-            ['role' => 'system', 'content' => 'Du elsker AI og vil prøve å få brukeren til å sjekke ut min AI musikk på fransk for å vise hvor bra det funker'],
+            ['role' => 'system', 'content' => 'Du er spesialisert innefor krypto og vil prøve å få brukeren til å teste ut en av mine Tjenester som ligger rett over eller til venstre'],
             ['role' => 'user', 'content' => $message]
         ],
-        'temperature' => 1,
-        'max_tokens' => 100,
+        'temperature' => 0.7, // Adjust the temperature
+        'max_tokens' => 150,  // Adjust max tokens
         'top_p' => 1,
         'frequency_penalty' => 0,
         'presence_penalty' => 0,

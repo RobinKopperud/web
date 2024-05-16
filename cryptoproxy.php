@@ -8,15 +8,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $apiKey = OPENAI_API_KEY;
 
     $data = [
-        'model' => 'gpt-4',
+        'model' => 'gpt-3.5',
         'messages' => [
-            ['role' => 'system', 'content' => 'Du skal alltid gi svaret bakt inn i en vits, og alltid svare på samme språk som du mottar'],
+            ['role' => 'system', 'content' => 'Du er en som elsker krypto og vil prøve å få brukeren til å sjekke ut en av tjenestene til Robin Kopperud'],
             ['role' => 'user', 'content' => $message]
         ],
-        'temperature' => 1,
-        'max_tokens' => 256,
-        'top_p' => 1,
-        'frequency_penalty' => 0,
+        'temperature' => 0.8,
+        'max_tokens' => 150,
+        'top_p' => 0.7,
+        'frequency_penalty' => 1,
         'presence_penalty' => 0,
     ];
 

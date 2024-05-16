@@ -1,24 +1,21 @@
 <?php
-include '../api_key.php'; // Adjust the path if necessary
+// Include the API key file from the parent directory
+include '../api_key.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $input = json_decode(file_get_contents('php://input'), true);
     $message = $input['message'];
-    $systemMessage = isset($input['system_message']) ? $input['system_message'] : 'You are a helpful assistant.';
-    $model = isset($input['model']) ? $input['model'] : 'gpt-4';
-    $temperature = isset($input['temperature']) ? $input['temperature'] : 1;
-    $max_tokens = isset($input['max_tokens']) ? $input['max_tokens'] : 256;
 
     $apiKey = OPENAI_API_KEY;
 
     $data = [
-        'model' => $model,
+        'model' => 'gpt-4',
         'messages' => [
-            ['role' => 'system', 'content' => $systemMessage],
+            ['role' => 'system', 'content' => 'You are a helpful assistant.'],
             ['role' => 'user', 'content' => $message]
         ],
-        'temperature' => $temperature,
-        'max_tokens' => $max_tokens,
+        'temperature' => 1,
+        'max_tokens' => 256,
         'top_p' => 1,
         'frequency_penalty' => 0,
         'presence_penalty' => 0,

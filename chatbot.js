@@ -3,14 +3,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatInput = document.getElementById('chat-input');
     const sendBtn = document.getElementById('send-btn');
 
-    const systemMessage = 'You are a helpful assistant for AI projects.'; // Example system message
-
     sendBtn.addEventListener('click', function() {
         const userMessage = chatInput.value.trim();
         if (userMessage) {
             addMessageToChat('user', userMessage);
             chatInput.value = '';
-            sendMessageToBot(userMessage, systemMessage);
+            sendMessageToBot(userMessage);
         }
     });
 
@@ -29,13 +27,13 @@ document.addEventListener('DOMContentLoaded', function() {
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    function sendMessageToBot(userMessage, systemMessage) {
+    function sendMessageToBot(message) {
         fetch('proxy.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ message: userMessage, system_message: systemMessage, model: 'gpt-4', temperature: 1, max_tokens: 256 })
+            body: JSON.stringify({ message })
         })
         .then(response => response.json())
         .then(data => {

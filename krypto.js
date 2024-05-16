@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 limit = 1;
                 break;
             case 'uke':
-                interval = '1d';
-                limit = 7;
+                interval = '1w';
+                limit = 1;
                 break;
             case 'år':
                 interval = '1w';

@@ -211,3 +211,38 @@ footer {
     min-height: 500px;
     box-shadow: #333;
 }
+
+/* Announcement Section */
+#announcement {
+    background-color: #ffcc00;
+    color: #333;
+    padding: 2rem;
+    text-align: center;
+    border-radius: 10px;
+    margin: 2rem 0;
+}
+
+#announcement h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+#announcement p {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+#announcement .button {
+    background-color: #336699;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    border-radius: 5px;
+    margin: 0.5rem;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+#announcement .button:hover {
+    background-color: #1b3f5c;
+    color: #ffcc00;
+}

@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 limit = 1;
                 break;
             case '1w':
-                interval = '1d';
+                interval = '1w';
                 limit = 7;
                 break;
             case '1y':

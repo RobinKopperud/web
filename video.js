@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
         no: 'https://www.youtube.com/embed/mXY1RWmEwsI', // Original video for Norwegian
         da: 'https://www.youtube.com/embed/vqIVGnf88fs',
         en: 'https://www.youtube.com/embed/Z6XRqcpU5dY',
-        OL: 'https://www.youtube.com/embed/Z6XRqcpU5dY'
+        OL: 'https://www.youtube.com/embed/iwzyF4P7CCQ'
 
 
     };

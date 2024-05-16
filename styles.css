@@ -203,3 +203,12 @@ iframe {
 #send-btn:hover {
     background-color: #1b3f5c;
 }
+#video-container {
+    margin-top: 20px;
+}
+
+#video-frame {
+    width: 100%;
+    height: 315px;
+}
+

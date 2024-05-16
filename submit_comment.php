@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt = $conn->prepare("INSERT INTO comments (username, comment) VALUES (?, ?)");
     $stmt->bind_param("ss", $username, $comment);
     if ($stmt->execute()) {
-        header("Location: ai.html#comments");
+        header("Location: ai.php#comments");
         exit();
     } else {
         echo "Feil ved lagring av kommentar.";

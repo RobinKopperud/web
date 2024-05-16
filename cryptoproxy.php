@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         ],
         'temperature' => 0.7, // Adjust the temperature
         'max_tokens' => 80,  // Adjust max tokens
-        'top_p' => 0.6,
+        'top_p' => 0.3,
         'frequency_penalty' => 0.7,
         'presence_penalty' => 0.3,
     ];

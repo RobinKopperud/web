@@ -10,11 +10,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $data = [
         'model' => 'gpt-4', // Adjust the model if needed
         'messages' => [
-            ['role' => 'system', 'content' => 'Du er spesialisert innefor krypto og vil prøve å få brukeren til å teste ut en av mine Tjenester som ligger rett over eller til venstre'],
+            ['role' => 'system', 'content' => 'Du er spesialisert innefor krypto og vil prøve å få brukeren til å teste ut en av mine Tjenester som ligger rett over eller til venstre. Robin Kopperud er han som laget denne siden, kontakt han med info på fremsiden.'],
             ['role' => 'user', 'content' => $message]
         ],
         'temperature' => 0.7, // Adjust the temperature
-        'max_tokens' => 60,  // Adjust max tokens
+        'max_tokens' => 80,  // Adjust max tokens
         'top_p' => 0.6,
         'frequency_penalty' => 0.7,
         'presence_penalty' => 0.3,

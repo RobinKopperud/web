@@ -118,17 +118,24 @@ form button:hover {
 
 /* Footer styles */
 footer {
-    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 1rem;
     background-color: #336699;
     color: #fff;
-    position: bottom;
-    margin-top: auto; /* Push footer to the bottom */
+    position: relative;
 }
+
+footer p {
+    margin: 0;
+}
+
 footer .version {
     margin: 0;
     font-size: 1rem;
 }
+
 
 /* Button styles */
 .service-btn {

@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $data = [
         'model' => 'gpt-4',
         'messages' => [
-            ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+            ['role' => 'system', 'content' => 'Du skal alltid gi svaret bakt inn i en vits, og alltid svare på samme språk som du mottar'],
             ['role' => 'user', 'content' => $message]
         ],
         'temperature' => 1,

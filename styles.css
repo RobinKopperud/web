@@ -57,6 +57,7 @@ nav a:hover {
     flex: 1;
     min-width: 280px;
     max-width: 45%;
+    height: fit-content;
 }
 
 h2 {
@@ -123,7 +124,7 @@ footer {
     color: #fff;
     margin-top: 2rem;
     position: fixed;
-    min-height: 2em;
+    margin-top: auto; /* Push footer to the bottom */
 }
 
 /* Button styles */
@@ -142,12 +143,6 @@ footer {
     color: #1b3f5c;
     border: 1px solid #1b3f5c;
     outline: none;
-}
-
-iframe { 
-    size: fit; 
-    width: 100%;
-    min-height: fit-content;
 }
 
 #chat-container {

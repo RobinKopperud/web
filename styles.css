@@ -208,20 +208,21 @@ footer {
 }
 
 #iframe{
-    min-height: 500px;
+    min-height: 700px;
     box-shadow: #333;
+    
 }
 
 /* New Chat Indicator */
 #new-chat {
-    position: absolute;
-    top: 10px;
+    position: fixed;
+    top: 50px;
     right: 10px;
-    transform: rotate(-45deg);
+    transform: rotate(-25deg);
     background-color: #ffcc00;
     padding: 5px 10px;
     border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
 #new-chat p {

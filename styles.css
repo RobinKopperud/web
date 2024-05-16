@@ -125,6 +125,10 @@ footer {
     position: bottom;
     margin-top: auto; /* Push footer to the bottom */
 }
+footer .version {
+    margin: 0;
+    font-size: 1rem;
+}
 
 /* Button styles */
 .service-btn {
@@ -227,6 +231,7 @@ footer {
 
 #new-chat a {
     margin: 0;
+    text-decoration: none;
     font-size: 1.25rem;
     font-weight: bold;
     color: #336699;

@@ -32,7 +32,7 @@ if (!isset($_SESSION['user_id'])) {
             <div id="player"></div>
         </div>
         <div id="score">Score: 0</div>
-        <div id="submit-score">
+        <div id="submit-score" style="display: none;">
             <button id="submit-btn">Submit Score</button>
         </div>
         <div id="highscores">

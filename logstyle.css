@@ -11,7 +11,7 @@ body, html {
 }
 
 #matrix-container {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -31,7 +31,7 @@ body, html {
     position: relative;
     width: 300px;
     padding: 20px;
-    background: rgba(0, 0, 0, 0.7); /* Adjust opacity here */
+    background: rgba(0, 0, 0, 0.9); /* Adding opacity */
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     overflow: hidden;

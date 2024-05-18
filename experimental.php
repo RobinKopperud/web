@@ -166,6 +166,11 @@ if (!isset($_SESSION['user_id'])) {
                     } else {
                         object.style.top = `${objectTop + 5}px`; // Adjust falling speed
                     }
+                    // Remove the object if it goes out of the playing area
+                    if (objectTop > gameContainer.offsetHeight) {
+                        clearInterval(fallingInterval);
+                        gameContainer.removeChild(object);
+                    }
                 }, 30);
             }
 

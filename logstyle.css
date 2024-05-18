@@ -23,8 +23,9 @@ body, html {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: fit-content;
-    width: fit-content;
+    height: 100%;
+    width: 100%;
+    position: absolute;
     top: 0;
     left: 0;
 }

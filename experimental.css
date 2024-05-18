@@ -14,7 +14,7 @@ body {
 
 header {
     width: 100%;
-    background-color: #ff5e62;
+    background-color: #20a000;
     padding: 10px 0;
     text-align: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -34,13 +34,13 @@ nav a {
     text-decoration: none;
     margin: 0 15px;
     padding: 10px 15px;
-    background-color: #ff9966;
+    background-color: #2f9905;
     border-radius: 5px;
     transition: background-color 0.3s;
 }
 
 nav a:hover {
-    background-color: #ff5e62;
+    background-color: #05e937;
 }
 
 .container {
@@ -61,7 +61,7 @@ nav a:hover {
 .container h2 {
     font-size: 2em;
     margin-bottom: 20px;
-    color: #ff5e62;
+    color: #f70004;
 }
 
 .game-container {
@@ -91,7 +91,7 @@ nav a:hover {
 .object {
     width: 30px;
     height: 30px;
-    background-color: #ff9966;
+    background-color: #2f9905;
     position: absolute;
     top: 0;
     border-radius: 50%;
@@ -102,7 +102,7 @@ nav a:hover {
     text-align: center;
     margin-top: 20px;
     font-size: 1.5em;
-    color: #ff5e62;
+    color: #ff5e5e;
 }
 
 #controls {

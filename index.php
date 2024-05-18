@@ -26,7 +26,7 @@ $is_logged_in = isset($_SESSION['user_id']);
             <a href="experimental.php">Experimental</a>
             <a href="logout.php">Logg ut</a>
         <?php else: ?>
-            <a href="loginout.php">Logg inn/Registrer</a>
+            <a href="loginout.html">Logg inn/Registrer</a>
         <?php endif; ?>
     </nav>
     <div id="new-chat">

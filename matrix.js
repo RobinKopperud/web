@@ -1,6 +1,6 @@
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
-document.getElementById('matrix-container').appendChild(canvas);
+document.body.appendChild(canvas);
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;

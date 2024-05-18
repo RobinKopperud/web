@@ -19,8 +19,6 @@ if (!isset($_SESSION['user_id'])) {
         <h1>Experimental</h1>
         <nav>
             <a href="index.php">Home</a>
-            <a href="ai.php">AI Projects</a>
-            <a href="krypto.html">KryptoTjeneste</a>
             <a href="logout.php">Logg ut</a>
         </nav>
     </header>

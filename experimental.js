@@ -87,10 +87,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 object.style.top = `${objectTop + 5}px`; // Adjust falling speed
             }
 
-            // Remove the object if it goes out of the playing area
-            if (objectTop > gameContainer.offsetHeight) {
+            // Stop the game if the object reaches the bottom of the playing area
+            if (objectTop >= gameContainer.offsetHeight) {
                 clearInterval(fallingInterval);
-                gameContainer.removeChild(object);
+                stopGame();
             }
         }, 30);
     }

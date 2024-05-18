@@ -12,7 +12,7 @@
         <p>Nyutdannet innen IT | Nettverk | Brukerstøtte | IoT | AI | M365 |</p>
     </header>
     <nav>
-        <a href="index.html#about">Om Meg</a>
+        <a href="index.php">Om Meg</a>
         <a href="ai.php">AI Prosjekter</a>
         <a href="krypto.html">KryptoTjeneste</a>
 

@@ -17,7 +17,8 @@ if (!isset($_SESSION['user_id'])) {
         /* Additional CSS for the game */
         .game-container {
             width: 100%;
-            max-width: 600px;
+            max-width: 800px; /* Increased the width */
+            height: 600px; /* Set a height for the game container */
             margin: 0 auto;
             border: 2px solid #333;
             position: relative;
@@ -34,8 +35,8 @@ if (!isset($_SESSION['user_id'])) {
             transform: translateX(-50%);
         }
         .object {
-            width: 20px;
-            height: 20px;
+            width: 30px;
+            height: 30px;
             background-color: green;
             position: absolute;
             top: 0;
@@ -45,8 +46,8 @@ if (!isset($_SESSION['user_id'])) {
             margin-top: 20px;
             font-size: 1.5em;
         }
-        .h2{
-            color: black
+        h2{
+            color: black;
         }
     </style>
 </head>
@@ -73,38 +74,36 @@ if (!isset($_SESSION['user_id'])) {
             const gameContainer = document.getElementById('game-container');
             const scoreDisplay = document.getElementById('score');
             let score = 0;
-            let gameInterval;
-            let objectInterval;
-            
+
             function startGame() {
-                gameInterval = setInterval(() => {
+                setInterval(() => {
                     createFallingObject();
                 }, 1000);
-                
+
                 document.addEventListener('keydown', movePlayer);
             }
-            
+
             function movePlayer(event) {
                 const left = parseInt(window.getComputedStyle(player).getPropertyValue("left"));
                 if (event.key === 'ArrowLeft' && left > 0) {
-                    player.style.left = `${left - 10}px`;
+                    player.style.left = `${left - 20}px`; // Increase the movement step
                 } else if (event.key === 'ArrowRight' && left < gameContainer.offsetWidth - player.offsetWidth) {
-                    player.style.left = `${left + 10}px`;
+                    player.style.left = `${left + 20}px`; // Increase the movement step
                 }
             }
-            
+
             function createFallingObject() {
                 const object = document.createElement('div');
                 object.classList.add('object');
-                object.style.left = `${Math.floor(Math.random() * (gameContainer.offsetWidth - 20))}px`;
+                object.style.left = `${Math.floor(Math.random() * (gameContainer.offsetWidth - 30))}px`; // Adjust for object width
                 gameContainer.appendChild(object);
-                
+
                 let fallingInterval = setInterval(() => {
                     const objectTop = parseInt(window.getComputedStyle(object).getPropertyValue("top"));
-                    if (objectTop > gameContainer.offsetHeight - player.offsetHeight) {
+                    if (objectTop > gameContainer.offsetHeight - player.offsetHeight - 10) {
                         clearInterval(fallingInterval);
                         gameContainer.removeChild(object);
-                        
+
                         // Check for collision
                         const playerLeft = parseInt(window.getComputedStyle(player).getPropertyValue("left"));
                         const objectLeft = parseInt(window.getComputedStyle(object).getPropertyValue("left"));
@@ -113,11 +112,11 @@ if (!isset($_SESSION['user_id'])) {
                             scoreDisplay.textContent = `Score: ${score}`;
                         }
                     } else {
-                        object.style.top = `${objectTop + 5}px`;
+                        object.style.top = `${objectTop + 5}px`; // Adjust falling speed
                     }
-                }, 50);
+                }, 30);
             }
-            
+
             startGame();
         });
     </script>

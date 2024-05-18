@@ -25,7 +25,6 @@ body, html {
     align-items: center;
     height: fit-content;
     width: fit-content;
-    position: absolute;
     top: 0;
     left: 0;
 }

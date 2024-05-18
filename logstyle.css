@@ -104,7 +104,7 @@ button:hover {
 @media (max-width: 600px) {
 	.main {
 		width: 90%;
-		height: auto;
+		height: 100vh;
 		padding: 20px;
 	}
 
@@ -134,6 +134,11 @@ button:hover {
 	label {
 		font-size: 1.5em;
 		margin: 20px;
+	}
+	.main {
+		width: 90%;
+		height: 100vh;
+		padding: 20px;
 	}
 
 	input {

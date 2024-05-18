@@ -46,6 +46,16 @@ if (!isset($_SESSION['user_id'])) {
             margin-top: 20px;
             font-size: 1.5em;
         }
+        #controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        #start-btn, #stop-btn {
+            padding: 10px 20px;
+            font-size: 1em;
+            margin: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -60,6 +70,10 @@ if (!isset($_SESSION['user_id'])) {
     </header>
     <div class="container">
         <h2>Simple Game: Catch the Falling Objects</h2>
+        <div id="controls">
+            <button id="start-btn">Start</button>
+            <button id="stop-btn" disabled>Stop</button>
+        </div>
         <div class="game-container" id="game-container">
             <div id="player"></div>
         </div>
@@ -70,16 +84,38 @@ if (!isset($_SESSION['user_id'])) {
             const player = document.getElementById('player');
             const gameContainer = document.getElementById('game-container');
             const scoreDisplay = document.getElementById('score');
+            const startBtn = document.getElementById('start-btn');
+            const stopBtn = document.getElementById('stop-btn');
             let score = 0;
+            let gameInterval;
+            let isGameRunning = false;
 
             function startGame() {
-                setInterval(() => {
+                if (isGameRunning) return;
+                isGameRunning = true;
+                score = 0;
+                scoreDisplay.textContent = `Score: ${score}`;
+                gameInterval = setInterval(() => {
                     createFallingObject();
                 }, 1000);
 
                 document.addEventListener('keydown', movePlayer);
                 gameContainer.addEventListener('touchstart', handleTouch);
                 gameContainer.addEventListener('touchmove', handleTouch);
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+            }
+
+            function stopGame() {
+                clearInterval(gameInterval);
+                isGameRunning = false;
+                document.removeEventListener('keydown', movePlayer);
+                gameContainer.removeEventListener('touchstart', handleTouch);
+                gameContainer.removeEventListener('touchmove', handleTouch);
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                // Remove all falling objects
+                document.querySelectorAll('.object').forEach(obj => obj.remove());
             }
 
             function movePlayer(event) {
@@ -117,7 +153,10 @@ if (!isset($_SESSION['user_id'])) {
                         // Check for collision
                         const playerLeft = parseInt(window.getComputedStyle(player).getPropertyValue("left"));
                         const objectLeft = parseInt(window.getComputedStyle(object).getPropertyValue("left"));
-                        if (objectLeft > playerLeft && objectLeft < playerLeft + player.offsetWidth) {
+                        const playerRight = playerLeft + player.offsetWidth;
+                        const objectRight = objectLeft + object.offsetWidth;
+                        
+                        if (objectLeft < playerRight && objectRight > playerLeft) {
                             score++;
                             scoreDisplay.textContent = `Score: ${score}`;
                         }
@@ -127,7 +166,8 @@ if (!isset($_SESSION['user_id'])) {
                 }, 30);
             }
 
-            startGame();
+            startBtn.addEventListener('click', startGame);
+            stopBtn.addEventListener('click', stopGame);
         });
     </script>
 </body>

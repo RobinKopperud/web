@@ -268,7 +268,7 @@ footer .version {
 }
 #comment-section{
     max-height: 300 px;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 #comment-form {

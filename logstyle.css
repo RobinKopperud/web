@@ -25,6 +25,8 @@ body, html {
     align-items: center;
     height: 100%;
     position: relative;
+	background: rgba(0, 0, 0, 0.9); /* Adding opacity */
+	box-sizing: border-box;
 }
 
 .form-container {

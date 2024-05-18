@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login/Registration</title>
     <link rel="stylesheet" href="logstyle.css">
-    <script src="matrix.js" defer></script>
 </head>
 <body>
-    <canvas id="matrix"></canvas>
+    <div id="matrix-container"></div>
     <div class="container">
         <div class="form-container">
             <div class="tabs">
@@ -28,14 +27,15 @@
                 <form id="registration-form" action="registration_process.php" method="POST">
                     <h2>Register</h2>
                     <input type="text" name="username" placeholder="Username" required>
-					<input type="email" name="email" placeholder="Email" required>
                     <input type="password" name="password" placeholder="Password" required>
+                    <input type="email" name="email" placeholder="Email" required>
                     <button type="submit">Register</button>
                 </form>
             </div>
         </div>
     </div>
 
+    <script src="matrix.js" defer></script>
     <script>
         function showLogin() {
             document.getElementById('login-tab').classList.add('active');

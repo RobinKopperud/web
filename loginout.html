@@ -5,15 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login/Registration</title>
     <link rel="stylesheet" href="logstyle.css">
-    <script src="matrix.js"></script>
+    <script src="matrix.js" defer></script>
 </head>
 <body>
     <canvas id="matrix"></canvas>
     <div class="container">
         <div class="form-container">
-            <input type="radio" id="login-toggle" name="toggle" checked>
-            <input type="radio" id="register-toggle" name="toggle">
-
+            <div class="tabs">
+                <button id="login-tab" class="active" onclick="showLogin()">Login</button>
+                <button id="register-tab" onclick="showRegister()">Register</button>
+            </div>
             <div class="form-wrapper">
                 <!-- Login Form -->
                 <form id="login-form" action="login_process.php" method="POST">
@@ -27,15 +28,26 @@
                 <form id="registration-form" action="registration_process.php" method="POST">
                     <h2>Register</h2>
                     <input type="text" name="username" placeholder="Username" required>
+					<input type="email" name="email" placeholder="Email" required>
                     <input type="password" name="password" placeholder="Password" required>
-                    <input type="email" name="email" placeholder="Email" required>
                     <button type="submit">Register</button>
                 </form>
             </div>
-
-            <label for="login-toggle" class="toggle-button">Login</label>
-            <label for="register-toggle" class="toggle-button">Register</label>
         </div>
     </div>
+
+    <script>
+        function showLogin() {
+            document.getElementById('login-tab').classList.add('active');
+            document.getElementById('register-tab').classList.remove('active');
+            document.querySelector('.form-wrapper').style.transform = 'translateX(0)';
+        }
+
+        function showRegister() {
+            document.getElementById('login-tab').classList.remove('active');
+            document.getElementById('register-tab').classList.add('active');
+            document.querySelector('.form-wrapper').style.transform = 'translateX(-50%)';
+        }
+    </script>
 </body>
 </html>

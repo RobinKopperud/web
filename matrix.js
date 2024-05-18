@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', function () {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const letters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    const fontSize = 16;
+    const letters = Array(256).join(1).split('');
+    const fontSize = 14;
     const columns = canvas.width / fontSize;
     const drops = [];
 

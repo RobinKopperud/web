@@ -27,13 +27,13 @@ if (!isset($_SESSION['user_id'])) {
         <h1>Welcome to the Gaming Hub</h1>
         <div class="game-list">
             <div class="game">
-                <a href="game1/index.php">
+                <a href="game1/game1.php">
                     <img src="images/game1.png" alt="Game 1">
                     <h2>Game 1</h2>
                 </a>
             </div>
             <div class="game">
-                <a href="game2/index.php">
+                <a href="game2/game2.php">
                     <img src="images/game2.png" alt="Game 2">
                     <h2>Game 2</h2>
                 </a>

@@ -41,6 +41,9 @@ if (!isset($_SESSION['user_id'])) {
             position: absolute;
             top: 0;
         }
+        h2{
+            color: black;
+        }
         #score {
             text-align: center;
             margin-top: 20px;
@@ -147,18 +150,18 @@ if (!isset($_SESSION['user_id'])) {
                 let fallingInterval = setInterval(() => {
                     const objectTop = parseInt(window.getComputedStyle(object).getPropertyValue("top"));
                     if (objectTop > gameContainer.offsetHeight - player.offsetHeight - 10) {
-                        clearInterval(fallingInterval);
-                        gameContainer.removeChild(object);
-
                         // Check for collision
-                        const playerLeft = parseInt(window.getComputedStyle(player).getPropertyValue("left"));
-                        const objectLeft = parseInt(window.getComputedStyle(object).getPropertyValue("left"));
-                        const playerRight = playerLeft + player.offsetWidth;
-                        const objectRight = objectLeft + object.offsetWidth;
+                        const playerRect = player.getBoundingClientRect();
+                        const objectRect = object.getBoundingClientRect();
                         
-                        if (objectLeft < playerRight && objectRight > playerLeft) {
+                        if (objectRect.left < playerRect.right && objectRect.right > playerRect.left && objectRect.top < playerRect.bottom && objectRect.bottom > playerRect.top) {
                             score++;
                             scoreDisplay.textContent = `Score: ${score}`;
+                            clearInterval(fallingInterval);
+                            gameContainer.removeChild(object);
+                        } else if (objectTop >= gameContainer.offsetHeight - 30) {
+                            clearInterval(fallingInterval);
+                            gameContainer.removeChild(object);
                         }
                     } else {
                         object.style.top = `${objectTop + 5}px`; // Adjust falling speed

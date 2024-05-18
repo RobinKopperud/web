@@ -45,6 +45,9 @@ if (!isset($_SESSION['user_id'])) {
             margin-top: 20px;
             font-size: 1.5em;
         }
+        .h2{
+            color: black
+        }
     </style>
 </head>
 <body>

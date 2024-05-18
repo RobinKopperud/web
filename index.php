@@ -19,7 +19,7 @@ $is_logged_in = isset($_SESSION['user_id']);
     </header>
     
     <nav>
-        <a href="index.php#about">Om Meg</a>
+        <a href="index.php">Om Meg</a>
         <a href="ai.php">AI Prosjekter</a>
         <a href="krypto.html">KryptoTjeneste</a>
         <?php if ($is_logged_in): ?>

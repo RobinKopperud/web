@@ -46,9 +46,6 @@ if (!isset($_SESSION['user_id'])) {
             margin-top: 20px;
             font-size: 1.5em;
         }
-        h2{
-            color: black;
-        }
     </style>
 </head>
 <body>
@@ -81,6 +78,8 @@ if (!isset($_SESSION['user_id'])) {
                 }, 1000);
 
                 document.addEventListener('keydown', movePlayer);
+                gameContainer.addEventListener('touchstart', handleTouch);
+                gameContainer.addEventListener('touchmove', handleTouch);
             }
 
             function movePlayer(event) {
@@ -89,6 +88,17 @@ if (!isset($_SESSION['user_id'])) {
                     player.style.left = `${left - 20}px`; // Increase the movement step
                 } else if (event.key === 'ArrowRight' && left < gameContainer.offsetWidth - player.offsetWidth) {
                     player.style.left = `${left + 20}px`; // Increase the movement step
+                }
+            }
+
+            function handleTouch(event) {
+                const touch = event.touches[0];
+                const touchX = touch.clientX - gameContainer.getBoundingClientRect().left;
+                const playerWidth = player.offsetWidth;
+                const containerWidth = gameContainer.offsetWidth;
+                
+                if (touchX > 0 && touchX < containerWidth) {
+                    player.style.left = `${Math.min(containerWidth - playerWidth, Math.max(0, touchX - playerWidth / 2))}px`;
                 }
             }
 

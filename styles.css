@@ -3,7 +3,7 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f0f4f8;
+    background-color: #000000;
     color: #333;
 }
 
@@ -268,6 +268,7 @@ footer .version {
 }
 #comment-section{
     max-height: 500 px;
+    overflow-y: auto;
 }
 
 #comment-form {

@@ -1,3 +1,8 @@
+<?php
+session_start();
+$is_logged_in = isset($_SESSION['user_id']);
+?>
+
 <!DOCTYPE html>
 <html lang="no">
 <head>
@@ -14,10 +19,15 @@
     </header>
     
     <nav>
-        <a href="#about">Om Meg</a>
-        <a href="ai.php">AI Utsilling</a>
+        <a href="index.php#about">Om Meg</a>
+        <a href="ai.php">AI Prosjekter</a>
         <a href="krypto.html">KryptoTjeneste</a>
-
+        <?php if ($is_logged_in): ?>
+            <a href="experimental.php">Experimental</a>
+            <a href="logout.php">Logg ut</a>
+        <?php else: ?>
+            <a href="login.php">Logg inn</a>
+        <?php endif; ?>
     </nav>
     <div id="new-chat">
         <a href=krypto.html#chatbot> Prøv chatten</a>

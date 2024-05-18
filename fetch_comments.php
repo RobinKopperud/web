@@ -1,7 +1,7 @@
 <?php
 $servername = "localhost";
-$username = "jmntxjwa_admin";
-$password = "Mafia124lol";
+$username = "jmntxjwa_AI";
+$password = "ai-Admin";
 $dbname = "jmntxjwa_users";
 
 // Create connection

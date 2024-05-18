@@ -32,7 +32,7 @@
                     <button type="submit">Register</button>
                 </form>
             </div>
-            <button class="back-button" onclick="goBack()">Tilbake</button>
+            <button id="back-button" onclick="location.href='index.php'">Tilbake</button>
         </div>
     </div>
 
@@ -48,10 +48,6 @@
             document.getElementById('login-tab').classList.remove('active');
             document.getElementById('register-tab').classList.add('active');
             document.querySelector('.form-wrapper').style.transform = 'translateX(-50%)';
-        }
-
-        function goBack() {
-            window.location.href = 'index.php';
         }
     </script>
 </body>

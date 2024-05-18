@@ -20,16 +20,16 @@ if ($conn->connect_error) {
 session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = htmlspecialchars($_POST['email']);
+    $user_or_email = htmlspecialchars($_POST['email_or_username']); // Change the name to be more inclusive of both options
     $pass = $_POST['password'];
 
     // Prepare and bind
-    $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE email = ? OR username = ?");
     if (!$stmt) {
         die("Prepare failed: (" . $conn->errno . ") " . $conn->error);
     }
 
-    $stmt->bind_param("s", $email);
+    $stmt->bind_param("ss", $user_or_email, $user_or_email); // Bind the same parameter for both email and username
     if (!$stmt->execute()) {
         die("Execute failed: (" . $stmt->errno . ") " . $stmt->error);
     }

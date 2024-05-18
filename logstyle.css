@@ -10,7 +10,7 @@ body, html {
     align-items: center;
 }
 
-#matrix-container {
+#matrix {
     position: fixed;
     top: 0;
     left: 0;
@@ -24,16 +24,17 @@ body, html {
     justify-content: center;
     align-items: center;
     height: 100%;
-    position: relative;
-	background: rgba(0, 0, 0, 0.9); /* Adding opacity */
-	box-sizing: border-box;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 .form-container {
     position: relative;
     width: 300px;
     padding: 20px;
-    background: rgba(0, 0, 0, 0.9); /* Adding opacity */
+    background: rgba(0, 0, 0, 0.6); /* Adding opacity */
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     overflow: hidden;

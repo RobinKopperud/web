@@ -178,6 +178,8 @@ footer .version {
 #chat-box {
     width:fit-content;
     height: auto;
+    flex: 1;
+    max-height: 300px;
     overflow-y: auto;
     border: 1px solid #ccc;
     border-radius: 10px;
@@ -263,6 +265,9 @@ footer .version {
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+#comment-section{
+    max-height: 500 px;
 }
 
 #comment-form {

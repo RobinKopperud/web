@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: loginout.php");
     exit();
 }
 ?>
@@ -41,9 +41,6 @@ if (!isset($_SESSION['user_id'])) {
             position: absolute;
             top: 0;
         }
-        h2{
-            color: black;
-        }
         #score {
             text-align: center;
             margin-top: 20px;
@@ -58,6 +55,15 @@ if (!isset($_SESSION['user_id'])) {
             font-size: 1em;
             margin: 5px;
             cursor: pointer;
+        }
+        #submit-score {
+            margin-top: 20px;
+            display: none;
+            text-align: center;
+        }
+        #highscores {
+            margin-top: 20px;
+            text-align: center;
         }
     </style>
 </head>
@@ -81,6 +87,13 @@ if (!isset($_SESSION['user_id'])) {
             <div id="player"></div>
         </div>
         <div id="score">Score: 0</div>
+        <div id="submit-score">
+            <button id="submit-btn">Submit Score</button>
+        </div>
+        <div id="highscores">
+            <h3>High Scores</h3>
+            <ul id="highscore-list"></ul>
+        </div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -89,15 +102,22 @@ if (!isset($_SESSION['user_id'])) {
             const scoreDisplay = document.getElementById('score');
             const startBtn = document.getElementById('start-btn');
             const stopBtn = document.getElementById('stop-btn');
+            const submitScoreDiv = document.getElementById('submit-score');
+            const submitBtn = document.getElementById('submit-btn');
+            const highscoreList = document.getElementById('highscore-list');
             let score = 0;
             let gameInterval;
             let isGameRunning = false;
+
+            // Get the logged-in username from the PHP session
+            const username = '<?php echo $_SESSION['username']; ?>';
 
             function startGame() {
                 if (isGameRunning) return;
                 isGameRunning = true;
                 score = 0;
                 scoreDisplay.textContent = `Score: ${score}`;
+                submitScoreDiv.style.display = 'none';
                 gameInterval = setInterval(() => {
                     createFallingObject();
                 }, 1000);
@@ -119,6 +139,7 @@ if (!isset($_SESSION['user_id'])) {
                 stopBtn.disabled = true;
                 // Remove all falling objects
                 document.querySelectorAll('.object').forEach(obj => obj.remove());
+                submitScoreDiv.style.display = 'block';
             }
 
             function movePlayer(event) {
@@ -166,6 +187,7 @@ if (!isset($_SESSION['user_id'])) {
                     } else {
                         object.style.top = `${objectTop + 5}px`; // Adjust falling speed
                     }
+
                     // Remove the object if it goes out of the playing area
                     if (objectTop > gameContainer.offsetHeight) {
                         clearInterval(fallingInterval);
@@ -174,8 +196,41 @@ if (!isset($_SESSION['user_id'])) {
                 }, 30);
             }
 
+            function submitScore() {
+                fetch('submit_score.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `username=${username}&score=${score}`
+                })
+                .then(response => response.text())
+                .then(data => {
+                    alert(data);
+                    loadHighscores();
+                })
+                .catch(error => console.error('Error:', error));
+            }
+
+            function loadHighscores() {
+                fetch('get_highscores.php')
+                .then(response => response.json())
+                .then(data => {
+                    highscoreList.innerHTML = '';
+                    data.forEach(highscore => {
+                        const li = document.createElement('li');
+                        li.textContent = `${highscore.username}: ${highscore.score}`;
+                        highscoreList.appendChild(li);
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+            }
+
             startBtn.addEventListener('click', startGame);
             stopBtn.addEventListener('click', stopGame);
+            submitBtn.addEventListener('click', submitScore);
+
+            loadHighscores();
         });
     </script>
 </body>

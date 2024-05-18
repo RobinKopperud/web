@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header("Location: /gaming/loginout.php");
+    header("Location: ../loginout.php");
     exit();
 }
 ?>

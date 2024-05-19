@@ -1,5 +1,6 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+const restartButton = document.getElementById('restartButton');
 
 let motorcycle = {
     x: canvas.width / 2 - 25,
@@ -21,6 +22,7 @@ document.addEventListener('keyup', stopMotorcycle);
 canvas.addEventListener('touchstart', handleTouchStart);
 canvas.addEventListener('touchmove', handleTouchMove);
 canvas.addEventListener('touchend', handleTouchEnd);
+restartButton.addEventListener('click', restartGame);
 
 function moveMotorcycle(e) {
     if (e.key === 'ArrowLeft') {
@@ -44,7 +46,7 @@ function handleTouchMove(e) {
     const touchX = e.touches[0].clientX;
     const rect = canvas.getBoundingClientRect();
     const canvasX = touchX - rect.left;
-    
+
     if (canvasX < motorcycle.x) {
         motorcycle.dx = -motorcycle.speed;
     } else if (canvasX > motorcycle.x + motorcycle.width) {
@@ -119,9 +121,8 @@ function update() {
     if (!gameOver) {
         requestAnimationFrame(update);
     } else {
-        ctx.font = '30px Arial';
-        ctx.fillStyle = 'black';
-        ctx.fillText('Game Over', canvas.width / 2 - 70, canvas.height / 2);
+        clearInterval(timerInterval);
+        showGameOver();
     }
 
     drawTimer();
@@ -139,6 +140,30 @@ function drawTimer() {
     ctx.font = '20px Arial';
     ctx.fillStyle = 'black';
     ctx.fillText(`Time: ${elapsedTime}s`, 10, 30);
+}
+
+function showGameOver() {
+    ctx.font = '30px Arial';
+    ctx.fillStyle = 'black';
+    ctx.fillText('Game Over', canvas.width / 2 - 70, canvas.height / 2);
+    restartButton.style.display = 'block';
+}
+
+function restartGame() {
+    motorcycle = {
+        x: canvas.width / 2 - 25,
+        y: canvas.height - 100,
+        width: 50,
+        height: 100,
+        speed: 5,
+        dx: 0
+    };
+
+    obstacles = [];
+    gameOver = false;
+    startTimer();
+    restartButton.style.display = 'none';
+    update();
 }
 
 setInterval(createObstacle, 2000);

@@ -25,6 +25,7 @@
     <main>
         <h1>Motorcycle Game</h1>
         <canvas id="gameCanvas" width="480" height="640"></canvas>
+        <button id="restartButton" style="display:none;">Restart</button>
     </main>
     <footer>
         <p>&copy; 2024 Tjenester. All rights reserved.</p>

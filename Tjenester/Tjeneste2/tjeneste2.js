@@ -2,8 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const button = document.getElementById('fetch-data');
     button.addEventListener('click', async () => {
         const inputValue = document.getElementById('input-value').value;
-        if (inputValue.length !== 5) {
-            alert("Please enter exactly 5 characters.");
+        if (inputValue.length !== 7) {
+            alert("Please enter exactly 7 characters.");
             return;
         }
 

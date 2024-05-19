@@ -17,7 +17,7 @@
         </nav>
     </header>
     <main>
-        <h1>Tjeneste 2</h1>
+        <h1>Tjeneste 2 - Bilskilt</h1>
         <input type="text" id="input-value" placeholder="Enter last 5 characters">
         <button id="fetch-data">Fetch NOK Value</button>
         <div id="result"></div>

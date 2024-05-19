@@ -2,11 +2,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const button = document.getElementById('fetch-data');
     button.addEventListener('click', async () => {
         const inputValue = document.getElementById('input-value').value;
+        if (inputValue.length !== 5) {
+            alert("Please enter exactly 5 characters.");
+            return;
+        }
+
         const url = `https://rettsstiftelser.brreg.no/nb/oppslag/motorvogn/${inputValue}`;
         const resultDiv = document.getElementById('result');
+        resultDiv.textContent = "Fetching data...";
 
         try {
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                mode: 'cors',
+                headers: {
+                    'Content-Type': 'text/html',
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
             const text = await response.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(text, 'text/html');
@@ -17,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
             resultDiv.textContent = `NOK Value: ${nokValue}`;
         } catch (error) {
             console.error('Error fetching data:', error);
-            resultDiv.textContent = 'Error fetching data';
+            resultDiv.textContent = `Error fetching data: ${error.message}`;
         }
     });
 });

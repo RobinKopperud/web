@@ -2,22 +2,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const button = document.getElementById('fetch-data');
     button.addEventListener('click', async () => {
         const inputValue = document.getElementById('input-value').value;
-        if (inputValue.length !== 7) {
-            alert("Please enter exactly 7 characters.");
+        if (inputValue.length !== 5) {
+            alert("Please enter exactly 5 characters.");
             return;
         }
 
         const url = `https://rettsstiftelser.brreg.no/nb/oppslag/motorvogn/${inputValue}`;
+        const proxyUrl = `proxy.php?url=${encodeURIComponent(url)}`;
         const resultDiv = document.getElementById('result');
         resultDiv.textContent = "Fetching data...";
 
         try {
-            const response = await fetch(url, {
-                mode: 'cors',
-                headers: {
-                    'Content-Type': 'text/html',
-                }
-            });
+            const response = await fetch(proxyUrl);
 
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);

@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const doc = parser.parseFromString(text, 'text/html');
             const xpath = "/html/body/main/section/article/div[1]/div[2]/div/div/div/div/div[2]/div[3]/div[2]/ul/li/span[1]";
             const node = doc.evaluate(xpath, doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-            const nokValue = node ? node.textContent : 'NOK value not found';
+            const nokValue = node ? node.textContent.replace(/\D/g, '') : null;
 
             let message;
             if (nokValue !== null) {
@@ -38,11 +38,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     message = "NOK value not found";
                 }
+                resultDiv.textContent = `NOK Value: ${nokValueInt} - ${message}`;
             } else {
                 message = "NOK value not found";
+                resultDiv.textContent = message;
             }
-
-            resultDiv.textContent = `NOK Value: ${nokValueInt} - ${message}`;
         } catch (error) {
             console.error('Error fetching data:', error);
             resultDiv.textContent = `Error fetching data: ${error.message}`;

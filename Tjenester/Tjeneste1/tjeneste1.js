@@ -13,9 +13,14 @@ let motorcycle = {
 let obstacles = [];
 let obstacleSpeed = 3;
 let gameOver = false;
+let startTime;
+let timerInterval;
 
 document.addEventListener('keydown', moveMotorcycle);
 document.addEventListener('keyup', stopMotorcycle);
+canvas.addEventListener('touchstart', handleTouchStart);
+canvas.addEventListener('touchmove', handleTouchMove);
+canvas.addEventListener('touchend', handleTouchEnd);
 
 function moveMotorcycle(e) {
     if (e.key === 'ArrowLeft') {
@@ -31,6 +36,26 @@ function stopMotorcycle(e) {
     }
 }
 
+function handleTouchStart(e) {
+    handleTouchMove(e);
+}
+
+function handleTouchMove(e) {
+    const touchX = e.touches[0].clientX;
+    const rect = canvas.getBoundingClientRect();
+    const canvasX = touchX - rect.left;
+    
+    if (canvasX < motorcycle.x) {
+        motorcycle.dx = -motorcycle.speed;
+    } else if (canvasX > motorcycle.x + motorcycle.width) {
+        motorcycle.dx = motorcycle.speed;
+    }
+}
+
+function handleTouchEnd(e) {
+    motorcycle.dx = 0;
+}
+
 function drawMotorcycle() {
     ctx.fillStyle = 'blue';
     ctx.fillRect(motorcycle.x, motorcycle.y, motorcycle.width, motorcycle.height);
@@ -39,7 +64,6 @@ function drawMotorcycle() {
 function updateMotorcycle() {
     motorcycle.x += motorcycle.dx;
 
-    // Prevent motorcycle from going off canvas
     if (motorcycle.x < 0) {
         motorcycle.x = 0;
     }
@@ -65,7 +89,6 @@ function updateObstacles() {
         obstacle.y += obstacleSpeed;
     });
 
-    // Remove obstacles that are off the canvas
     obstacles = obstacles.filter(obstacle => obstacle.y < canvas.height);
 }
 
@@ -76,6 +99,7 @@ function detectCollision() {
             motorcycle.y < obstacle.y + obstacle.height &&
             motorcycle.y + motorcycle.height > obstacle.y) {
             gameOver = true;
+            clearInterval(timerInterval);
         }
     });
 }
@@ -99,7 +123,24 @@ function update() {
         ctx.fillStyle = 'black';
         ctx.fillText('Game Over', canvas.width / 2 - 70, canvas.height / 2);
     }
+
+    drawTimer();
+}
+
+function startTimer() {
+    startTime = Date.now();
+    timerInterval = setInterval(() => {
+        drawTimer();
+    }, 1000);
+}
+
+function drawTimer() {
+    const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+    ctx.font = '20px Arial';
+    ctx.fillStyle = 'black';
+    ctx.fillText(`Time: ${elapsedTime}s`, 10, 30);
 }
 
 setInterval(createObstacle, 2000);
+startTimer();
 update();

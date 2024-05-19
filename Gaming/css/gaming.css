@@ -47,6 +47,11 @@ body, html {
     color: #1e90ff;
 }
 
+/* Hide "Home" and "Logout" links when sidebar is collapsed */
+.sidebar.collapsed nav ul li.hide-on-collapse {
+    display: none;
+}
+
 .main-content {
     margin-left: 200px;
     padding: 40px;

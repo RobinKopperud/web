@@ -1,80 +1,24 @@
-/* General styles */
-body, html {
-    margin: 0;
-    padding: 0;
-    font-family: 'Arial', sans-serif;
-    height: 100%;
-    display: flex;
-    background-color: #121212;
-    color: #ffffff;
-}
-
-.sidebar {
-    width: 200px;
-    background-color: #1e1e1e;
-    color: #ffffff;
-    padding-top: 20px;
-    position: fixed;
-    height: 100%;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-}
-
-.sidebar nav ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.sidebar nav ul li {
-    padding: 15px 10px;
-    text-align: center;
-}
-
-.sidebar nav ul li a {
-    color: #ffffff;
-    text-decoration: none;
-    display: block;
-    font-size: 18px;
-    transition: background 0.3s, color 0.3s;
-}
-
-.sidebar nav ul li a:hover {
-    background-color: #333333;
-    color: #1e90ff;
-}
-
-.main-content {
-    margin-left: 200px;
-    padding: 40px;
-    flex: 1;
-}
-
-.main-content h1 {
-    text-align: center;
-    margin-bottom: 40px;
-    font-size: 36px;
-}
-
 /* Specific styles for Snake Game */
-canvas {
+.snake-game canvas {
     border: 1px solid #ffffff;
     display: block;
     margin: 0 auto;
     background-color: #000000;
 }
 
-#controls {
+.snake-game #controls {
     text-align: center;
     margin-top: 20px;
 }
 
-#score {
+.snake-game #score {
     text-align: center;
     margin-top: 20px;
     font-size: 24px;
     color: #1e90ff;
 }
 
-button {
+.snake-game button {
     background-color: #1e90ff;
     color: #ffffff;
     border: none;
@@ -86,11 +30,11 @@ button {
     transition: background 0.3s;
 }
 
-button:disabled {
+.snake-game button:disabled {
     background-color: #555555;
     cursor: not-allowed;
 }
 
-button:hover:not(:disabled) {
+.snake-game button:hover:not(:disabled) {
     background-color: #0d6efd;
 }

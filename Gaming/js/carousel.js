@@ -10,13 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const x = radius * Math.cos((angle * Math.PI) / 180);
         const z = radius * Math.sin((angle * Math.PI) / 180);
 
-        item.style.transform = `translateX(${x}px) translateZ(${z}px)`;
+        item.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
     });
 
     const adjustOpacity = () => {
         items.forEach((item, index) => {
             const itemAngle = (index * angleStep + carousel.angle) % 360;
-            const opacity = Math.max(0, Math.cos((itemAngle * Math.PI) / 180));
+            const opacity = Math.max(0.1, Math.cos((itemAngle * Math.PI) / 180) + 0.5);
             item.style.opacity = opacity;
         });
     };

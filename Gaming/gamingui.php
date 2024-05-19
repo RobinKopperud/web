@@ -39,6 +39,12 @@ if (!isset($_SESSION['user_id'])) {
                         <h2>Game 2</h2>
                     </a>
                 </div>
+                <div class="carousel-item">
+                    <a href="game3/game3.php">
+                        <img src="images/game3.png" alt="Game 3">
+                        <h2>Game 2</h2>
+                    </a>
+                </div>
                 <!-- Add more carousel items as needed -->
             </div>
         </div>

@@ -17,6 +17,7 @@ body, html {
     position: fixed;
     height: 100%;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+    transition: width 0.3s;
 }
 
 .sidebar nav ul {
@@ -112,5 +113,18 @@ body, html {
     }
     to {
         transform: rotateY(360deg);
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 50px;
+    }
+    .main-content {
+        margin-left: 50px;
+        padding: 20px;
+    }
+    .sidebar nav ul li a {
+        font-size: 14px;
     }
 }

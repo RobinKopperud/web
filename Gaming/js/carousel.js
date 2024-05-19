@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const carousel = document.querySelector('.carousel');
     const items = document.querySelectorAll('.carousel-item');
-    const radius = 250;
+    const radius = 300; // Adjust radius as needed
     const itemCount = items.length;
     const angleStep = 360 / itemCount;
 

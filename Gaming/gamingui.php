@@ -25,21 +25,24 @@ if (!isset($_SESSION['user_id'])) {
     </div>
     <div class="main-content">
         <h1>Welcome to the Gaming Hub</h1>
-        <div class="game-list">
-            <div class="game">
-                <a href="game1/game1.php">
-                    <img src="images/game1.png" alt="Game 1">
-                    <h2>Game 1</h2>
-                </a>
+        <div class="carousel-container">
+            <div class="carousel">
+                <div class="carousel-item">
+                    <a href="game1/game1.php">
+                        <img src="images/game1.png" alt="Game 1">
+                        <h2>Game 1</h2>
+                    </a>
+                </div>
+                <div class="carousel-item">
+                    <a href="game2/game2.php">
+                        <img src="images/game2.png" alt="Game 2">
+                        <h2>Game 2</h2>
+                    </a>
+                </div>
+                <!-- Add more carousel items as needed -->
             </div>
-            <div class="game">
-                <a href="game2/game2.php">
-                    <img src="images/game2.png" alt="Game 2">
-                    <h2>Game 2</h2>
-                </a>
-            </div>
-            <!-- Add more games as needed -->
         </div>
     </div>
+    <script src="js/carousel.js"></script>
 </body>
 </html>

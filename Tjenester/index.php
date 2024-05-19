@@ -23,11 +23,13 @@
                 <h3>Gaming</h3>
                 <p>Description of Service 1.</p>
             </div>
-            <div class="service-item">
-                <img src="bilder/tjeneste2.png" alt="Service 2">
-                <h3>Bilskilt</h3>
-                <p>Description of Service 2.</p>
-            </div>
+            <a href="Tjeneste2/tjeneste2.php">
+                <div class="service-item">
+                    <img src="bilder/tjeneste2.png" alt="Service 2">
+                    <h3>Bilskilt</h3>
+                    <p>Description of Service 2.</p>
+                </div>
+            </a>
             <div class="service-item">
                 <img src="bilder/tjeneste3.png" alt="Service 3">
                 <h3>Krypto</h3>

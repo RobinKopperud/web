@@ -18,11 +18,13 @@
     <main>
         <h1>Our Services</h1>
         <section class="services">
-            <div class="service-item">
-                <img src="bilder/tjeneste1.png" alt="Service 1">
-                <h3>Gaming</h3>
-                <p>Description of Service 1.</p>
-            </div>
+            <a href="Tjeneste1/tjeneste1.php">
+                <div class="service-item">
+                    <img src="bilder/tjeneste1.png" alt="Service 1">
+                    <h3>Spell</h3>
+                    <p>Description of Service 1.</p>
+                </div>
+            </a>
             <a href="Tjeneste2/tjeneste2.php">
                 <div class="service-item">
                     <img src="bilder/tjeneste2.png" alt="Service 2">

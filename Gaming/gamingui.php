@@ -13,11 +13,13 @@ if (!isset($_SESSION['user_id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gaming Hub</title>
     <link rel="stylesheet" href="css/gaming.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="sidebar">
         <nav>
             <ul>
+                <li><a href="#" id="toggleSidebar"><i class="fas fa-bars"></i></a></li>
                 <li><a href="../index.php">Home</a></li>
                 <li><a href="../logout.php">Logout</a></li>
             </ul>
@@ -25,30 +27,28 @@ if (!isset($_SESSION['user_id'])) {
     </div>
     <div class="main-content">
         <h1>Welcome to the Gaming Hub</h1>
-        <div class="carousel-container">
-            <div class="carousel">
-                <div class="carousel-item">
-                    <a href="game1/game1.php">
-                        <img src="images/game1.png" alt="Game 1">
-                        <h2>Game 1</h2>
-                    </a>
-                </div>
-                <div class="carousel-item">
-                    <a href="game2/game2.php">
-                        <img src="images/game2.png" alt="Game 2">
-                        <h2>Game 2</h2>
-                    </a>
-                </div>
-                <div class="carousel-item">
-                    <a href="game3/game3.php">
-                        <img src="images/game3.png" alt="Game 3">
-                        <h2>Game 2</h2>
-                    </a>
-                </div>
-                <!-- Add more carousel items as needed -->
+        <div class="game-grid">
+            <div class="game">
+                <a href="game1/game1.php">
+                    <img src="images/game1.png" alt="Game 1">
+                    <h2>Game 1</h2>
+                </a>
             </div>
+            <div class="game">
+                <a href="game2/game2.php">
+                    <img src="images/game2.png" alt="Game 2">
+                    <h2>Game 2</h2>
+                </a>
+            </div>
+            <div class="game">
+                <a href="game3/game3.php">
+                    <img src="images/game3.png" alt="Game 3">
+                    <h2>Game 3</h2>
+                </a>
+            </div>
+            <!-- Add more game items as needed -->
         </div>
     </div>
-    <script src="js/carousel.js"></script>
+    <script src="js/gaming.js"></script>
 </body>
 </html>

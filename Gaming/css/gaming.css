@@ -20,6 +20,10 @@ body, html {
     transition: width 0.3s;
 }
 
+.sidebar.collapsed {
+    width: 50px;
+}
+
 .sidebar nav ul {
     list-style-type: none;
     padding: 0;
@@ -48,6 +52,11 @@ body, html {
     padding: 40px;
     flex: 1;
     text-align: center;
+    transition: margin-left 0.3s;
+}
+
+.main-content.collapsed {
+    margin-left: 50px;
 }
 
 .main-content h1 {
@@ -56,64 +65,39 @@ body, html {
     font-size: 36px;
 }
 
-.carousel-container {
-    perspective: 1000px;
-    width: 100%;
-    height: 400px;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
+.game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 30px;
+    justify-items: center;
     align-items: center;
 }
 
-.carousel {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    transform-style: preserve-3d;
-    animation: rotate 20s infinite linear;
-}
-
-.carousel-item {
+.game {
     width: 250px;
-    height: 250px;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform-style: preserve-3d;
-    transform-origin: center;
-    transition: transform 1s, opacity 1s;
-}
-
-.carousel-item a {
-    display: block;
     text-align: center;
-    color: #ffffff;
-    text-decoration: none;
+    background-color: #1e1e1e;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.carousel-item img {
+.game img {
     width: 100%;
     height: auto;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    border-bottom: 1px solid #333;
 }
 
-.carousel-item h2 {
-    margin: 10px 0 0;
+.game h2 {
+    margin: 15px 0;
     font-size: 24px;
     color: #1e90ff;
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
 
-@keyframes rotate {
-    from {
-        transform: rotateY(0deg);
-    }
-    to {
-        transform: rotateY(360deg);
-    }
+.game:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
 }
 
 @media (max-width: 768px) {

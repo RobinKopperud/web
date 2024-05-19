@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (nokValue !== null) {
                 const nokValueInt = parseInt(nokValue, 10);
                 if (nokValueInt < 50000) {
-                    message = "Akseptabelt lån";
+                    message = "Akseptabelt eller ingen lån";
                 } else if (nokValueInt >= 50000 && nokValueInt <= 250000) {
                     message = "Bilen er nesten bare lån";
                 } else if (nokValueInt > 250000) {

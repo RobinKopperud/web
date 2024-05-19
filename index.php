@@ -22,7 +22,7 @@ $is_logged_in = isset($_SESSION['user_id']);
         <a href="index.php">Om Meg</a>
         <a href="ai.php">AI Prosjekter</a>
         <a href="krypto.html">KryptoTjeneste</a>
-        <a href="Gaming/gamingui.php">Gaming</a>
+        <a href="Tjenester/index.php">Gaming</a>
 
         <?php if ($is_logged_in): ?>
             <a href="experimental.php">Experimental</a>

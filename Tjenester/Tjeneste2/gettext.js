@@ -38,7 +38,6 @@ document.getElementById('upload-image').addEventListener('click', () => {
                 throw new Error(result.error);
             }
             
-            licensePlateNumber = result.choices[0].message.content.trim();
             document.getElementById('result').textContent = `License Plate Number: ${result.choices[0].message.content}`;
         } catch (error) {
             console.error('Error:', error);
@@ -47,6 +46,3 @@ document.getElementById('upload-image').addEventListener('click', () => {
     };
     reader.readAsDataURL(imageUpload);
 });
-
-// Export the licensePlateNumber
-export { licensePlateNumber };

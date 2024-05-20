@@ -1,17 +1,15 @@
-import { licensePlateNumber } from './gettext';
 
 document.addEventListener('DOMContentLoaded', () => {
     const button = document.getElementById('fetch-data');
     button.addEventListener('click', async () => {
         const inputValue = document.getElementById('input-value').value;
-        const valueToUse = inputValue || licensePlateNumber; // Use licensePlateNumber if inputValue is empty
 
         if (inputValue.length !== 7) {
             alert("Please enter exactly 7 characters.");
             return;
         }
 
-        const url = `https://rettsstiftelser.brreg.no/nb/oppslag/motorvogn/${valueToUse}`;
+        const url = `https://rettsstiftelser.brreg.no/nb/oppslag/motorvogn/${inputValue}`;
         const proxyUrl = `proxy.php?url=${encodeURIComponent(url)}`;
         const resultDiv = document.getElementById('result');
         resultDiv.textContent = "Fetching data...";

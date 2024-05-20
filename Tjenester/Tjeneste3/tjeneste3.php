@@ -19,12 +19,11 @@
     <div class="tjeneste3">
         <h1>Bitcoin Wallet Generator</h1>
         <button id="generateButton">Generate Wallet</button>
-        <div id="keys" style="display: none;">
-            <p><strong>Address:</strong> <span id="address"></span></p>
-            <p><strong>Private Key:</strong> <span id="privateKey"></span></p>
-            <p><strong>Public Key:</strong> <span id="publicKey"></span></p>
-
-        </div>
+        <div id="keys" style="display:none;">
+        <p><strong>Address:</strong> <span id="address"></span></p>
+        <p><strong>Public Key:</strong> <span id="publicKey"></span></p>
+        <p><strong>Private Key:</strong> <span id="privateKey"></span></p>
+    </div>
     </div>
     <!-- Include the elliptic library CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/elliptic/6.5.4/elliptic.min.js"></script>

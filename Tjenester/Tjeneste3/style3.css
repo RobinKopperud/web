@@ -2,23 +2,78 @@
 .tjeneste3 {
     text-align: center;
     margin-top: 50px;
+    padding: 0 20px; /* Add padding for smaller screens */
 }
 
-.tjeneste3 #keys {
-    margin-top: 20px;
-}
-
-.tjeneste3 #keys p {
-    font-size: 18px;
-    margin: 5px 0;
+.tjeneste3 h1 {
+    font-size: 2em;
+    margin-bottom: 20px;
 }
 
 .tjeneste3 button {
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
 }
 
 .tjeneste3 button:hover {
-    background-color: #ddd;
+    background-color: #0056b3;
+}
+
+.tjeneste3 #keys {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    display: inline-block;
+    text-align: left;
+}
+
+.tjeneste3 #keys p {
+    font-size: 1em;
+    margin: 5px 0;
+    word-wrap: break-word; /* Ensure long words are broken to fit smaller screens */
+}
+
+@media (min-width: 600px) {
+    .tjeneste3 {
+        padding: 0 50px; /* Add more padding for larger screens */
+    }
+
+    .tjeneste3 h1 {
+        font-size: 2.5em;
+    }
+
+    .tjeneste3 button {
+        padding: 12px 24px;
+        font-size: 18px;
+    }
+
+    .tjeneste3 #keys p {
+        font-size: 1.2em;
+    }
+}
+
+@media (min-width: 900px) {
+    .tjeneste3 {
+        padding: 0 100px; /* Add even more padding for very large screens */
+    }
+
+    .tjeneste3 h1 {
+        font-size: 3em;
+    }
+
+    .tjeneste3 button {
+        padding: 14px 28px;
+        font-size: 20px;
+    }
+
+    .tjeneste3 #keys p {
+        font-size: 1.4em;
+    }
 }

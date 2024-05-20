@@ -7,6 +7,11 @@
     <link rel="stylesheet" href="style3.css">
     <link rel="stylesheet" href="../style.css">
 
+    <!-- Include required libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/elliptic/dist/elliptic.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/buffer/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/crypto-browserify/index.js"></script>
 </head>
 <body>
     <header>
@@ -34,11 +39,7 @@
     <footer>
         <p>&copy; 2024 Tjenester. All rights reserved.</p>
     </footer>
-    <!-- Ensure elliptic and other required libraries are included -->
-    <script src="https://cdn.jsdelivr.net/npm/elliptic/dist/elliptic.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/buffer/index.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/crypto-browserify/index.js"></script>
+    <!-- Include custom scripts -->
     <script src="btc.js"></script>
     <script src="xrp.js"></script>
     <script>

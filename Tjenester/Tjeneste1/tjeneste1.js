@@ -1,5 +1,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+const startButton = document.getElementById('startButton');
+const stopButton = document.getElementById('stopButton');
 const restartButton = document.getElementById('restartButton');
 
 let motorcycle = {
@@ -14,6 +16,7 @@ let motorcycle = {
 let obstacles = [];
 let obstacleSpeed = 3;
 let gameOver = false;
+let gameRunning = false;
 let startTime;
 let timerInterval;
 
@@ -22,6 +25,9 @@ document.addEventListener('keyup', stopMotorcycle);
 canvas.addEventListener('touchstart', handleTouchStart);
 canvas.addEventListener('touchmove', handleTouchMove);
 canvas.addEventListener('touchend', handleTouchEnd);
+canvas.addEventListener('click', handleCanvasClick);
+startButton.addEventListener('click', startGame);
+stopButton.addEventListener('click', stopGame);
 restartButton.addEventListener('click', restartGame);
 
 function moveMotorcycle(e) {
@@ -101,7 +107,8 @@ function detectCollision() {
             motorcycle.y < obstacle.y + obstacle.height &&
             motorcycle.y + motorcycle.height > obstacle.y) {
             gameOver = true;
-            clearInterval(timerInterval);
+            stopGame();
+            showGameOver();
         }
     });
 }
@@ -111,6 +118,7 @@ function clearCanvas() {
 }
 
 function update() {
+    if (!gameRunning) return;
     clearCanvas();
     drawMotorcycle();
     drawObstacles();
@@ -120,9 +128,6 @@ function update() {
 
     if (!gameOver) {
         requestAnimationFrame(update);
-    } else {
-        clearInterval(timerInterval);
-        showGameOver();
     }
 
     drawTimer();
@@ -146,7 +151,38 @@ function showGameOver() {
     ctx.font = '30px Arial';
     ctx.fillStyle = 'black';
     ctx.fillText('Game Over', canvas.width / 2 - 70, canvas.height / 2);
+    canvas.style.cursor = 'pointer'; // Change cursor to pointer
     restartButton.style.display = 'block';
+}
+
+function handleCanvasClick(e) {
+    if (gameOver) {
+        const rect = canvas.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const clickY = e.clientY - rect.top;
+        const textX = canvas.width / 2 - 70;
+        const textY = canvas.height / 2 - 15;
+        const textWidth = 140; // Approximate width of "Game Over" text
+        const textHeight = 30; // Height of the text
+
+        if (clickX >= textX && clickX <= textX + textWidth && clickY >= textY && clickY <= textY + textHeight) {
+            restartGame();
+        }
+    }
+}
+
+function startGame() {
+    if (gameRunning) return;
+    gameRunning = true;
+    gameOver = false;
+    startTimer();
+    update();
+}
+
+function stopGame() {
+    gameRunning = false;
+    clearInterval(timerInterval);
+    canvas.style.cursor = 'default';
 }
 
 function restartGame() {
@@ -161,11 +197,11 @@ function restartGame() {
 
     obstacles = [];
     gameOver = false;
+    gameRunning = true;
     startTimer();
+    canvas.style.cursor = 'default'; // Reset cursor
     restartButton.style.display = 'none';
     update();
 }
 
 setInterval(createObstacle, 2000);
-startTimer();
-update();

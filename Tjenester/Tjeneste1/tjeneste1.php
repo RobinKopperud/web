@@ -10,6 +10,15 @@
             display: block;
             margin: 0 auto;
             background-color: #f4f4f4;
+            width: 90vw;
+            max-width: 480px;
+        }
+        .controls {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .controls button {
+            margin: 0 5px;
         }
     </style>
 </head>
@@ -25,6 +34,10 @@
     <main>
         <h1>Motorcycle Game</h1>
         <canvas id="gameCanvas" width="480" height="640"></canvas>
+        <div class="controls">
+            <button id="startButton">Start</button>
+            <button id="stopButton">Stop</button>
+        </div>
         <button id="restartButton" style="display:none;">Restart</button>
     </main>
     <footer>

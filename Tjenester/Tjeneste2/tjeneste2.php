@@ -20,6 +20,10 @@
         <h1>Tjeneste 2 - Bilskilt</h1>
         <input type="text" id="input-value" placeholder="Enter last 7 characters">
         <button id="fetch-data">Fetch NOK Value</button>
+        <div>
+            <input type="file" id="image-upload" accept="image/*">
+            <button id="upload-image">Upload Image</button>
+        </div>
         <div id="result"></div>
     </main>
     <footer>

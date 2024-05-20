@@ -6,9 +6,9 @@
     <title>Wallet Generator</title>
     <link rel="stylesheet" href="style3.css">
     <link rel="stylesheet" href="../style.css">
-    <!-- Include bitcoinjs-lib and ripple-keypairs via CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bitcoinjs-lib/5.2.0/bitcoinjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ripple-keypairs/1.0.2/index.min.js"></script>
+    <!-- Include crypto-js and elliptic libraries via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/elliptic/6.5.4/elliptic.min.js"></script>
 </head>
 <body>
     <header>

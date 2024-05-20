@@ -1,6 +1,6 @@
-document.getElementById('generateBtcButton').addEventListener('click', generateBitcoinWallet);
+document.getElementById('generateButton').addEventListener('click', generateWallet);
 
-function generateBitcoinWallet() {
+function generateWallet() {
     const EC = elliptic.ec;
     const ec = new EC('secp256k1');
     const keyPair = ec.genKeyPair();

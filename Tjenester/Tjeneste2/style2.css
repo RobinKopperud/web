@@ -21,6 +21,13 @@ main input[type="text"], main input[type="file"] {
     border-radius: 5px; /* Rounded corners */
 }
 
+@media (min-width: 1200px) {
+    main {
+        width: 80%; /* Make main fill more of the screen on large devices */
+        max-width: 1600px; /* Increase the max-width for larger screens */
+    }
+}
+
 main button {
     width: calc(100% - 20px); /* Adjusted width to fit padding */
     padding: 12px; /* Increased padding */

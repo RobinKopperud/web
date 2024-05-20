@@ -48,10 +48,17 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
 
 $response = curl_exec($ch);
 if (curl_errno($ch)) {
-    echo json_encode(['error' => 'Request Error:' . curl_error($ch)]);
+    echo json_encode(['error' => 'Request Error: ' . curl_error($ch)]);
     curl_close($ch);
     exit;
 }
+
+if ($httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE) >= 400) {
+    echo json_encode(['error' => 'API request failed with response code ' . $httpcode]);
+    curl_close($ch);
+    exit;
+}
+
 curl_close($ch);
 
 echo $response;

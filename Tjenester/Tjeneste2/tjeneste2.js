@@ -45,10 +45,16 @@ async function fetchData(inputValue) {
             const nokValueInt = parseInt(nokValue, 10);
             if (nokValueInt < 50000) {
                 message = "Akseptabelt lån";
+                bodyClass = 'akseptabelt';
+
             } else if (nokValueInt >= 50000 && nokValueInt <= 250000) {
                 message = "Bilen er nesten bare lån";
+                bodyClass = 'bilen-lan';
+
             } else if (nokValueInt > 250000) {
                 message = "Personen eier jo faktisk ikke bilen";
+                bodyClass = 'eier-ikke-bilen';
+
             } else {
                 message = "NOK value not found";
             }
@@ -56,6 +62,11 @@ async function fetchData(inputValue) {
         } else {
             message = "NOK value not found";
             resultDiv.textContent = message;
+        }
+        // Apply the appropriate class to the body
+        document.body.className = ''; // Reset any existing classes
+        if (bodyClass) {
+            document.body.classList.add(bodyClass);
         }
     } catch (error) {
         console.error('Error fetching data:', error);

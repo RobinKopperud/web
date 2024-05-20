@@ -1,0 +1,67 @@
+main {
+    max-width: 900px; /* Slightly wider main content area */
+    background: #fff; /* White background for main content */
+    padding: 30px; /* Increased padding */
+    border-radius: 10px; /* More rounded corners */
+    box-shadow: 0 0 15px rgba(0,0,0,0.1); /* Larger shadow */
+}
+
+main h1 {
+    font-size: 26px; /* Larger font size for the main heading */
+    margin-bottom: 25px; /* Increased bottom margin */
+    color: #555; /* Slightly lighter text color for heading */
+}
+
+main input[type="text"], main input[type="file"] {
+    width: calc(100% - 20px); /* Adjusted width to fit padding */
+    padding: 12px; /* Increased padding */
+    margin-bottom: 15px; /* Increased margin-bottom */
+    border: 2px solid #ccc; /* Slightly thicker border */
+    border-radius: 5px; /* Rounded corners */
+}
+
+main button {
+    width: calc(100% - 20px); /* Adjusted width to fit padding */
+    padding: 12px; /* Increased padding */
+    background: #444; /* Slightly lighter background */
+    color: #fff; /* White text color */
+    border: none;
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer;
+    font-size: 18px; /* Larger font size */
+    margin-bottom: 15px; /* Increased margin-bottom */
+    transition: background 0.3s ease; /* Smooth transition for background */
+}
+
+main button:hover {
+    background: #666; /* Slightly lighter hover background */
+}
+
+#result, #resultAI {
+    margin-top: 25px; /* Increased margin-top */
+    padding: 15px; /* Increased padding */
+    background: #e9e9e9; /* Light grey background */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 20px; /* Larger font size */
+    text-align: center; /* Centered text */
+}
+
+/* Specific styles for messages */
+body.akseptabelt-lan {
+    background-color: #d4edda; /* Green background */
+}
+
+body.bilen-lan {
+    background: linear-gradient(to bottom, #d4edda, #f8d7da); /* Green to red gradient */
+}
+
+body.eier-ikke-bilen {
+    background-color: #f8d7da; /* Red background */
+    animation: blink 1s infinite; /* Blinking effect */
+}
+
+@keyframes blink {
+    0% { background-color: #f8d7da; }
+    50% { background-color: #fff; }
+    100% { background-color: #f8d7da; }
+}

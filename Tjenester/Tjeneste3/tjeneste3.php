@@ -25,6 +25,8 @@
     </header>
     <main class="tjeneste3">
         <h1>Generate Crypto Wallet</h1>
+        <h1>Ta en kopi av alle tall</h1>
+
         <button id="generateBtcButton">Generate Bitcoin Wallet</button>
         <button id="generateXrpButton">Generate Ripple Wallet</button>
         <div id="keys" style="display:none;">

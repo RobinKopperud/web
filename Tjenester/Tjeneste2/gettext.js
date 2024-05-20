@@ -12,7 +12,6 @@ document.getElementById('upload-image').addEventListener('click', () => {
     reader.onloadend = async () => {
         const base64String = reader.result;
 
-        // Check if the result is in the correct format
         const base64Image = base64String.split(',')[1];
         if (!base64Image) {
             console.error('Invalid base64 string:', base64String);
@@ -37,9 +36,14 @@ document.getElementById('upload-image').addEventListener('click', () => {
             if (result.error) {
                 throw new Error(result.error);
             }
-            licensePlateNumber = result.choices[0].message.content; // Set the licensePlateNumber
 
-            document.getElementById('resultAI').textContent = `License Plate Number: ${result.choices[0].message.content}`;
+            licensePlateNumber = result.choices[0].message.content; // Set the licensePlateNumber
+            document.getElementById('resultAI').textContent = `License Plate Number: ${licensePlateNumber}`;
+
+            // Dispatch custom event with the license plate number
+            const event = new CustomEvent('licensePlateObtained', { detail: { licensePlateNumber } });
+            document.dispatchEvent(event);
+
         } catch (error) {
             console.error('Error:', error);
             alert('An error occurred while processing the image: ' + error.message);

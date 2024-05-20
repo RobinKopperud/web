@@ -1,3 +1,11 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    // Redirect to login page if the user is not logged in
+    header('Location: ../loginout.html');
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

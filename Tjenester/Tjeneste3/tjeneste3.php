@@ -6,6 +6,11 @@
     <title>Wallet Generator</title>
     <link rel="stylesheet" href="style3.css">
     <link rel="stylesheet" href="../style.css">
+    <!-- Include browser-compatible versions of libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/elliptic@6.5.4/dist/elliptic.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/buffer/6.0.3/buffer.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" defer></script>
 </head>
 <body>
     <header>
@@ -29,13 +34,10 @@
     <footer>
         <p>&copy; 2024 Tjenester. All rights reserved.</p>
     </footer>
-    <script src="https://cdn.jsdelivr.net/npm/elliptic/dist/elliptic.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/buffer/index.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/crypto-browserify/index.js"></script>
-    <script src="btc.js"></script>
-    <script src="xrp.js"></script>
-    <script>
+    <!-- Include custom scripts -->
+    <script src="btc.js" defer></script>
+    <script src="xrp.js" defer></script>
+    <script defer>
         document.getElementById('generateBtcButton').addEventListener('click', generateBitcoinWallet);
         document.getElementById('generateXrpButton').addEventListener('click', generateRippleWallet);
     </script>

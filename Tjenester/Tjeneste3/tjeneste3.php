@@ -9,6 +9,7 @@
     <!-- Include crypto-js and elliptic libraries via CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/elliptic/6.5.4/elliptic.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bip39@3.0.4"></script>
     <script src="https://cdn.jsdelivr.net/npm/xrpl@2.2.0"></script>
 
 
@@ -27,13 +28,15 @@
         <button id="generateBtcButton">Generate Bitcoin Wallet</button>
         <button id="generateXrpButton">Generate Ripple Wallet</button>
         <div id="keys" style="display:none;">
-            <p><strong>Address:</strong> <span id="address"></span></p>
+            
+            <p>Du trenger kun denne for å motta<strong>Address:</strong> <span id="address"></span></p>
             <p><strong>Public Key:</strong> <span id="publicKey"></span></p>
+            <p>Ta godt vare på denne<strong>Mnemonic Phrase:</strong> <span id="mnemonic"></span></p>
             <p><strong>Private Key:</strong> <span id="privateKey"></span></p>
         </div>
     </main>
     <footer>
-        <p>&copy; 2024 Tjenester. All rights reserved.</p>
+        <p>&copy; 2024 Tjenester. All rights reserved. Ingen ansvar for genererte addresser</p>
     </footer>
     <!-- Include custom scripts -->
     <script src="btc.js"></script>

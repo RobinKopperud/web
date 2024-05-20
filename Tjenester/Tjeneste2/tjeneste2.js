@@ -48,15 +48,15 @@ async function fetchData(inputValue) {
                 bodyClass = 'akseptabelt';
 
             } else if (nokValueInt >= 50000 && nokValueInt <= 250000) {
-                message = "Bilen er nesten bare lån";
+                message = "Begynner å bli mye lån";
                 bodyClass = 'bilen-lan';
 
             } else if (nokValueInt > 250000) {
-                message = "Personen eier jo faktisk ikke bilen";
+                message = "Personen eier jo nesten ikke bilen";
                 bodyClass = 'eier-ikke-bilen';
 
             } else {
-                message = "NOK value not found";
+                message = "NOK value not found or 0";
             }
             resultDiv.textContent = `NOK Value: ${nokValueInt} - ${message}`;
         } else {

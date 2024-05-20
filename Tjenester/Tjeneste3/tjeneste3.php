@@ -37,9 +37,5 @@
     <!-- Include custom scripts -->
     <script src="btc.js" defer></script>
     <script src="xrp.js" defer></script>
-    <script defer>
-        document.getElementById('generateBtcButton').addEventListener('click', generateBitcoinWallet);
-        document.getElementById('generateXrpButton').addEventListener('click', generateRippleWallet);
-    </script>
 </body>
 </html>

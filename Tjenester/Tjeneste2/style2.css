@@ -58,11 +58,11 @@ main.bilen-lan {
 
 main.eier-ikke-bilen {
     background-color: #91000c; /* Red background */
-    animation: blink 1s infinite; /* Blinking effect */
+    animation: blink 0.7s infinite; /* Blinking effect */
 }
 
 @keyframes blink {
-    0% { background-color: #b6404a; }
-    50% { background-color: #b91010; }
+    0% { background-color: #c40010; }
+    50% { background-color: #fce7e7; }
     100% { background-color: #c40010; }
 }

@@ -1,3 +1,5 @@
+let licensePlateNumber = '';
+
 document.getElementById('upload-image').addEventListener('click', () => {
     const imageUpload = document.getElementById('image-upload').files[0];
 
@@ -35,7 +37,8 @@ document.getElementById('upload-image').addEventListener('click', () => {
             if (result.error) {
                 throw new Error(result.error);
             }
-
+            
+            licensePlateNumber = result.choices[0].message.content.trim();
             document.getElementById('result').textContent = `License Plate Number: ${result.choices[0].message.content}`;
         } catch (error) {
             console.error('Error:', error);

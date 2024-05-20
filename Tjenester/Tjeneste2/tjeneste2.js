@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const fetchButton = document.getElementById('fetch-data');
-    fetchButton.addEventListener('click', async () => {
+    const button = document.getElementById('fetch-data');
+    button.addEventListener('click', async () => {
         const inputValue = document.getElementById('input-value').value;
         if (inputValue.length !== 7) {
             alert("Please enter exactly 7 characters.");
@@ -46,43 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error fetching data:', error);
             resultDiv.textContent = `Error fetching data: ${error.message}`;
-        }
-    });
-
-    const uploadButton = document.getElementById('upload-image');
-    uploadButton.addEventListener('click', async () => {
-        const fileInput = document.getElementById('image-upload');
-        const plateNumberDiv = document.getElementById('plate-number');
-
-        if (!fileInput.files.length) {
-            alert("Please select an image file.");
-            return;
-        }
-
-        const file = fileInput.files[0];
-
-        const formData = new FormData();
-        formData.append('image', file);
-
-        try {
-            const response = await fetch('upload.php', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            if (data.error) {
-                throw new Error(data.error);
-            }
-
-            plateNumberDiv.textContent = `License Plate Number: ${data.plate_number}`;
-        } catch (error) {
-            console.error('Error processing image:', error);
-            plateNumberDiv.textContent = `Error processing image: ${error.message}`;
         }
     });
 });

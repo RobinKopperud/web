@@ -64,9 +64,9 @@ async function fetchData(inputValue) {
             resultDiv.textContent = message;
         }
         // Apply the appropriate class to the body
-        document.body.className = ''; // Reset any existing classes
+        document.main.className = ''; // Reset any existing classes
         if (bodyClass) {
-            document.body.classList.add(bodyClass);
+            document.main.classList.add(bodyClass);
         }
     } catch (error) {
         console.error('Error fetching data:', error);

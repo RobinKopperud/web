@@ -1,3 +1,7 @@
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('generateXrpButton').addEventListener('click', generateRippleWallet);
+});
+
 function generateRippleWallet() {
     const EC = elliptic.ec;
     const ec = new EC('secp256k1');

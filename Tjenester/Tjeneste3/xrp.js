@@ -18,11 +18,11 @@ function getRippleAddress(publicKey) {
     const publicKeyBuffer = Buffer.from(publicKey, 'hex');
     const sha256 = crypto.createHash('sha256').update(publicKeyBuffer).digest();
     const ripemd160 = crypto.createHash('ripemd160').update(sha256).digest();
-    
+
     const payload = Buffer.concat([Buffer.from([0x00]), ripemd160]);
     const checksum = crypto.createHash('sha256').update(crypto.createHash('sha256').update(payload).digest()).digest().slice(0, 4);
     const addressBuffer = Buffer.concat([payload, checksum]);
-    
+
     return base58Encode(addressBuffer);
 }
 

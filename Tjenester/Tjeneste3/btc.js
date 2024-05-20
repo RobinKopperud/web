@@ -1,5 +1,3 @@
-document.getElementById('generateButton').addEventListener('click', generateBitcoinWallet);
-
 function generateBitcoinWallet() {
     const EC = elliptic.ec;
     const ec = new EC('secp256k1');

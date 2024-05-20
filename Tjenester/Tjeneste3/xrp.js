@@ -1,5 +1,3 @@
-document.getElementById('generateButton').addEventListener('click', generateRippleWallet);
-
 function generateRippleWallet() {
     const EC = elliptic.ec;
     const ec = new EC('secp256k1');

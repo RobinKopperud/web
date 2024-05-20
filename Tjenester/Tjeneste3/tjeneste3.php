@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tjeneste 3</title>
     <link rel="stylesheet" href="style3.css">
+    <link rel="stylesheet" href="../style.css">
+
 </head>
 <body>
     <header>
@@ -37,21 +39,17 @@
     <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/buffer/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/crypto-browserify/index.js"></script>
+    <script src="btc.js"></script>
+    <script src="xrp.js"></script>
     <script>
-        document.getElementById('crypto-select').addEventListener('change', function () {
-            const crypto = this.value;
+        document.getElementById('generateButton').addEventListener('click', () => {
+            const crypto = document.getElementById('crypto-select').value;
             if (crypto === 'btc') {
-                loadScript('btc.js');
+                generateBitcoinWallet();
             } else if (crypto === 'xrp') {
-                loadScript('xrp.js');
+                generateRippleWallet();
             }
         });
-
-        function loadScript(scriptName) {
-            const script = document.createElement('script');
-            script.src = scriptName;
-            document.head.appendChild(script);
-        }
     </script>
 </body>
 </html>

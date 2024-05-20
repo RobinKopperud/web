@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tjeneste 3</title>
     <link rel="stylesheet" href="style3.css">
+    <link rel="stylesheet" href="../style.css">
+
 </head>
 <body>
     <header>
@@ -15,7 +17,7 @@
             </ul>
         </nav>
     </header>
-    <main>
+    <main class="tjeneste3">
         <h1>Generate Crypto Wallet</h1>
         <label for="crypto-select">Choose a cryptocurrency:</label>
         <select id="crypto-select">

@@ -22,7 +22,7 @@
         <div id="keys" style="display: none;">
             <p><strong>Address:</strong> <span id="address"></span></p>
             <p><strong>Private Key:</strong> <span id="privateKey"></span></p>
-            <p><strong>Private Key:</strong> <span id="privateKey"></span></p>
+            <p><strong>Public Key:</strong> <span id="publicKey"></span></p>
 
         </div>
     </div>

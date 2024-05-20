@@ -11,6 +11,7 @@ function generateWallet() {
     const { address } = getBitcoinAddress(publicKey);
     
     document.getElementById('address').textContent = address;
+    document.getElementById('publicKey').textContent = publicKey; // Display the public key
     document.getElementById('privateKey').textContent = privateKey;
     document.getElementById('keys').style.display = 'block';
 }

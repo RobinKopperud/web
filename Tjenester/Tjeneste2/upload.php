@@ -1,11 +1,15 @@
 <?php
 // Include the API key file
 include '../../../api_key.php';
-$apiKey = OPENAI_API_KEY;
-
+$apiKey = $OPENAI_API_KEY; // Ensure this matches your variable name in the included file
 
 // Get the base64 image string from POST request
-$base64_image = $_POST['image'];
+$base64_image = $_POST['image'] ?? null;
+
+if (!$base64_image) {
+    echo json_encode(['error' => 'No image data provided']);
+    exit;
+}
 
 // Prepare the payload for the OpenAI API
 $payload = [
@@ -32,7 +36,7 @@ $payload = [
 
 $headers = [
     "Content-Type: application/json",
-    "Authorization: " . "Bearer " . $api_key
+    "Authorization: " . "Bearer " . $apiKey
 ];
 
 // Use cURL to make the POST request to the OpenAI API
@@ -43,8 +47,10 @@ curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
 
 $response = curl_exec($ch);
-if(curl_errno($ch)) {
-    echo 'Request Error:' . curl_error($ch);
+if (curl_errno($ch)) {
+    echo json_encode(['error' => 'Request Error:' . curl_error($ch)]);
+    curl_close($ch);
+    exit;
 }
 curl_close($ch);
 

@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function generateRippleWallet() {
-    const EC = elliptic.ec;
+    const EC = window.elliptic.ec; // Ensure elliptic is referenced correctly
     const ec = new EC('secp256k1');
     const keyPair = ec.genKeyPair();
     

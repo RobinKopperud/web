@@ -20,7 +20,7 @@ $payload = [
             "content" => [
                 [
                     "type" => "text",
-                    "text" => "whats the license plate number?"
+                    "text" => "whats the license plate number? answer strictly only with the license plate number"
                 ],
                 [
                     "type" => "image_url",

@@ -6,7 +6,7 @@
     <title>Tjeneste 2</title>
     <link rel="stylesheet" href="../style.css">
     <script defer src="tjeneste2.js"></script>
-    <script src="gettext.js"></script>
+    <script defer src="gettext.js"></script>
 </head>
 <body>
     <header>

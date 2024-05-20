@@ -1,6 +1,8 @@
 <?php
 // Include the API key file
-include '../../api_key.php';
+include '../../../api_key.php';
+$apiKey = OPENAI_API_KEY;
+
 
 // Get the base64 image string from POST request
 $base64_image = $_POST['image'];
@@ -14,7 +16,7 @@ $payload = [
             "content" => [
                 [
                     "type" => "text",
-                    "text" => "what is the license plate number?"
+                    "text" => "whats the license plate number?"
                 ],
                 [
                     "type" => "image_url",

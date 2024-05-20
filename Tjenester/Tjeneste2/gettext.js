@@ -1,5 +1,5 @@
-document.getElementById('button').addEventListener('click', () => {
-    const imageUpload = document.getElementById('upload-image').files[0];
+document.getElementById('upload-image').addEventListener('click', () => {
+    const imageUpload = document.getElementById('image-upload').files[0];
 
     if (!imageUpload) {
         alert('Please select an image file first.');

@@ -48,7 +48,7 @@ main button:hover {
 }
 
 /* Background color classes for different messages in main section */
-main.akseptabelt-lan {
+main.akseptabelt {
     background-color: #03b62d; /* Green background */
 }
 main.null {

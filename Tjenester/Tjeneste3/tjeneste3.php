@@ -24,7 +24,9 @@
             <p><strong>Private Key:</strong> <span id="privateKey"></span></p>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bitcoinjs-lib/5.2.0/bitcoinjs.min.js"></script>
+    <!-- Include the elliptic library CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/elliptic/6.5.4/elliptic.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
     <script src="tjeneste3.js"></script>
 </body>
 </html>

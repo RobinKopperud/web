@@ -3,7 +3,7 @@ document.getElementById('generateBtcButton').addEventListener('click', function(
 });
 
 function generateBitcoinWallet() {
-    const bitcoin = window.bitcoin;
+    const bitcoin = window.bitcoinjs; // ensure the library is referenced correctly
     const keyPair = bitcoin.ECPair.makeRandom();
     const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey });
 

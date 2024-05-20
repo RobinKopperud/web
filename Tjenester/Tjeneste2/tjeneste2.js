@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const url = `https://rettsstiftelser.brreg.no/nb/oppslag/motorvogn/${inputValue}`;
+        const url = `https://rettsstiftelser.brreg.no/nb/oppslag/motorvogn/${valueToUse}`;
         const proxyUrl = `proxy.php?url=${encodeURIComponent(url)}`;
         const resultDiv = document.getElementById('result');
         resultDiv.textContent = "Fetching data...";

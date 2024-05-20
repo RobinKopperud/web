@@ -49,11 +49,11 @@ main button:hover {
 
 /* Background color classes for different messages in main section */
 main.akseptabelt-lan {
-    background-color: #d4edda; /* Green background */
+    background-color: #03b62d; /* Green background */
 }
 
 main.bilen-lan {
-    background: linear-gradient(to bottom, #d4edda, #f8d7da); /* Green to red gradient */
+    background: linear-gradient(to bottom, #01bb11, #8a000b); /* Green to red gradient */
 }
 
 main.eier-ikke-bilen {

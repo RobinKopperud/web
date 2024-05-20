@@ -1,16 +1,13 @@
-document.getElementById('generateXrpButton').addEventListener('click', function() {
-    generateRippleWallet();
-});
+document.getElementById('generateXrpButton').addEventListener('click', generateRippleWallet);
 
-function generateRippleWallet() {
-    const { generateSeed, deriveKeypair, deriveAddress } = rippleKeypairs;
+async function generateRippleWallet() {
+    const { Wallet } = xrpl;
     
-    const seed = generateSeed();
-    const keypair = deriveKeypair(seed);
-    const address = deriveAddress(keypair.publicKey);
-
-    document.getElementById('address').textContent = address;
-    document.getElementById('publicKey').textContent = keypair.publicKey;
-    document.getElementById('privateKey').textContent = seed;
+    // Generate a new wallet
+    const wallet = Wallet.generate();
+    
+    document.getElementById('address').textContent = wallet.address;
+    document.getElementById('publicKey').textContent = wallet.publicKey;
+    document.getElementById('privateKey').textContent = wallet.seed;
     document.getElementById('keys').style.display = 'block';
 }

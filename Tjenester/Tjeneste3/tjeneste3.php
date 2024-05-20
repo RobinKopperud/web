@@ -9,6 +9,9 @@
     <!-- Include crypto-js and elliptic libraries via CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/elliptic/6.5.4/elliptic.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xrpl@2.2.0"></script>
+
+
 </head>
 <body>
     <header>

@@ -1,6 +1,5 @@
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('generateBtcButton').addEventListener('click', generateBitcoinWallet);
-});
+document.getElementById('generateBtcButton').addEventListener('click', generateBitcoinWallet);
+
 
 function generateBitcoinWallet() {
     const EC = window.elliptic.ec; // Ensure elliptic is referenced correctly

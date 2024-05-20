@@ -6,11 +6,6 @@
     <title>Wallet Generator</title>
     <link rel="stylesheet" href="style3.css">
     <link rel="stylesheet" href="../style.css">
-    <!-- Include browser-compatible versions of libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/elliptic/dist/elliptic.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/buffer/6.0.3/buffer.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
 <body>
     <header>

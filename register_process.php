@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $stmt->close();
-    header("Location: index.php");
+    header("Location: loginout.html");
     exit();
 }
 

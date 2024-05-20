@@ -32,11 +32,13 @@
                     <p>Description of Service 2.</p>
                 </div>
             </a>
-            <div class="service-item">
-                <img src="bilder/tjeneste3.png" alt="Service 3">
-                <h3>Krypto</h3>
-                <p>Description of Service 3.</p>
-            </div>
+            <a href="Tjeneste3/tjeneste3.php">
+                <div class="service-item">
+                    <img src="bilder/tjeneste3.png" alt="Service 3">
+                    <h3>Lag din egen BTC lommebok</h3>
+                    <p>Description of Service 3.</p>
+                </div>
+            </a>
             <!-- Add more service items as needed -->
         </section>
     </main>

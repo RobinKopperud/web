@@ -1,6 +1,6 @@
 <?php
 // Include the API key file
-include '../../../api_key.php';
+include '../../api_key.php';
 $apiKey = $OPENAI_API_KEY; // Ensure this matches your variable name in the included file
 
 // Get the base64 image string from POST request

@@ -37,8 +37,9 @@ document.getElementById('upload-image').addEventListener('click', () => {
             if (result.error) {
                 throw new Error(result.error);
             }
-            
-            document.getElementById('result').textContent = `License Plate Number: ${result.choices[0].message.content}`;
+            licensePlateNumber = result.choices[0].message.content; // Set the licensePlateNumber
+
+            document.getElementById('resultAI').textContent = `License Plate Number: ${result.choices[0].message.content}`;
         } catch (error) {
             console.error('Error:', error);
             alert('An error occurred while processing the image: ' + error.message);

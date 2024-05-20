@@ -26,6 +26,8 @@
             <button id="upload-image">Upload Image</button>
         </div>
         <div id="result"></div>
+        <div id="resultAI"></div>
+
     </main>
     <footer>
         <p>&copy; 2024 Tjenester. All rights reserved.</p>

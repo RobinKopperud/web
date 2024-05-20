@@ -4,9 +4,14 @@ document.addEventListener('DOMContentLoaded', () => {
     button.addEventListener('click', async () => {
         const inputValue = document.getElementById('input-value').value;
 
-        if (inputValue.length !== 7) {
-            alert("Please enter exactly 7 characters.");
-            return;
+        // Check if inputValue is empty, then use licensePlateNumber
+        if (inputValue.length !== 7) {  // <== Changed this line
+            if (licensePlateNumber && licensePlateNumber.length === 7) {  // <== Added this block
+                inputValue = licensePlateNumber;  // <== Added this line
+            } else {
+                alert("Please enter exactly 7 characters or upload an image to get the license plate number.");
+                return;
+            }
         }
 
         const url = `https://rettsstiftelser.brreg.no/nb/oppslag/motorvogn/${inputValue}`;

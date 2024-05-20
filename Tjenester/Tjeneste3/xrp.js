@@ -3,11 +3,14 @@ document.getElementById('generateXrpButton').addEventListener('click', function(
 });
 
 function generateRippleWallet() {
-    const api = new ripple.RippleAPI();
-    const {address, secret} = api.generateAddress();
+    const { generateSeed, deriveKeypair, deriveAddress } = rippleKeypairs;
+    
+    const seed = generateSeed();
+    const keypair = deriveKeypair(seed);
+    const address = deriveAddress(keypair.publicKey);
     
     document.getElementById('address').textContent = address;
-    document.getElementById('publicKey').textContent = ''; // Ripple doesn't have a simple public key
-    document.getElementById('privateKey').textContent = secret;
+    document.getElementById('publicKey').textContent = keypair.publicKey;
+    document.getElementById('privateKey').textContent = seed;
     document.getElementById('keys').style.display = 'block';
 }

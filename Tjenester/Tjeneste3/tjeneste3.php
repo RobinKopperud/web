@@ -6,6 +6,9 @@
     <title>Wallet Generator</title>
     <link rel="stylesheet" href="style3.css">
     <link rel="stylesheet" href="../style.css">
+    <!-- Include bitcore-lib and ripple-lib via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bitcore-lib@8.25.6"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ripple-keypairs@1.0.2"></script>
 </head>
 <body>
     <header>

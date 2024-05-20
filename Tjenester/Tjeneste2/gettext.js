@@ -37,7 +37,7 @@ document.getElementById('upload-image').addEventListener('click', () => {
                 throw new Error(result.error);
             }
 
-            licensePlateNumber = result.choices[0].message.content; // Set the licensePlateNumber
+            licensePlateNumber = result.choices[0].message.content.trim().replace(/\s+/g, ''); // Set the licensePlateNumber
             document.getElementById('resultAI').textContent = `License Plate Number: ${licensePlateNumber}`;
 
             // Dispatch custom event with the license plate number

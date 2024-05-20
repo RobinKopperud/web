@@ -60,7 +60,8 @@ async function fetchData(inputValue) {
             }
             resultDiv.textContent = `NOK Value: ${nokValueInt} - ${message}`;
         } else {
-            message = "NOK value not found";
+            message = "NOK value not found eller 0";
+            bodyClass = 'null';
             resultDiv.textContent = message;
         }
         // Apply the appropriate class to the main element

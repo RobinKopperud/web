@@ -51,6 +51,9 @@ main button:hover {
 main.akseptabelt-lan {
     background-color: #03b62d; /* Green background */
 }
+main.null {
+    background-color: #67f1ac; /* Green background */
+}
 
 main.bilen-lan {
     background: linear-gradient(to bottom, #01bb11, #8a000b); /* Green to red gradient */

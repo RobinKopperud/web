@@ -63,10 +63,11 @@ async function fetchData(inputValue) {
             message = "NOK value not found";
             resultDiv.textContent = message;
         }
-        // Apply the appropriate class to the body
-        document.main.className = ''; // Reset any existing classes
+        // Apply the appropriate class to the main element
+        const mainElement = document.querySelector('main');
+        mainElement.className = ''; // Reset any existing classes
         if (bodyClass) {
-            document.main.classList.add(bodyClass);
+            mainElement.classList.add(bodyClass);
         }
     } catch (error) {
         console.error('Error fetching data:', error);

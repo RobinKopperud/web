@@ -47,7 +47,7 @@ main button:hover {
     text-align: center; /* Centered text */
 }
 
-/* Specific styles for messages */
+/* Background color classes for different messages in main section */
 main.akseptabelt-lan {
     background-color: #d4edda; /* Green background */
 }
@@ -62,7 +62,7 @@ main.eier-ikke-bilen {
 }
 
 @keyframes blink {
-    0% { background-color: #f5b2b7; }
-    50% { background-color: #920404; }
-    100% { background-color: #6b282e; }
+    0% { background-color: #f8d7da; }
+    50% { background-color: #ad0404; }
+    100% { background-color: #c40010; }
 }

@@ -8,7 +8,16 @@ document.getElementById('upload-image').addEventListener('click', () => {
 
     const reader = new FileReader();
     reader.onloadend = async () => {
-        const base64Image = reader.result.split(',')[1]; // Extract base64 part
+        const base64String = reader.result;
+
+        // Check if the result is in the correct format
+        if (!base64String.includes(',')) {
+            console.error('Invalid base64 string:', base64String);
+            alert('Failed to read image data.');
+            return;
+        }
+
+        const base64Image = base64String.split(',')[1]; // Extract base64 part
 
         const formData = new FormData();
         formData.append('image', base64Image);

@@ -1,3 +1,5 @@
+import { licensePlateNumber } from './gettext';
+
 document.addEventListener('DOMContentLoaded', () => {
     const button = document.getElementById('fetch-data');
     button.addEventListener('click', async () => {

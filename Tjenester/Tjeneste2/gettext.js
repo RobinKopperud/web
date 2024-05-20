@@ -47,3 +47,6 @@ document.getElementById('upload-image').addEventListener('click', () => {
     };
     reader.readAsDataURL(imageUpload);
 });
+
+// Export the licensePlateNumber
+export { licensePlateNumber };

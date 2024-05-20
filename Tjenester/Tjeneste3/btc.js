@@ -3,12 +3,12 @@ document.getElementById('generateBtcButton').addEventListener('click', function(
 });
 
 function generateBitcoinWallet() {
-    const privateKey = new bitcore.PrivateKey();
-    const address = privateKey.toAddress();
-    const publicKey = privateKey.toPublicKey();
-    
-    document.getElementById('address').textContent = address.toString();
-    document.getElementById('publicKey').textContent = publicKey.toString();
-    document.getElementById('privateKey').textContent = privateKey.toString();
+    const bitcoin = window.bitcoin;
+    const keyPair = bitcoin.ECPair.makeRandom();
+    const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey });
+
+    document.getElementById('address').textContent = address;
+    document.getElementById('publicKey').textContent = keyPair.publicKey.toString('hex');
+    document.getElementById('privateKey').textContent = keyPair.privateKey.toString('hex');
     document.getElementById('keys').style.display = 'block';
 }

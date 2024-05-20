@@ -8,7 +8,7 @@ function generateRippleWallet() {
     const seed = generateSeed();
     const keypair = deriveKeypair(seed);
     const address = deriveAddress(keypair.publicKey);
-    
+
     document.getElementById('address').textContent = address;
     document.getElementById('publicKey').textContent = keypair.publicKey;
     document.getElementById('privateKey').textContent = seed;

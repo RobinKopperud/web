@@ -6,12 +6,6 @@
     <title>Wallet Generator</title>
     <link rel="stylesheet" href="style3.css">
     <link rel="stylesheet" href="../style.css">
-
-    <!-- Include required libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/elliptic/dist/elliptic.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/buffer/index.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/crypto-browserify/index.js"></script>
 </head>
 <body>
     <button id="generateButton">Generate Wallet</button>
@@ -22,6 +16,6 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/elliptic/dist/elliptic.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
-    <script src="script.js"></script>
+    <script src="btc.js"></script>
 </body>
 </html>

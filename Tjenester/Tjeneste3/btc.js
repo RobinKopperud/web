@@ -1,4 +1,6 @@
-function generateBitcoinWallet() {
+document.getElementById('generateButton').addEventListener('click', generateWallet);
+
+function generateWallet() {
     const EC = elliptic.ec;
     const ec = new EC('secp256k1');
     const keyPair = ec.genKeyPair();
@@ -9,7 +11,7 @@ function generateBitcoinWallet() {
     const { address } = getBitcoinAddress(publicKey);
     
     document.getElementById('address').textContent = address;
-    document.getElementById('publicKey').textContent = publicKey;
+    document.getElementById('publicKey').textContent = publicKey; // Display the public key
     document.getElementById('privateKey').textContent = privateKey;
     document.getElementById('keys').style.display = 'block';
 }

@@ -14,7 +14,7 @@ body {
   
   #spinning-pizza {
     animation: spin 6s linear infinite;
-    width: 300px;
+    width: 30%;
   }
   
   .navbar-brand-custom {
@@ -42,6 +42,17 @@ body {
 
   .card {
     margin-bottom: 20px; /* Adds space below each card */
+  }
+
+  @media (max-width: 992px) {
+    .navbar-brand {
+      width: 100%;
+      text-align: center;
+    }
+    .navbar-brand-custom {
+      position: static;
+      transform: none;
+    }
   }
   
   

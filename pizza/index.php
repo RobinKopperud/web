@@ -12,27 +12,33 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
   <div class="container">
-  <a class="navbar-brand" href="tel:+4746677101">
+    <a class="navbar-brand d-none d-lg-block" href="tel:+46677101">
       <div class="brand-text">466 77 101</div>
     </a>
-    <a class="navbar-brand navbar-brand-custom mx-auto" href="#">
-      <div class="brand-text">NORDKISA PIZZA & GRILL</div>
-    </a>
+    <div class="mx-auto">
+      <a class="navbar-brand navbar-brand-custom" href="#">
+        <div class="brand-text">NORDKISA PIZZA & GRILL</div>
+      </a>
+    </div>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ml-auto">
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav">
         <li class="nav-item">
           <a class="nav-link" href="#" onclick="showMenu()">Meny</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#" onclick="showFeedback()">Tilbakemeldinger</a>
         </li>
+        <li class="nav-item d-lg-none">
+          <a class="nav-link" href="tel:+46677101">466 77 101</a>
+        </li>
       </ul>
     </div>
   </div>
 </nav>
+
 
 
 <!-- Main Container -->
@@ -159,7 +165,7 @@
     <form id="feedback-form">
       <div class="form-group">
         <label for="name">Navn</label>
-        <input type="text" class="form-control" id="name" name="name" required>
+        <input type="text" class="form-control" id="name" name="name" optional>
       </div>
       <div class="form-group">
         <label for="feedback">Tilbakemelding</label>

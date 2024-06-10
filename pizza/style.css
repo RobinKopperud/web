@@ -1,0 +1,46 @@
+body {
+    padding-top: 56px;
+    background-color: blanchedalmond;
+  }
+  
+  .feedback-container {
+    display: none;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  #spinning-pizza {
+    animation: spin 6s linear infinite;
+  }
+  
+  .navbar-brand-custom {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .navbar-nav {
+    margin-left: auto; /* Plasserer menyen helt til høyre */
+  }
+  
+  .navbar-toggler {
+    position: absolute;
+    right: 20px; /* Sørg for at toggler-knappen er på høyre side */
+  }
+  
+  
+  .navbar-brand-custom .brand-text {
+    font-size: 2rem; /* Større tekst */
+    font-weight: bold;
+    color: #FFD700; /* Gullfarge */
+    font-family: 'Georgia', serif; /* Bruker en serif font som ligner */
+  }
+
+  .card {
+    margin-bottom: 20px; /* Adds space below each card */
+  }
+  
+  

@@ -12,7 +12,7 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
   <div class="container">
-  <a class="navbar-brand" href="tel:+46677101">
+  <a class="navbar-brand" href="tel:+4746677101">
       <div class="brand-text">466 77 101</div>
     </a>
     <a class="navbar-brand navbar-brand-custom mx-auto" href="#">
@@ -177,6 +177,7 @@
 <footer class="bg-light text-center text-lg-start">
   <div class="container p-4">
     <p class="text-center">Kontakt oss på: <a href="mailto:nordkisapizza@gmail.com">nordkisapizza@gmail.com</a></p>
+    <p class="text-center">Kontakt oss på: <a href="tel:+4746677101">466 77 101</a></p> 
   </div>
 </footer>
 

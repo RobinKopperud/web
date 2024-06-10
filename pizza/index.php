@@ -11,18 +11,20 @@
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
-  <div class="container">
-    <a class="navbar-brand d-none d-lg-block" href="tel:+46677101">
-      <div class="brand-text">466 77 101</div>
-    </a>
-    <div class="mx-auto">
+  <div class="container d-flex flex-column">
+    <div class="w-100 text-center">
       <a class="navbar-brand navbar-brand-custom" href="#">
         <div class="brand-text">NORDKISA PIZZA & GRILL</div>
       </a>
     </div>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+    <div class="d-flex justify-content-between w-100">
+      <a class="navbar-brand d-none d-lg-block" href="tel:+46677101">
+        <div class="brand-text">466 77 101</div>
+      </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
     <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
       <ul class="navbar-nav">
         <li class="nav-item">
@@ -39,8 +41,6 @@
   </div>
 </nav>
 
-
-
 <!-- Main Container -->
 <div class="container">
   <!-- Spinning Pizza Image -->
@@ -49,56 +49,57 @@
   </div>
   
   <!-- Menu Section -->
-<div id="menu-container">
-  <h1 class="mt-5 text-center">Vår Meny</h1>
-  <div class="row">
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Margherita</h5>
-          <p class="card-text">Tomatsaus, mozzarella, basilikum</p>
+  <div id="menu-container">
+    <h1 class="mt-5 text-center">Vår Meny</h1>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Margherita</h5>
+            <p class="card-text">Tomatsaus, mozzarella, basilikum</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Pepperoni</h5>
+            <p class="card-text">Tomatsaus, mozzarella, pepperoni</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Vegetar</h5>
+            <p class="card-text">Tomatsaus, mozzarella, diverse grønnsaker</p>
+          </div>
         </div>
       </div>
     </div>
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Pepperoni</h5>
-          <p class="card-text">Tomatsaus, mozzarella, pepperoni</p>
+    <div class="row mt-4">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Hawaiian</h5>
+            <p class="card-text">Tomatsaus, mozzarella, skinke, ananas</p>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Vegetar</h5>
-          <p class="card-text">Tomatsaus, mozzarella, diverse grønnsaker</p>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Four Seasons</h5>
+            <p class="card-text">Tomatsaus, mozzarella, skinke, artisjokker, sopp, oliven</p>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-  <div class="row mt-4">
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Hawaiian</h5>
-          <p class="card-text">Tomatsaus, mozzarella, skinke, ananas</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Four Seasons</h5>
-          <p class="card-text">Tomatsaus, mozzarella, skinke, artisjokker, sopp, oliven</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Diavola</h5>
-          <p class="card-text">Tomatsaus, mozzarella, sterk salami, chili</p>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Diavola</h5>
+            <p class="card-text">Tomatsaus, mozzarella, sterk salami, chili</p>
+          </div>
         </div>
       </div>
     </div>
@@ -156,8 +157,6 @@
     </div>
   </div>
 </div>
-
-  
 
   <!-- Feedback Section -->
   <div id="feedback-container" class="feedback-container">

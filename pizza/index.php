@@ -11,13 +11,11 @@
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
-  <div class="container d-flex flex-column">
-    <div class="w-100 text-center">
-      <a class="navbar-brand navbar-brand-custom" href="#">
-        <div class="brand-text">NORDKISA PIZZA & GRILL</div>
-      </a>
-    </div>
-    <div class="d-flex justify-content-between w-100">
+  <div class="container d-flex flex-column align-items-center">
+    <a class="navbar-brand navbar-brand-custom text-center" href="#">
+      <div class="brand-text">NORDKISA PIZZA & GRILL</div>
+    </a>
+    <div class="d-flex justify-content-between w-100 mt-2">
       <a class="navbar-brand d-none d-lg-block" href="tel:+46677101">
         <div class="brand-text">466 77 101</div>
       </a>
@@ -25,7 +23,7 @@
         <span class="navbar-toggler-icon"></span>
       </button>
     </div>
-    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+    <div class="collapse navbar-collapse justify-content-end w-100" id="navbarNav">
       <ul class="navbar-nav">
         <li class="nav-item">
           <a class="nav-link" href="#" onclick="showMenu()">Meny</a>

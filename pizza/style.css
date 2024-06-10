@@ -47,7 +47,13 @@ body {
     text-align: center;
   }
   .navbar-brand-custom {
-    position: static;
-    transform: none;
+    width: 50%; /* Cover 50% of the screen width on mobile */
+  }
+  .navbar-toggler {
+    width: 100%; /* Ensure toggler button is full width on mobile */
+    margin-top: 10px;
+  }
+  .navbar-brand-custom .brand-text {
+    font-size: 1.5rem; /* Reduce font size on mobile */
   }
 }

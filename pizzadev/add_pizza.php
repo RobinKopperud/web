@@ -16,19 +16,20 @@ function redirect_with_message($message) {
 }
 
 // Check if the POST request contains the necessary data
-if (isset($_POST['title']) && isset($_POST['price']) && isset($_POST['description'])) {
+if (isset($_POST['section']) && isset($_POST['title']) && isset($_POST['price']) && isset($_POST['description'])) {
+    $section = $_POST['section'];
     $title = $_POST['title'];
     $price = $_POST['price'];
     $description = $_POST['description'];
 
     // Prepare an SQL statement to prevent SQL injection
-    $stmt = $conn->prepare("INSERT INTO `pizza` (`title`, `price`, `description`) VALUES (?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO `pizza` (`section`, `title`, `price`, `description`) VALUES (?, ?, ?, ?)");
     if ($stmt === false) {
         log_error('Prepare failed: ' . htmlspecialchars($conn->error));
         redirect_with_message('Prepare failed: ' . htmlspecialchars($conn->error));
     }
 
-    $bind = $stmt->bind_param("sss", $title, $price, $description);
+    $bind = $stmt->bind_param("ssss", $section, $title, $price, $description);
     if ($bind === false) {
         log_error('Bind failed: ' . htmlspecialchars($stmt->error));
         redirect_with_message('Bind failed: ' . htmlspecialchars($stmt->error));

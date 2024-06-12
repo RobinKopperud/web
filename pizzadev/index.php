@@ -20,6 +20,11 @@
     <h2>Edit Menu</h2>
     <div class="form-section">
         <h3>Add a New Card</h3>
+        <?php
+        if (isset($_GET['message'])) {
+            echo '<p>' . htmlspecialchars($_GET['message']) . '</p>';
+        }
+        ?>
         <form id="addCardForm" action="add_pizza.php" method="POST">
             <label for="section">Section:</label>
             <select id="section" name="section">
@@ -28,11 +33,11 @@
                 <option value="grill">Grill</option>
             </select><br>
             <label for="title">Title:</label>
-            <input type="text" id="title" name="title"><br>
+            <input type="text" id="title" name="title" required><br>
             <label for="price">Price:</label>
-            <input type="text" id="price" name="price"><br>
+            <input type="text" id="price" name="price" required><br>
             <label for="description">Description:</label>
-            <input type="text" id="description" name="description"><br>
+            <input type="text" id="description" name="description" required><br>
             <button type="submit">Add Card</button>
         </form>
     </div>
@@ -40,11 +45,12 @@
         <h3>Remove a Card</h3>
         <form id="removeCardForm" action="remove_pizza.php" method="POST">
             <label for="removeNumber">Number:</label>
-            <input type="number" id="removeNumber" name="removeNumber"><br>
+            <input type="number" id="removeNumber" name="removeNumber" required><br>
             <button type="submit">Remove Card</button>
         </form>
     </div>
 </div>
+
 
 
     <section id="pizza-section" class="menu-section">

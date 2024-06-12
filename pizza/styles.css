@@ -1,0 +1,138 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: blanchedalmond;
+}
+
+nav {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 1em 0;
+}
+
+nav h1 {
+  margin: 0;
+  font-size: 2em;
+  color: gold; /* Orange color for the brand name */
+  font-family: palatino;
+}
+
+.contact {
+  text-align: center;
+  margin: 1em 0;
+}
+
+.contact a {
+  color: black;
+  text-decoration: none;
+  font-size: 1.2em;
+  background-color: #fff3e0;
+  padding: 0.5em 1em;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.contact a:hover {
+  background-color: #ffccbc;
+}
+
+.menu-section {
+  margin: 2em 0;
+  text-align: center;
+}
+
+.menu-section h2 {
+  font-size: 2em;
+  color: #333;
+  margin-bottom: 0.5em;
+  border-bottom: 2px solid #ff5733;
+  display: inline-block;
+  padding-bottom: 0.2em;
+}
+
+.menu {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 1em;
+}
+
+.edit {
+  justify-content: center;
+  display: flex;
+}
+
+.card {
+  position: relative;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 1em;
+  padding: 1em;
+  width: calc(33.333% - 2em); /* Adjust for padding/margin */
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.number {
+  font-size: 2em;
+  font-weight: bold;
+  color: #333;
+  margin-right: 1em;
+  display: inline-block;
+}
+
+.card-content {
+  text-align: left;
+  flex: 1;
+}
+
+.card-content h3 {
+  margin: 0;
+  font-size: 1.5em;
+  color: #333;
+}
+
+.card-content p {
+  margin: 0.5em 0;
+  color: #555;
+}
+
+footer {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 1em 0;
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+}
+
+footer a {
+  color: white;
+  text-decoration: none;
+  margin: 0 1em;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  .card {
+      width: calc(50% - 2em);
+  }
+}
+
+@media (max-width: 600px) {
+  .card {
+      width: calc(100% - 2em);
+  }
+}

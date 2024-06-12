@@ -59,6 +59,7 @@ function renumberCards() {
 
 
 // Function to handle the add card form submission using Fetch API
+// Function to handle the add card form submission using Fetch API
 function handleAddCard() {
   const section = document.getElementById('section').value;
   const title = document.getElementById('title').value;
@@ -72,7 +73,7 @@ function handleAddCard() {
       description: description
   });
 
-  fetch('add_pizza.php', {
+  fetch('pizzadev/add_pizza.php', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
@@ -95,6 +96,7 @@ function handleAddCard() {
       alert("Failed to add pizza due to an error.");
   });
 }
+
 
 
 

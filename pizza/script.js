@@ -9,7 +9,7 @@ function addCard(sectionId, title, price, description) {
       <div class="number">0</div>
       <div class="card-content">
           <h3>${title}</h3>
-          <h3>${price}</h3>
+          <p>${price}</p>
           <p>${description}</p>
       </div>
   `;

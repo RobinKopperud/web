@@ -53,26 +53,8 @@
 
 
 
-    <section id="pizza-section" class="menu-section">
-        <h2>Pizza</h2>
-        <div class="menu">
-            <!-- Initial cards can be added here -->
-        </div>
-    </section>
-
-    <section id="kebab-section" class="menu-section">
-        <h2>Kebab</h2>
-        <div class="menu">
-            <!-- Initial cards can be added here -->
-        </div>
-    </section>
-
-    <section id="grill-section" class="menu-section">
-        <h2>Grill</h2>
-        <div class="menu">
-            <!-- Initial cards can be added here -->
-        </div>
-    </section>
+    <!-- Include the sections dynamically generated from the database -->
+    <?php include 'fetch_pizzas.php'; ?>
 
     <footer>
         <a href="tel:+1234567890">Call us: +1234567890</a><br>

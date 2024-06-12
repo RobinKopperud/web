@@ -8,7 +8,14 @@ body {
     margin: 0;
 }
 
-form {
+.container {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    max-width: 900px;
+}
+
+.form-container {
     background-color: #ffffff;
     padding: 20px;
     border-radius: 8px;
@@ -35,10 +42,6 @@ input[type="password"] {
     margin-bottom: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
-}
-
-input[type="radio"] {
-    margin-right: 5px;
 }
 
 button {

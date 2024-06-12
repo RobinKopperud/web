@@ -58,6 +58,7 @@ function renumberCards() {
 
 
 
+// Function to handle the add card form submission using Fetch API
 function handleAddCard() {
   const section = document.getElementById('section').value;
   const title = document.getElementById('title').value;
@@ -82,9 +83,9 @@ function handleAddCard() {
   .then(text => {
       console.log(text);
 
-      // Add the card to the page only if the database insertion is successful
+      // Alert the user based on the response from the server
       if (text.includes("New record created successfully")) {
-          addCard(section, title, price, description);
+          alert("Pizza added successfully!");
       } else {
           alert("Failed to add pizza: " + text);
       }
@@ -94,6 +95,7 @@ function handleAddCard() {
       alert("Failed to add pizza due to an error.");
   });
 }
+
 
 
 

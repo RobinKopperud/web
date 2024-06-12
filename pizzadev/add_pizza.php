@@ -1,7 +1,13 @@
 <?php
 // add_pizza.php
 
-include '../../db.php'; // Adjust the path as needed
+include_once dirname(__FILE__, 2) . '/db.php';
+
+// Function to log errors
+function log_error($message) {
+    $log_file = dirname(__FILE__) . '/error_log.txt';
+    error_log($message . "\n", 3, $log_file);
+}
 
 // Check if the POST request contains the necessary data
 if (isset($_POST['title']) && isset($_POST['price']) && isset($_POST['description'])) {
@@ -12,11 +18,13 @@ if (isset($_POST['title']) && isset($_POST['price']) && isset($_POST['descriptio
     // Prepare an SQL statement to prevent SQL injection
     $stmt = $conn->prepare("INSERT INTO `pizza` (`title`, `price`, `description`) VALUES (?, ?, ?)");
     if ($stmt === false) {
+        log_error('Prepare failed: ' . htmlspecialchars($conn->error));
         die('Prepare failed: ' . htmlspecialchars($conn->error));
     }
 
     $bind = $stmt->bind_param("sss", $title, $price, $description);
     if ($bind === false) {
+        log_error('Bind failed: ' . htmlspecialchars($stmt->error));
         die('Bind failed: ' . htmlspecialchars($stmt->error));
     }
 
@@ -24,12 +32,14 @@ if (isset($_POST['title']) && isset($_POST['price']) && isset($_POST['descriptio
     if ($exec) {
         echo "New record created successfully";
     } else {
+        log_error('Execute failed: ' . htmlspecialchars($stmt->error));
         echo "Execute failed: " . htmlspecialchars($stmt->error);
     }
 
     $stmt->close();
     $conn->close();
 } else {
+    log_error('Error: Invalid input');
     echo "Error: Invalid input";
 }
 ?>

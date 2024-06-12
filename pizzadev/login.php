@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'];
 
     // Fetch user from the database
-    $stmt = $conn->prepare("SELECT id, password FROM user WHERE username = ?");
+    $stmt = $conn->prepare("SELECT id, password FROM users WHERE username = ?");
     if ($stmt === false) {
         log_error('Prepare failed: ' . htmlspecialchars($conn->error));
         die('Prepare failed: ' . htmlspecialchars($conn->error));

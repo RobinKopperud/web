@@ -8,7 +8,7 @@ function log_error($message) {
 }
 
 $pizzas = [];
-$sql = "SELECT * FROM pizza ORDER BY section, id ASC";
+$sql = "SELECT * FROM pizza ORDER BY section DESC, id ASC";
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {

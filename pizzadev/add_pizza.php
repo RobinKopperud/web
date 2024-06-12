@@ -17,6 +17,23 @@ function redirect_with_message($message) {
     exit();
 }
 
+// Function to renumber pizzas
+function renumber_pizzas($conn) {
+    $sql = "SELECT * FROM pizza ORDER BY section, id ASC";
+    $result = $conn->query($sql);
+
+    if ($result->num_rows > 0) {
+        $number = 1;
+        while ($row = $result->fetch_assoc()) {
+            $update_sql = "UPDATE pizza SET id = ? WHERE id = ?";
+            $stmt = $conn->prepare($update_sql);
+            $stmt->bind_param("ii", $number, $row['id']);
+            $stmt->execute();
+            $number++;
+        }
+    }
+}
+
 // Check if the POST request contains the necessary data
 if (isset($_POST['title']) && isset($_POST['price']) && isset($_POST['description']) && isset($_POST['section'])) {
     $title = $_POST['title'];
@@ -24,7 +41,7 @@ if (isset($_POST['title']) && isset($_POST['price']) && isset($_POST['descriptio
     $description = $_POST['description'];
     $section = $_POST['section'];
 
-    // Prepare an SQL statement to prevent SQL injection
+    // Prepare an SQL statement to insert the new pizza
     $stmt = $conn->prepare("INSERT INTO `pizza` (`title`, `price`, `description`, `section`) VALUES (?, ?, ?, ?)");
     if ($stmt === false) {
         log_error('Prepare failed: ' . htmlspecialchars($conn->error));
@@ -39,6 +56,8 @@ if (isset($_POST['title']) && isset($_POST['price']) && isset($_POST['descriptio
 
     $exec = $stmt->execute();
     if ($exec) {
+        // Renumber pizzas after adding the new pizza
+        renumber_pizzas($conn);
         redirect_with_message("New record created successfully");
     } else {
         log_error('Execute failed: ' . htmlspecialchars($stmt->error));

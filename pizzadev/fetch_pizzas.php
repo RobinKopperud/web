@@ -8,7 +8,7 @@ function log_error($message) {
 }
 
 $pizzas = [];
-$sql = "SELECT * FROM pizza ORDER BY section, id DESC";
+$sql = "SELECT * FROM pizza ORDER BY section, id ASC";
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
@@ -19,18 +19,6 @@ if ($result->num_rows > 0) {
     log_error("No pizzas found");
 }
 $conn->close();
-
-// Function to renumber pizzas based on section order
-function renumber_pizzas($pizzas) {
-    $number = 1;
-    foreach ($pizzas as &$pizza) {
-        $pizza['new_id'] = $number++;
-    }
-    return $pizzas;
-}
-
-// Renumber pizzas in a single pass
-$pizzas = renumber_pizzas($pizzas);
 ?>
 
 <section id="pizza-section" class="menu-section">
@@ -39,7 +27,7 @@ $pizzas = renumber_pizzas($pizzas);
         <?php foreach ($pizzas as $pizza): ?>
             <?php if ($pizza['section'] === 'pizza'): ?>
                 <div class="card">
-                    <div class="number"><?php echo htmlspecialchars($pizza['new_id']); ?></div>
+                    <div class="number"><?php echo htmlspecialchars($pizza['id']); ?></div>
                     <div class="card-content">
                         <h3><?php echo htmlspecialchars($pizza['title']); ?></h3>
                         <p><?php echo htmlspecialchars($pizza['price']); ?></p>
@@ -57,7 +45,7 @@ $pizzas = renumber_pizzas($pizzas);
         <?php foreach ($pizzas as $pizza): ?>
             <?php if ($pizza['section'] === 'kebab'): ?>
                 <div class="card">
-                    <div class="number"><?php echo htmlspecialchars($pizza['new_id']); ?></div>
+                    <div class="number"><?php echo htmlspecialchars($pizza['id']); ?></div>
                     <div class="card-content">
                         <h3><?php echo htmlspecialchars($pizza['title']); ?></h3>
                         <p><?php echo htmlspecialchars($pizza['price']); ?></p>
@@ -75,7 +63,7 @@ $pizzas = renumber_pizzas($pizzas);
         <?php foreach ($pizzas as $pizza): ?>
             <?php if ($pizza['section'] === 'grill'): ?>
                 <div class="card">
-                    <div class="number"><?php echo htmlspecialchars($pizza['new_id']); ?></div>
+                    <div class="number"><?php echo htmlspecialchars($pizza['id']); ?></div>
                     <div class="card-content">
                         <h3><?php echo htmlspecialchars($pizza['title']); ?></h3>
                         <p><?php echo htmlspecialchars($pizza['price']); ?></p>

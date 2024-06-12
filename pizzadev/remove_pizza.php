@@ -3,7 +3,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-include_once '../../db.php'; // Adjust the path as needed
+include_once '../../db.php'; // Correct path to include db.php
 
 // Function to log errors
 function log_error($message) {
@@ -17,11 +17,28 @@ function redirect_with_message($message) {
     exit();
 }
 
+// Function to renumber pizzas
+function renumber_pizzas($conn) {
+    $sql = "SELECT * FROM pizza ORDER BY section, id ASC";
+    $result = $conn->query($sql);
+
+    if ($result->num_rows > 0) {
+        $number = 1;
+        while ($row = $result->fetch_assoc()) {
+            $update_sql = "UPDATE pizza SET id = ? WHERE id = ?";
+            $stmt = $conn->prepare($update_sql);
+            $stmt->bind_param("ii", $number, $row['id']);
+            $stmt->execute();
+            $number++;
+        }
+    }
+}
+
 // Check if the POST request contains the necessary data
 if (isset($_POST['removeNumber'])) {
     $id = intval($_POST['removeNumber']);
 
-    // Prepare an SQL statement to delete the pizza by its id (number)
+    // Prepare an SQL statement to delete the pizza
     $stmt = $conn->prepare("DELETE FROM `pizza` WHERE `id` = ?");
     if ($stmt === false) {
         log_error('Prepare failed: ' . htmlspecialchars($conn->error));
@@ -36,6 +53,8 @@ if (isset($_POST['removeNumber'])) {
 
     $exec = $stmt->execute();
     if ($exec) {
+        // Renumber pizzas after removing the pizza
+        renumber_pizzas($conn);
         redirect_with_message("Record deleted successfully");
     } else {
         log_error('Execute failed: ' . htmlspecialchars($stmt->error));

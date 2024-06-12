@@ -17,34 +17,35 @@
     </div>
 
     <div class="edit">
-        <h2>Edit Menu</h2>
-        <div class="form-section">
-            <h3>Add a New Card</h3>
-            <form id="addCardForm">
-                <label for="section">Section:</label>
-                <select id="section" name="section">
-                    <option value="pizza">Pizza</option>
-                    <option value="kebab">Kebab</option>
-                    <option value="grill">Grill</option>
-                </select><br>
-                <label for="title">Title:</label>
-                <input type="text" id="title" name="title"><br>
-                <label for="price">Price:</label>
-                <input type="text" id="price" name="price"><br>
-                <label for="description">Description:</label>
-                <input type="text" id="description" name="description"><br>
-                <button type="button" onclick="handleAddCard()">Add Card</button>
-            </form>
-        </div>
-        <div class="form-section">
-            <h3>Remove a Card</h3>
-            <form id="removeCardForm">
-                <label for="removeNumber">Number:</label>
-                <input type="number" id="removeNumber" name="removeNumber"><br>
-                <button type="button" onclick="handleRemoveCard()">Remove Card</button>
-            </form>
-        </div>
+    <h2>Edit Menu</h2>
+    <div class="form-section">
+        <h3>Add a New Card</h3>
+        <form id="addCardForm" action="add_pizza.php" method="POST">
+            <label for="section">Section:</label>
+            <select id="section" name="section">
+                <option value="pizza">Pizza</option>
+                <option value="kebab">Kebab</option>
+                <option value="grill">Grill</option>
+            </select><br>
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title"><br>
+            <label for="price">Price:</label>
+            <input type="text" id="price" name="price"><br>
+            <label for="description">Description:</label>
+            <input type="text" id="description" name="description"><br>
+            <button type="submit">Add Card</button>
+        </form>
     </div>
+    <div class="form-section">
+        <h3>Remove a Card</h3>
+        <form id="removeCardForm" action="remove_pizza.php" method="POST">
+            <label for="removeNumber">Number:</label>
+            <input type="number" id="removeNumber" name="removeNumber"><br>
+            <button type="submit">Remove Card</button>
+        </form>
+    </div>
+</div>
+
 
     <section id="pizza-section" class="menu-section">
         <h2>Pizza</h2>

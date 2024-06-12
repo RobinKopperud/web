@@ -1,7 +1,7 @@
 <?php
-// add_pizza.php
+// remove_pizza.php
 
-include_once '../../db.php'; // Corrected path to include db.php
+include_once '../../db.php'; // Correct path to include db.php
 
 // Function to log errors
 function log_error($message) {
@@ -10,19 +10,17 @@ function log_error($message) {
 }
 
 // Check if the POST request contains the necessary data
-if (isset($_POST['title']) && isset($_POST['price']) && isset($_POST['description'])) {
-    $title = $_POST['title'];
-    $price = $_POST['price'];
-    $description = $_POST['description'];
+if (isset($_POST['removeNumber'])) {
+    $number = intval($_POST['removeNumber']);
 
-    // Prepare an SQL statement to prevent SQL injection
-    $stmt = $conn->prepare("INSERT INTO `pizza` (`title`, `price`, `description`) VALUES (?, ?, ?)");
+    // Prepare an SQL statement to delete the pizza by its id (number)
+    $stmt = $conn->prepare("DELETE FROM `pizza` WHERE `id` = ?");
     if ($stmt === false) {
         log_error('Prepare failed: ' . htmlspecialchars($conn->error));
         die('Prepare failed: ' . htmlspecialchars($conn->error));
     }
 
-    $bind = $stmt->bind_param("sss", $title, $price, $description);
+    $bind = $stmt->bind_param("i", $number);
     if ($bind === false) {
         log_error('Bind failed: ' . htmlspecialchars($stmt->error));
         die('Bind failed: ' . htmlspecialchars($stmt->error));
@@ -30,7 +28,7 @@ if (isset($_POST['title']) && isset($_POST['price']) && isset($_POST['descriptio
 
     $exec = $stmt->execute();
     if ($exec) {
-        echo "New record created successfully";
+        echo "Record deleted successfully";
     } else {
         log_error('Execute failed: ' . htmlspecialchars($stmt->error));
         echo "Execute failed: " . htmlspecialchars($stmt->error);

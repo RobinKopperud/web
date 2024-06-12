@@ -20,7 +20,7 @@ function redirect_with_message($message) {
 // Function to renumber pizzas
 function renumber_pizzas($conn) {
     // First pass: Assign temporary IDs to avoid conflicts
-    $sql = "SELECT id FROM pizza ORDER BY section, id ASC";
+    $sql = "SELECT id FROM pizza ORDER BY FIELD(section, 'pizza', 'kebab', 'grill'), id ASC";
     $result = $conn->query($sql);
     if ($result->num_rows > 0) {
         $temp_id = 1000;
@@ -34,7 +34,7 @@ function renumber_pizzas($conn) {
     }
 
     // Second pass: Assign new sequential IDs
-    $sql = "SELECT id FROM pizza ORDER BY section, id ASC";
+    $sql = "SELECT id FROM pizza ORDER BY FIELD(section, 'pizza', 'kebab', 'grill'), id ASC";
     $result = $conn->query($sql);
     if ($result->num_rows > 0) {
         $number = 1;

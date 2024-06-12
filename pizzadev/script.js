@@ -59,32 +59,43 @@ function renumberCards() {
 
 
 // Function to handle the add card form submission
-function handleAddCard() {
+async function handleAddCard() {
   const section = document.getElementById('section').value;
   const title = document.getElementById('title').value;
   const price = document.getElementById('price').value;
   const description = document.getElementById('description').value;
 
-  // Send data to the server using AJAX
-  const xhr = new XMLHttpRequest();
-  xhr.open("POST", "add_pizza.php", true);
-  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  // Data to be sent in the POST request
+  const data = new URLSearchParams({
+      title: title,
+      price: price,
+      description: description
+  });
 
-  xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-          console.log(xhr.responseText);
-          // Add the card to the page only if the database insertion is successful
-          if (xhr.responseText.includes("New record created successfully")) {
-              addCard(section, title, price, description);
-          } else {
-              alert("Failed to add pizza: " + xhr.responseText);
-          }
+  try {
+      const response = await fetch('add_pizza.php', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: data
+      });
+
+      const text = await response.text();
+      console.log(text);
+
+      // Add the card to the page only if the database insertion is successful
+      if (text.includes("New record created successfully")) {
+          addCard(section, title, price, description);
+      } else {
+          alert("Failed to add pizza: " + text);
       }
-  };
-
-  const data = `title=${encodeURIComponent(title)}&price=${encodeURIComponent(price)}&description=${encodeURIComponent(description)}`;
-  xhr.send(data);
+  } catch (error) {
+      console.error('Error:', error);
+      alert("Failed to add pizza due to an error.");
+  }
 }
+
 
 
 // Function to handle the remove card form submission

@@ -23,13 +23,13 @@ function renumber_pizzas($conn) {
     $sql = "SELECT id FROM pizza ORDER BY section, id ASC";
     $result = $conn->query($sql);
     if ($result->num_rows > 0) {
-        $temp_id = -1;
+        $temp_id = 1000;
         while ($row = $result->fetch_assoc()) {
             $update_sql = "UPDATE pizza SET id = ? WHERE id = ?";
             $stmt = $conn->prepare($update_sql);
             $stmt->bind_param("ii", $temp_id, $row['id']);
             $stmt->execute();
-            $temp_id--;
+            $temp_id++;
         }
     }
 

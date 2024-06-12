@@ -18,8 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Attempt to log in
         $stmt = $conn->prepare("SELECT id, password FROM users WHERE username = ?");
         if ($stmt === false) {
-            log_error('Prepare failed: ' . htmlspecialchars($conn->error));
-            die('Prepare failed: ' . htmlspecialchars($conn->error));
+            log_error('Login Prepare failed: ' . htmlspecialchars($conn->error));
+            die('Login Prepare failed: ' . htmlspecialchars($conn->error));
         }
 
         $stmt->bind_param("s", $username);
@@ -48,8 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Attempt to sign up
         $stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
         if ($stmt === false) {
-            log_error('Prepare failed: ' . htmlspecialchars($conn->error));
-            die('Prepare failed: ' . htmlspecialchars($conn->error));
+            log_error('Signup Check Prepare failed: ' . htmlspecialchars($conn->error));
+            die('Signup Check Prepare failed: ' . htmlspecialchars($conn->error));
         }
 
         $stmt->bind_param("s", $username);
@@ -63,8 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $hashed_password = password_hash($password, PASSWORD_BCRYPT);
             $stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
             if ($stmt === false) {
-                log_error('Prepare failed: ' . htmlspecialchars($conn->error));
-                die('Prepare failed: ' . htmlspecialchars($conn->error));
+                log_error('Signup Insert Prepare failed: ' . htmlspecialchars($conn->error));
+                die('Signup Insert Prepare failed: ' . htmlspecialchars($conn->error));
             }
 
             $stmt->bind_param("ss", $username, $hashed_password);
@@ -78,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 exit();
             } else {
                 $error = "Failed to create account";
+                log_error('Signup Insert Execute failed: ' . htmlspecialchars($stmt->error));
             }
         }
 
@@ -94,6 +95,8 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login or Sign Up</title>
+    <link rel="stylesheet" href="login.css">
+
 </head>
 <body>
     <h2>Login or Sign Up</h2>

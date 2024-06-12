@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($action == 'login') {
         // Attempt to log in
-        $stmt = $conn->prepare("SELECT id, password FROM user WHERE username = ?");
+        $stmt = $conn->prepare("SELECT id, password FROM users WHERE username = ?");
         if ($stmt === false) {
             log_error('Prepare failed: ' . htmlspecialchars($conn->error));
             die('Prepare failed: ' . htmlspecialchars($conn->error));
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->close();
     } elseif ($action == 'signup') {
         // Attempt to sign up
-        $stmt = $conn->prepare("SELECT id FROM user WHERE username = ?");
+        $stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
         if ($stmt === false) {
             log_error('Prepare failed: ' . htmlspecialchars($conn->error));
             die('Prepare failed: ' . htmlspecialchars($conn->error));
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             // Username is available, create new user
             $hashed_password = password_hash($password, PASSWORD_BCRYPT);
-            $stmt = $conn->prepare("INSERT INTO user (username, password) VALUES (?, ?)");
+            $stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
             if ($stmt === false) {
                 log_error('Prepare failed: ' . htmlspecialchars($conn->error));
                 die('Prepare failed: ' . htmlspecialchars($conn->error));

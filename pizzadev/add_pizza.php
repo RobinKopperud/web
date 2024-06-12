@@ -1,7 +1,7 @@
 <?php
 // add_pizza.php
 
-include_once dirname(__FILE__, 1) . '/db.php';
+include '../../api_key.php'; // Adjust the path as needed
 
 // Check if the POST request contains the necessary data
 if (isset($_POST['title']) && isset($_POST['price']) && isset($_POST['description'])) {

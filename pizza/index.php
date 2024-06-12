@@ -68,8 +68,8 @@
     </section>
 
     <footer>
+        <a href="tel:+1234567890">Call us: +1234567890</a><br>
         <a href="mailto:contact@nordkisapizzaoggrill.com">Email us</a>
-        <a href="tel:+1234567890">Call us: +1234567890</a>
     </footer>
 
 </body>

@@ -29,42 +29,24 @@ function renumber_pizzas($pizzas) {
     return $pizzas;
 }
 
-// Separate pizzas by section and renumber them
-$pizza_section = [];
-$kebab_section = [];
-$grill_section = [];
-
-foreach ($pizzas as $pizza) {
-    switch ($pizza['section']) {
-        case 'pizza':
-            $pizza_section[] = $pizza;
-            break;
-        case 'kebab':
-            $kebab_section[] = $pizza;
-            break;
-        case 'grill':
-            $grill_section[] = $pizza;
-            break;
-    }
-}
-
-$pizza_section = renumber_pizzas($pizza_section);
-$kebab_section = renumber_pizzas($kebab_section);
-$grill_section = renumber_pizzas($grill_section);
+// Renumber pizzas in a single pass
+$pizzas = renumber_pizzas($pizzas);
 ?>
 
 <section id="pizza-section" class="menu-section">
     <h2>Pizza</h2>
     <div class="menu">
-        <?php foreach ($pizza_section as $pizza): ?>
-            <div class="card">
-                <div class="number"><?php echo htmlspecialchars($pizza['new_id']); ?></div>
-                <div class="card-content">
-                    <h3><?php echo htmlspecialchars($pizza['title']); ?></h3>
-                    <p><?php echo htmlspecialchars($pizza['price']); ?></p>
-                    <p><?php echo htmlspecialchars($pizza['description']); ?></p>
+        <?php foreach ($pizzas as $pizza): ?>
+            <?php if ($pizza['section'] === 'pizza'): ?>
+                <div class="card">
+                    <div class="number"><?php echo htmlspecialchars($pizza['new_id']); ?></div>
+                    <div class="card-content">
+                        <h3><?php echo htmlspecialchars($pizza['title']); ?></h3>
+                        <p><?php echo htmlspecialchars($pizza['price']); ?></p>
+                        <p><?php echo htmlspecialchars($pizza['description']); ?></p>
+                    </div>
                 </div>
-            </div>
+            <?php endif; ?>
         <?php endforeach; ?>
     </div>
 </section>
@@ -72,15 +54,17 @@ $grill_section = renumber_pizzas($grill_section);
 <section id="kebab-section" class="menu-section">
     <h2>Kebab</h2>
     <div class="menu">
-        <?php foreach ($kebab_section as $kebab): ?>
-            <div class="card">
-                <div class="number"><?php echo htmlspecialchars($kebab['new_id']); ?></div>
-                <div class="card-content">
-                    <h3><?php echo htmlspecialchars($kebab['title']); ?></h3>
-                    <p><?php echo htmlspecialchars($kebab['price']); ?></p>
-                    <p><?php echo htmlspecialchars($kebab['description']); ?></p>
+        <?php foreach ($pizzas as $pizza): ?>
+            <?php if ($pizza['section'] === 'kebab'): ?>
+                <div class="card">
+                    <div class="number"><?php echo htmlspecialchars($pizza['new_id']); ?></div>
+                    <div class="card-content">
+                        <h3><?php echo htmlspecialchars($pizza['title']); ?></h3>
+                        <p><?php echo htmlspecialchars($pizza['price']); ?></p>
+                        <p><?php echo htmlspecialchars($pizza['description']); ?></p>
+                    </div>
                 </div>
-            </div>
+            <?php endif; ?>
         <?php endforeach; ?>
     </div>
 </section>
@@ -88,15 +72,17 @@ $grill_section = renumber_pizzas($grill_section);
 <section id="grill-section" class="menu-section">
     <h2>Grill</h2>
     <div class="menu">
-        <?php foreach ($grill_section as $grill): ?>
-            <div class="card">
-                <div class="number"><?php echo htmlspecialchars($grill['new_id']); ?></div>
-                <div class="card-content">
-                    <h3><?php echo htmlspecialchars($grill['title']); ?></h3>
-                    <p><?php echo htmlspecialchars($grill['price']); ?></p>
-                    <p><?php echo htmlspecialchars($grill['description']); ?></p>
+        <?php foreach ($pizzas as $pizza): ?>
+            <?php if ($pizza['section'] === 'grill'): ?>
+                <div class="card">
+                    <div class="number"><?php echo htmlspecialchars($pizza['new_id']); ?></div>
+                    <div class="card-content">
+                        <h3><?php echo htmlspecialchars($pizza['title']); ?></h3>
+                        <p><?php echo htmlspecialchars($pizza['price']); ?></p>
+                        <p><?php echo htmlspecialchars($pizza['description']); ?></p>
+                    </div>
                 </div>
-            </div>
+            <?php endif; ?>
         <?php endforeach; ?>
     </div>
 </section>

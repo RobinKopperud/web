@@ -29,6 +29,7 @@ if (isset($_POST['removeNumber'])) {
     $exec = $stmt->execute();
     if ($exec) {
         echo "Record deleted successfully";
+        header("Location: index.php?message=" . urlencode($message));
     } else {
         log_error('Execute failed: ' . htmlspecialchars($stmt->error));
         echo "Execute failed: " . htmlspecialchars($stmt->error);

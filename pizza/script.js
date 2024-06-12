@@ -76,8 +76,4 @@ function handleRemoveCard() {
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {
-  // Example usage:
-  addCard('pizza', 'Margherita', '235/150,-', 'med tomat, basilikum og hvitløk');
-  addCard('pizza', 'Vesuvio', '245/160,-', 'med skinke, ost og tomatsaus');
-  addCard('pizza', 'Capricciosa', '255/170,-', 'med skinke, sopp, artisjokker og oliven');
 });

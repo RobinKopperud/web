@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="no">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nordkisa Pizza og Grill</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="script.js"></script>
+
 </head>
 <body>
     <nav>
@@ -69,6 +71,6 @@
         <a href="mailto:contact@nordkisapizzaoggrill.com">Email us</a>
         <a href="tel:+1234567890">Call us: +1234567890</a>
     </footer>
-    <script src="script.js"></script>
+
 </body>
 </html>

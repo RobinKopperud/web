@@ -9,7 +9,7 @@ function addCard(sectionId, title, price, description) {
       <div class="number">0</div>
       <div class="card-content">
           <h3>${title}</h3>
-          <h3>${price}</h3>
+          <p>${price}</p>
           <p>${description}</p>
       </div>
   `;
@@ -58,8 +58,7 @@ function renumberCards() {
 
 
 
-// Function to handle the add card form submission
-async function handleAddCard() {
+function handleAddCard() {
   const section = document.getElementById('section').value;
   const title = document.getElementById('title').value;
   const price = document.getElementById('price').value;
@@ -72,16 +71,15 @@ async function handleAddCard() {
       description: description
   });
 
-  try {
-      const response = await fetch('add_pizza.php', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          body: data
-      });
-
-      const text = await response.text();
+  fetch('pizzadev/add_pizza.php', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: data
+  })
+  .then(response => response.text())
+  .then(text => {
       console.log(text);
 
       // Add the card to the page only if the database insertion is successful
@@ -90,10 +88,11 @@ async function handleAddCard() {
       } else {
           alert("Failed to add pizza: " + text);
       }
-  } catch (error) {
+  })
+  .catch(error => {
       console.error('Error:', error);
       alert("Failed to add pizza due to an error.");
-  }
+  });
 }
 
 

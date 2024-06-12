@@ -10,7 +10,7 @@ if (isset($_POST['title']) && isset($_POST['price']) && isset($_POST['descriptio
     $description = $_POST['description'];
 
     // Prepare an SQL statement to prevent SQL injection
-    $stmt = $conn->prepare("INSERT INTO pizza (title, price, description) VALUES (?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO `pizza` (`title`, `price`, `description`) VALUES (?, ?, ?)");
     if ($stmt === false) {
         die('Prepare failed: ' . htmlspecialchars($conn->error));
     }

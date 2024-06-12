@@ -1,7 +1,7 @@
 <?php
 // add_pizza.php
 
-include_once '../../db.php'; // Corrected path to include db.php
+include '../../db.php'; // Corrected path to include db.php
 
 // Function to log errors
 function log_error($message) {

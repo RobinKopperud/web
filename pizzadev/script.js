@@ -73,7 +73,7 @@ function handleAddCard() {
       description: description
   });
 
-  fetch('pizzadev/add_pizza.php', {
+  fetch('add_pizza.php', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/x-www-form-urlencoded'

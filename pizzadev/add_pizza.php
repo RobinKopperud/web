@@ -28,29 +28,27 @@ if (isset($_POST['title']) && isset($_POST['price']) && isset($_POST['descriptio
     $stmt = $conn->prepare("INSERT INTO `pizza` (`title`, `price`, `description`, `section`) VALUES (?, ?, ?, ?)");
     if ($stmt === false) {
         log_error('Prepare failed: ' . htmlspecialchars($conn->error));
-        echo 'Prepare failed: ' . htmlspecialchars($conn->error);
-        exit();
+        redirect_with_message('Prepare failed: ' . htmlspecialchars($conn->error));
     }
 
     $bind = $stmt->bind_param("ssss", $title, $price, $description, $section);
     if ($bind === false) {
         log_error('Bind failed: ' . htmlspecialchars($stmt->error));
-        echo 'Bind failed: ' . htmlspecialchars($stmt->error);
-        exit();
+        redirect_with_message('Bind failed: ' . htmlspecialchars($stmt->error));
     }
 
     $exec = $stmt->execute();
     if ($exec) {
-        echo "New record created successfully";
+        redirect_with_message("New record created successfully");
     } else {
         log_error('Execute failed: ' . htmlspecialchars($stmt->error));
-        echo 'Execute failed: ' . htmlspecialchars($stmt->error);
+        redirect_with_message('Execute failed: ' . htmlspecialchars($stmt->error));
     }
 
     $stmt->close();
     $conn->close();
 } else {
     log_error('Error: Invalid input');
-    echo "Error: Invalid input";
+    redirect_with_message("Error: Invalid input");
 }
 ?>

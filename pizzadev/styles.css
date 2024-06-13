@@ -282,3 +282,149 @@ footer a {
   max-width: 90%;
   max-height: 90%;
 }
+
+#back-to-top {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ff5733;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 18px;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 1000;
+  display: none; /* Hidden by default */
+}
+
+#back-to-top:hover {
+  background-color: #e04e1e;
+}
+
+.nav-buttons {
+  display: flex;
+  justify-content: center; /* Center the buttons horizontally */
+  gap: 10px; /* Space between the buttons */
+  margin-top: 10px; /* Space above the buttons */
+}
+
+.nav-buttons button {
+  background-color: #ff5733; /* Orange color for the buttons */
+  color: white; /* White text color */
+  border: none; /* Remove default border */
+  border-radius: 5px; /* Rounded corners */
+  padding: 10px 20px; /* Padding for the buttons */
+  font-size: 16px; /* Font size for the buttons */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transitions */
+}
+
+.nav-buttons button:hover {
+  background-color: #e04e1e; /* Darker orange on hover */
+  transform: translateY(-2px); /* Slightly lift the button on hover */
+}
+
+.nav-buttons button:active {
+  background-color: #c7441c; /* Even darker orange on click */
+  transform: translateY(0); /* Bring the button back to original position on click */
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+  .nav-buttons {
+      flex-direction: column; /* Stack buttons vertically */
+      gap: 5px; /* Reduce space between buttons */
+  }
+
+  .nav-buttons button {
+      width: 100%; /* Full width buttons */
+      text-align: center; /* Center the text inside the button */
+  }
+}
+
+.hours-section {
+  padding: 20px;
+  background-color: #fff3e0;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.hours-section h2 {
+  font-size: 2em;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.hours-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hours-container p {
+  color: #333;
+  font-size: 1.2em;
+  margin: 5px 0;
+}
+
+.opening-hours-footer {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.opening-hours-footer h3 {
+  font-size: 1.5em;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.opening-hours-footer p {
+  color: #fff;
+  margin: 5px 0;
+}
+
+.news-section {
+  padding: 20px;
+  background-color: #f8f8f8;
+  text-align: center;
+}
+
+.news-section h2 {
+  font-size: 2em;
+  color: #ff5733; /* Same orange color as the brand name */
+  margin-bottom: 20px;
+}
+
+.news-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.news-item {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 10px 0;
+  padding: 20px;
+  width: 80%; /* Adjust width as needed */
+  text-align: left;
+}
+
+.news-item h3 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.news-item p {
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.news-item .news-date {
+  font-style: italic;
+  color: #999;
+}

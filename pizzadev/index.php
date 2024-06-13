@@ -12,7 +12,7 @@ $is_logged_in = isset($_SESSION['user_id']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nordkisa Pizza og Grill</title>
-    <meta name="description" content="Enjoy the best pizza, kebab, and grill dishes at Nordkisa Pizza og Grill. Check out our special offers!">
+    <meta name="description" content="Beste take awway i Nordkisa. Pizza og grillmat på sitt beste!">
     <link rel="stylesheet" href="styles.css">
     <script src="script.js"></script>
 
@@ -25,13 +25,14 @@ $is_logged_in = isset($_SESSION['user_id']);
             <button onclick="scrollToSection('kebab-section')">Kebab</button>
             <button onclick="scrollToSection('grill-section')">Grill</button>
             <button onclick="scrollToSection('special-offers')">Special Offers</button>
+            <button onclick="window.location.href='siste-nytt.php'">Siste Nytt</button> <!-- New tab -->
         </div>
     </nav>
     <div class="contact">
         <?php if ($is_logged_in): ?>
-            <a href="logout.php">Logout</a>
+            <a href="logout.php">Logg ut</a>
         <?php endif; ?>
-        <a href="tel:+1234567890">Call us: +1234567890</a>
+        <a href="tel:+1234567890">Ring oss: +1234567890</a>
     </div>
 
     <?php if ($is_logged_in): ?>
@@ -60,7 +61,7 @@ $is_logged_in = isset($_SESSION['user_id']);
                 </form>
             </div>
             <div class="form-section">
-                <h3>Remove a Card</h3>
+                <h3>Fjern en rett</h3>
                 <form id="removeCardForm" action="remove_pizza.php" method="POST">
                     <label for="removeNumber">Number:</label>
                     <input type="number" id="removeNumber" name="removeNumber" required><br>
@@ -75,7 +76,7 @@ $is_logged_in = isset($_SESSION['user_id']);
 
     <!-- Photo Gallery Section -->
     <section id="photo-gallery" class="gallery-section">
-        <h2>Photo Gallery</h2>
+        <h2>Bilder</h2>
         <div class="gallery-container">
             <!-- Add your images here -->
             <div class="gallery-item">
@@ -92,29 +93,37 @@ $is_logged_in = isset($_SESSION['user_id']);
     </section>
 
     <section id="special-offers" class="special-offers">
-        <h2>Special Offers</h2>
+        <h2>Tilbud</h2>
         <div class="offers-container">
             <div class="offer">
-                <h3>Buy One Get One Free!</h3>
+                <h3>Kjøp en pizza, få med en brus</h3>
                 <p>Order any large pizza and get a medium pizza for free.</p>
-                <p class="validity">Valid until: June 30, 2024</p>
+                <p class="validity">Gyldig til: June 30, 2024</p>
             </div>
             <div class="offer">
-                <h3>20% Off on All Kebabs</h3>
-                <p>Enjoy a 20% discount on all kebab items on our menu.</p>
-                <p class="validity">Valid until: July 15, 2024</p>
+                <h3>20% rabatt på kebab</h3>
+                <p>Få 20% rabatt på alt inne kebab</p>
+                <p class="validity">Gyldig til:: July 15, 2024</p>
             </div>
             <div class="offer">
-                <h3>Family Feast Combo</h3>
-                <p>Get 2 large pizzas, 1 kebab plate, and 1.5L soda for only $29.99.</p>
-                <p class="validity">Valid until: July 31, 2024</p>
+                <h3>Familie kombo</h3>
+                <p>Kjøp 2 store pizza og få med 4 drikke og 2 dressing</p>
+                <p class="validity">Gyldig til: July 31, 2024</p>
             </div>
         </div>
     </section>
 
+    <button id="back-to-top" title="Går til toppen">⬆</button>
+
     <footer>
-        <a href="mailto:contact@nordkisapizzaoggrill.com">Email us</a>
-        <a href="tel:+1234567890">Call us: +1234567890</a>
+        <a href="mailto:contact@nordkisapizzaoggrill.com">Send oss en mail her</a>
+        <a href="tel:+1234567890">Ring oss på: +1234567890</a>
+        <div class="opening-hours-footer">
+            <h3>Åpningstider</h3>
+            <p>Mandag - Fredag: 10:00 - 22:00</p>
+            <p>Lørdag: 12:00 - 23:00</p>
+            <p>Søndag: 12:00 - 21:00</p>
+        </div>
     </footer>
 </body>
 </html>

@@ -46,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 // Handle sign-up submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['signup'])) {
     $username = htmlspecialchars($_POST['signup_username']);
+    $email = htmlspecialchars($_POST['signup_email']);
     $password = $_POST['signup_password'];
 
     $stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
@@ -64,13 +65,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['signup'])) {
         // Username is available, create new user
         $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
-        $stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+        $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
         if (!$stmt) {
             log_error("Signup Insert Prepare failed: (" . $conn->errno . ") " . $conn->error);
             die("Signup Insert Prepare failed: (" . $conn->errno . ") " . $conn->error);
         }
 
-        $stmt->bind_param("ss", $username, $hashed_password);
+        $stmt->bind_param("sss", $username, $email, $hashed_password);
         if ($stmt->execute()) {
             if ($stmt->affected_rows > 0) {
                 // User created successfully, log in the user
@@ -126,6 +127,8 @@ $conn->close();
             <form method="POST" action="login.php">
                 <label for="signup_username">Username:</label>
                 <input type="text" id="signup_username" name="signup_username" required><br>
+                <label for="signup_email">Email:</label>
+                <input type="email" id="signup_email" name="signup_email" required><br>
                 <label for="signup_password">Password:</label>
                 <input type="password" id="signup_password" name="signup_password" required><br>
                 <button type="submit" name="signup">Sign Up</button>

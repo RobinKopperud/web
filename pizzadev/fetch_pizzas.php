@@ -1,7 +1,6 @@
 <?php
 include_once '../../db.php'; // Adjust the path as needed
 
-// Function to log errors
 function log_error($message) {
     $log_file = dirname(__FILE__) . '/error_log.txt';
     error_log($message . "\n", 3, $log_file);

@@ -205,7 +205,11 @@ footer a {
   align-items: center;
 }
 
-.heart-button:hover {
+.heart-button.liked {
   color: #e04e1e;
+}
+
+.heart-button:hover {
+  color: #d14b1a;
 }
 

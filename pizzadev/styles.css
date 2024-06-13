@@ -108,18 +108,16 @@ nav h1 {
   color: #555;
 }
 
-
-
 /* Responsive Design */
 @media (max-width: 900px) {
   .card {
-      width: calc(50% - 2em);
+    width: calc(50% - 2em);
   }
 }
 
 @media (max-width: 600px) {
   .card {
-      width: calc(100% - 2em);
+    width: calc(100% - 2em);
   }
 }
 
@@ -171,13 +169,13 @@ nav h1 {
 
 @media (max-width: 900px) {
   .offer {
-      width: calc(50% - 40px); /* Adjust width for smaller screens */
+    width: calc(50% - 40px); /* Adjust width for smaller screens */
   }
 }
 
 @media (max-width: 600px) {
   .offer {
-      width: calc(100% - 40px); /* Adjust width for mobile screens */
+    width: calc(100% - 40px); /* Adjust width for mobile screens */
   }
 }
 
@@ -238,8 +236,8 @@ nav h1 {
 
 @media (max-width: 768px) {
   .gallery-container {
-      flex-direction: column;
-      align-items: center;
+    flex-direction: column;
+    align-items: center;
   }
 }
 
@@ -268,7 +266,6 @@ nav h1 {
   max-width: 90%;
   max-height: 90%;
 }
-
 
 .nav-buttons {
   display: flex;
@@ -301,12 +298,12 @@ nav h1 {
 /* Responsive adjustments for smaller screens */
 @media (max-width: 600px) {
   .nav-buttons {
-      flex-direction: column; /* Stack buttons vertically */
-      gap: 5px; /* Reduce space between buttons */
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 5px; /* Reduce space between buttons */
   }
 
   .nav-buttons button {
-      width: 100%; /* Full width buttons */
-      text-align: center; /* Center the text inside the button */
+    width: 100%; /* Full width buttons */
+    text-align: center; /* Center the text inside the button */
   }
 }

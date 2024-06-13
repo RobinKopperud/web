@@ -1,89 +1,47 @@
-.hours-section {
-    padding: 20px;
-    background-color: #fff3e0;
-    text-align: center;
-    margin: 20px 0;
-}
-
-.hours-section h2 {
-    font-size: 2em;
-    color: #333;
-    margin-bottom: 20px;
-}
-
-.hours-container {
+footer {
+    background-color: #333;
+    color: white;
+    padding: 1em 0;
+    width: 100%;
+    margin-top: auto;
+  }
+  
+  .footer-container {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-}
-
-.hours-container p {
-    color: #333;
-    font-size: 1.2em;
-    margin: 5px 0;
-}
-
-.opening-hours-footer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .footer-item {
+    flex: 1;
     text-align: center;
-    margin-top: 10px;
-}
-
-.opening-hours-footer h3 {
-    font-size: 1.5em;
-    color: #fff;
-    margin-bottom: 10px;
-}
-
-.opening-hours-footer p {
-    color: #fff;
-    margin: 5px 0;
-}
-
-.news-section {
-    padding: 20px;
-    background-color: #f8f8f8;
-    text-align: center;
-}
-
-.news-section h2 {
-    font-size: 2em;
-    color: #ff5733; /* Same orange color as the brand name */
-    margin-bottom: 20px;
-}
-
-.news-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.news-item {
-    background-color: #ffffff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin: 10px 0;
-    padding: 20px;
-    width: 80%; /* Adjust width as needed */
-    text-align: left;
-}
-
-.news-item h3 {
-    color: #333;
-    margin-bottom: 10px;
-}
-
-.news-item p {
-    color: #555;
-    margin-bottom: 10px;
-}
-
-.news-item .news-date {
-    font-style: italic;
-    color: #999;
-}
-
-#back-to-top {
+  }
+  
+  footer a {
+    color: white;
+    text-decoration: none;
+    margin: 0 1em;
+  }
+  
+  @media (max-width: 768px) {
+    .footer-container {
+      flex-direction: column;
+      text-align: center;
+    }
+  
+    .footer-item {
+      margin-bottom: 10px;
+    }
+  
+    footer a {
+      margin: 5px 0;
+    }
+  }
+  
+  #back-to-top {
     position: fixed;
     bottom: 20px;
     right: 20px;
@@ -96,47 +54,53 @@
     cursor: pointer;
     z-index: 1000;
     display: none; /* Hidden by default */
-}
-
-#back-to-top:hover {
+  }
+  
+  #back-to-top:hover {
     background-color: #e04e1e;
-}
-
-footer {
-    background-color: #333;
-    color: white;
+  }
+  
+  .news-section {
+    padding: 20px;
+    background-color: #f8f8f8;
     text-align: center;
-    padding: 1em 0;
-    width: 100%;
-    margin-top: auto;
-}
-
-.footer-container {
+  }
+  
+  .news-section h2 {
+    font-size: 2em;
+    color: #ff5733; /* Same orange color as the brand name */
+    margin-bottom: 20px;
+  }
+  
+  .news-container {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-.footer-item {
-    flex: 1;
-    text-align: center;
-}
-
-footer a {
-    color: white;
-    text-decoration: none;
-    margin: 0 1em;
-}
-
-@media (max-width: 768px) {
-    .footer-container {
-        flex-direction: column;
-    }
-
-    .footer-item {
-        margin-bottom: 10px;
-    }
-}
+  }
+  
+  .news-item {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 10px 0;
+    padding: 20px;
+    width: 80%; /* Adjust width as needed */
+    text-align: left;
+  }
+  
+  .news-item h3 {
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .news-item p {
+    color: #555;
+    margin-bottom: 10px;
+  }
+  
+  .news-item .news-date {
+    font-style: italic;
+    color: #999;
+  }
+  

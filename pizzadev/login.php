@@ -128,7 +128,7 @@ $conn->close();
                 <label for="signup_username">Username:</label>
                 <input type="text" id="signup_username" name="signup_username" required><br>
                 <label for="signup_email">Email:</label>
-                <input type="email" id="signup_email" name="signup_email" required><br>
+                <input type="email" id="signup_email" name="signup_email" optional><br>
                 <label for="signup_password">Password:</label>
                 <input type="password" id="signup_password" name="signup_password" required><br>
                 <button type="submit" name="signup">Sign Up</button>

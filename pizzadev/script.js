@@ -13,8 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.heart-button').forEach(button => {
         button.addEventListener('click', () => {
             const dishId = button.getAttribute('data-id');
-            const isLiked = button.classList.toggle('liked');
-            const action = isLiked ? 'like' : 'unlike';
+            const isLiked = button.classList.contains('liked');
+            const action = isLiked ? 'unlike' : 'like';
 
             fetch('update_hearts.php', {
                 method: 'POST',
@@ -31,27 +31,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Update local storage
                     if (isLiked) {
-                        likedDishes.push(dishId);
-                    } else {
+                        button.classList.remove('liked');
                         const index = likedDishes.indexOf(dishId);
                         if (index > -1) {
                             likedDishes.splice(index, 1);
                         }
+                    } else {
+                        button.classList.add('liked');
+                        likedDishes.push(dishId);
                     }
                     localStorage.setItem('likedDishes', JSON.stringify(likedDishes));
                 } else {
                     alert('Failed to update hearts: ' + data.message);
-                    button.classList.toggle('liked'); // Revert the UI change
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert('Failed to update hearts due to an error.');
-                button.classList.toggle('liked'); // Revert the UI change
             });
         });
     });
 });
+
 
 
 

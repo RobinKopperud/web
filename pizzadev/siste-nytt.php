@@ -28,8 +28,16 @@
         </div>
     </section>
     <footer>
-        <a href="mailto:contact@nordkisapizzaoggrill.com">Email oss</a>
-        <a href="tel:+1234567890">Ring oss: +1234567890</a>
+        <div class="footer-container">
+            <a href="mailto:contact@nordkisapizzaoggrill.com" class="footer-item">Send oss en mail her</a>
+            <div class="opening-hours-footer footer-item">
+                <h3>Åpningstider</h3>
+                <p>Mandag - Fredag: 10:00 - 22:00</p>
+                <p>Lørdag: 12:00 - 23:00</p>
+                <p>Søndag: 12:00 - 21:00</p>
+            </div>
+            <a href="tel:+1234567890" class="footer-item">Ring oss på: +1234567890</a>
+        </div>
     </footer>
 </body>
 </html>

@@ -73,6 +73,24 @@ $is_logged_in = isset($_SESSION['user_id']);
     <!-- Include the sections dynamically generated from the database -->
     <?php include 'fetch_pizzas.php'; ?>
 
+    <!-- Photo Gallery Section -->
+    <section id="photo-gallery" class="gallery-section">
+        <h2>Photo Gallery</h2>
+        <div class="gallery-container">
+            <!-- Add your images here -->
+            <div class="gallery-item">
+                <img src="bilder/ter3.png" alt="Photo 1">
+            </div>
+            <div class="gallery-item">
+                <img src="bilder/tes.jpg" alt="Photo 2">
+            </div>
+            <div class="gallery-item">
+                <img src="bilder/tes2.png" alt="Photo 3">
+            </div>
+            <!-- Add more images as needed -->
+        </div>
+    </section>
+
     <section id="special-offers" class="special-offers">
         <h2>Special Offers</h2>
         <div class="offers-container">

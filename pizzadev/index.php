@@ -62,6 +62,8 @@ $is_logged_in = isset($_SESSION['user_id']);
         </div>
     <?php endif; ?>
 
+    <?php include 'search_pizzas.php'; ?>
+
     <!-- Include the sections dynamically generated from the database -->
     <?php include 'fetch_pizzas.php'; ?>
 

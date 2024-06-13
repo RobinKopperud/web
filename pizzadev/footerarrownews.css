@@ -52,13 +52,13 @@ footer {
     font-size: 18px;
     border-radius: 5px;
     cursor: pointer;
-    z-index: 1000;
+    z-index: 1000; /* Ensure the button is above other elements */
     display: none; /* Hidden by default */
-  }
-  
-  #back-to-top:hover {
+}
+
+#back-to-top:hover {
     background-color: #e04e1e;
-  }
+}
   
   .news-section {
     padding: 20px;

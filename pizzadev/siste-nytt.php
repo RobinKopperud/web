@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Siste Nytt - Nordkisa Pizza og Grill</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="footerarrownews.css">
+
 </head>
 <body>
     <nav>

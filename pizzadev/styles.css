@@ -441,3 +441,22 @@ footer a {
   font-style: italic;
   color: #999;
 }
+
+#back-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #ff5733;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 18px;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 1000;
+  display: none; /* Hidden by default */
+}
+
+#back-to-top:hover {
+  background-color: #e04e1e;
+}

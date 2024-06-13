@@ -113,7 +113,7 @@ $is_logged_in = isset($_SESSION['user_id']);
         </div>
     </section>
 
-    <button id="back-to-top" title="Går til toppen">⬆</button>
+    <button id="back-to-top" title="Gå til toppen">⬆</button>
 
     <footer>
         <div class="footer-container">

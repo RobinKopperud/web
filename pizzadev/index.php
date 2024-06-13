@@ -12,16 +12,23 @@ $is_logged_in = isset($_SESSION['user_id']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nordkisa Pizza og Grill</title>
+    <meta name="description" content="Enjoy the best pizza, kebab, and grill dishes at Nordkisa Pizza og Grill. Check out our special offers!">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <nav>
         <h1>Nordkisa Pizza og Grill</h1>
+        <div class="nav-buttons">
+            <button onclick="scrollToSection('pizza-section')">Pizza</button>
+            <button onclick="scrollToSection('kebab-section')">Kebab</button>
+            <button onclick="scrollToSection('grill-section')">Grill</button>
+            <button onclick="scrollToSection('special-offers')">Special Offers</button>
+        </div>
+    </nav>
+    <div class="contact">
         <?php if ($is_logged_in): ?>
             <a href="logout.php">Logout</a>
         <?php endif; ?>
-    </nav>
-    <div class="contact">
         <a href="tel:+1234567890">Call us: +1234567890</a>
     </div>
 
@@ -63,6 +70,27 @@ $is_logged_in = isset($_SESSION['user_id']);
 
     <!-- Include the sections dynamically generated from the database -->
     <?php include 'fetch_pizzas.php'; ?>
+
+    <section class="special-offers">
+        <h2>Special Offers</h2>
+        <div class="offers-container">
+            <div class="offer">
+                <h3>Buy One Get One Free!</h3>
+                <p>Order any large pizza and get a medium pizza for free.</p>
+                <p class="validity">Valid until: June 30, 2024</p>
+            </div>
+            <div class="offer">
+                <h3>20% Off on All Kebabs</h3>
+                <p>Enjoy a 20% discount on all kebab items on our menu.</p>
+                <p class="validity">Valid until: July 15, 2024</p>
+            </div>
+            <div class="offer">
+                <h3>Family Feast Combo</h3>
+                <p>Get 2 large pizzas, 1 kebab plate, and 1.5L soda for only $29.99.</p>
+                <p class="validity">Valid until: July 31, 2024</p>
+            </div>
+        </div>
+    </section>
 
     <footer>
         <a href="mailto:contact@nordkisapizzaoggrill.com">Email us</a>

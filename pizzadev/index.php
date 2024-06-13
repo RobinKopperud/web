@@ -14,6 +14,7 @@ $is_logged_in = isset($_SESSION['user_id']);
     <title>Nordkisa Pizza og Grill</title>
     <meta name="description" content="Beste take awway i Nordkisa. Pizza og grillmat på sitt beste!">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="footerarrownews.css">
     <script src="script.js"></script>
 
 </head>

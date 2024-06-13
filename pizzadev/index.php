@@ -27,9 +27,8 @@ $is_logged_in = isset($_SESSION['user_id']);
 
     <?php if ($is_logged_in): ?>
         <div class="edit">
-            <h2>Edit Menu</h2>
             <div class="form-section">
-                <h3>Add a New Card</h3>
+                <h3>Legg til ny rett</h3>
                 <?php
                 if (isset($_GET['message'])) {
                     echo '<p>' . htmlspecialchars($_GET['message']) . '</p>';
@@ -61,8 +60,6 @@ $is_logged_in = isset($_SESSION['user_id']);
             </div>
         </div>
     <?php endif; ?>
-
-    <?php include 'search_pizzas.php'; ?>
 
     <!-- Include the sections dynamically generated from the database -->
     <?php include 'fetch_pizzas.php'; ?>

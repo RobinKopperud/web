@@ -13,8 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    let hearts = parseInt(button.textContent.split(' ')[1]) + 1;
-                    button.innerHTML = `❤️ ${hearts}`;
+                    const heartCountSpan = button.querySelector('.heart-count');
+                    heartCountSpan.textContent = data.hearts;
                 } else {
                     alert('Failed to update hearts: ' + data.message);
                 }
@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
 
 function scrollToSection(sectionId) {
     document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });

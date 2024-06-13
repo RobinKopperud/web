@@ -33,7 +33,7 @@ $conn->close();
                         <p><?php echo htmlspecialchars($pizza['price']); ?></p>
                         <p><?php echo htmlspecialchars($pizza['description']); ?></p>
                         <button class="heart-button" data-id="<?php echo htmlspecialchars($pizza['id']); ?>">
-                            ❤️ <?php echo htmlspecialchars($pizza['hearts']); ?>
+                            ❤️ <span class="heart-count"><?php echo htmlspecialchars($pizza['hearts']); ?></span>
                         </button>
                     </div>
                 </div>
@@ -54,7 +54,7 @@ $conn->close();
                         <p><?php echo htmlspecialchars($pizza['price']); ?></p>
                         <p><?php echo htmlspecialchars($pizza['description']); ?></p>
                         <button class="heart-button" data-id="<?php echo htmlspecialchars($pizza['id']); ?>">
-                            ❤️ <?php echo htmlspecialchars($pizza['hearts']); ?>
+                            ❤️ <span class="heart-count"><?php echo htmlspecialchars($pizza['hearts']); ?></span>
                         </button>
                     </div>
                 </div>
@@ -75,7 +75,7 @@ $conn->close();
                         <p><?php echo htmlspecialchars($pizza['price']); ?></p>
                         <p><?php echo htmlspecialchars($pizza['description']); ?></p>
                         <button class="heart-button" data-id="<?php echo htmlspecialchars($pizza['id']); ?>">
-                            ❤️ <?php echo htmlspecialchars($pizza['hearts']); ?>
+                            ❤️ <span class="heart-count"><?php echo htmlspecialchars($pizza['hearts']); ?></span>
                         </button>
                     </div>
                 </div>

@@ -8,7 +8,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id'])) {
     $stmt->bind_param("i", $id);
     
     if ($stmt->execute()) {
-        echo json_encode(['status' => 'success']);
+        // Fetch the new hearts count
+        $stmt = $conn->prepare("SELECT hearts FROM pizza WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stmt->bind_result($hearts);
+        $stmt->fetch();
+        
+        echo json_encode(['status' => 'success', 'hearts' => $hearts]);
     } else {
         echo json_encode(['status' => 'error', 'message' => $stmt->error]);
     }

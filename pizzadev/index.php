@@ -73,7 +73,7 @@ $is_logged_in = isset($_SESSION['user_id']);
     <!-- Include the sections dynamically generated from the database -->
     <?php include 'fetch_pizzas.php'; ?>
 
-    <section class="special-offers">
+    <section id="special-offers" class="special-offers">
         <h2>Special Offers</h2>
         <div class="offers-container">
             <div class="offer">

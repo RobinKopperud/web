@@ -311,7 +311,7 @@ nav h1 {
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
-  margin-top: 10px;
+  margin: 10px auto; /* Center the button horizontally */
   text-align: center;
   transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transitions */
 }
@@ -320,6 +320,7 @@ nav h1 {
   background-color: #e04e1e; /* Darker orange on hover */
   transform: translateY(-2px); /* Slightly lift the button on hover */
 }
+
 
 @media (max-width: 600px) {
   .nav-buttons {

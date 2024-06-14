@@ -120,7 +120,6 @@ $is_logged_in = isset($_SESSION['user_id']);
 
     <footer>
         <div class="footer-container">
-            <a href="mailto:contact@nordkisapizzaoggrill.com" class="footer-item">Send oss en mail her</a>
             <div class="opening-hours-footer footer-item">
                 <h3>Åpningstider</h3>
                 <p>Mandag - Fredag: 10:00 - 22:00</p>

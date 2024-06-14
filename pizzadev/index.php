@@ -17,6 +17,8 @@ $is_logged_in = isset($_SESSION['user_id']);
     <link rel="stylesheet" href="footerarrownews.css">
     <script src="script.js"></script>
     <script src="pic.js"></script>
+    <script src="nav.js"></script>
+
 
 
 </head>

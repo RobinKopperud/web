@@ -273,8 +273,9 @@ nav h1 {
   max-height: 90%;
 }
 
+/* General styles for nav buttons */
 .nav-buttons {
-  display: flex;
+  display: none; /* Hide the nav buttons by default */
   justify-content: center; /* Center the buttons horizontally */
   gap: 10px; /* Space between the buttons */
   margin-top: 10px; /* Space above the buttons */
@@ -301,13 +302,9 @@ nav h1 {
   transform: translateY(0); /* Bring the button back to original position on click */
 }
 
-/* Initial hidden state for nav buttons on smaller screens */
-#nav-buttons {
-  display: none; /* Hide the nav buttons by default */
-}
-
+/* Styles for the "Meny" toggle button */
 #menu-toggle {
-  display: none; /* Hide the menu toggle button by default */
+  display: block; /* Show the menu toggle button by default */
   background-color: #ff5733; /* Orange color for the button */
   color: white;
   border: none;
@@ -325,24 +322,15 @@ nav h1 {
 }
 
 @media (max-width: 600px) {
-  #menu-toggle {
-      display: block; /* Show the menu toggle button on smaller screens */
-  }
-
   .nav-buttons {
-      flex-direction: column; /* Stack buttons vertically */
-      gap: 5px; /* Reduce space between buttons */
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 5px; /* Reduce space between buttons */
   }
 
   .nav-buttons button {
-      width: 100%; /* Full width buttons */
-      text-align: center; /* Center the text inside the button */
+    width: 100%; /* Full width buttons */
+    text-align: center; /* Center the text inside the button */
   }
 }
 
-@media (min-width: 601px) {
-  .nav-buttons {
-      display: flex; /* Ensure nav buttons are displayed on larger screens */
-  }
-}
 

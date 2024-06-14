@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const navButtons = document.getElementById('nav-buttons');
 
     menuToggle.addEventListener('click', () => {
-        if (navButtons.style.display === 'block') {
+        if (navButtons.style.display === 'block' || navButtons.style.display === '') {
             navButtons.style.display = 'none';
         } else {
             navButtons.style.display = 'block';

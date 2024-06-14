@@ -301,15 +301,48 @@ nav h1 {
   transform: translateY(0); /* Bring the button back to original position on click */
 }
 
-/* Responsive adjustments for smaller screens */
+/* Initial hidden state for nav buttons on smaller screens */
+#nav-buttons {
+  display: none; /* Hide the nav buttons by default */
+}
+
+#menu-toggle {
+  display: none; /* Hide the menu toggle button by default */
+  background-color: #ff5733; /* Orange color for the button */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  text-align: center;
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transitions */
+}
+
+#menu-toggle:hover {
+  background-color: #e04e1e; /* Darker orange on hover */
+  transform: translateY(-2px); /* Slightly lift the button on hover */
+}
+
 @media (max-width: 600px) {
+  #menu-toggle {
+      display: block; /* Show the menu toggle button on smaller screens */
+  }
+
   .nav-buttons {
-    flex-direction: column; /* Stack buttons vertically */
-    gap: 5px; /* Reduce space between buttons */
+      flex-direction: column; /* Stack buttons vertically */
+      gap: 5px; /* Reduce space between buttons */
   }
 
   .nav-buttons button {
-    width: 100%; /* Full width buttons */
-    text-align: center; /* Center the text inside the button */
+      width: 100%; /* Full width buttons */
+      text-align: center; /* Center the text inside the button */
   }
 }
+
+@media (min-width: 601px) {
+  .nav-buttons {
+      display: flex; /* Ensure nav buttons are displayed on larger screens */
+  }
+}
+

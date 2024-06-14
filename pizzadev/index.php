@@ -23,7 +23,8 @@ $is_logged_in = isset($_SESSION['user_id']);
 <body>
     <nav>
         <h1>Nordkisa Pizza og Grill</h1>
-        <div class="nav-buttons">
+        <button id="menu-toggle">Meny</button>
+        <div class="nav-buttons" id="nav-buttons">
             <button onclick="scrollToSection('pizza-section')">Pizza</button>
             <button onclick="scrollToSection('kebab-section')">Kebab</button>
             <button onclick="scrollToSection('grill-section')">Grill</button>
@@ -31,6 +32,7 @@ $is_logged_in = isset($_SESSION['user_id']);
             <button onclick="window.location.href='siste-nytt.php'">Siste Nytt</button> <!-- New tab -->
         </div>
     </nav>
+
     <div class="contact">
         <?php if ($is_logged_in): ?>
             <a href="logout.php">Logg ut</a>
@@ -100,7 +102,7 @@ $is_logged_in = isset($_SESSION['user_id']);
         <div class="offers-container">
             <div class="offer">
                 <h3>Kjøp en pizza, få med en brus</h3>
-                <p>Order any large pizza and get a medium pizza for free.</p>
+                <p>Bestill hvilken som helst pizza og få med en brus</p>
                 <p class="validity">Gyldig til: June 30, 2024</p>
             </div>
             <div class="offer">
@@ -120,6 +122,7 @@ $is_logged_in = isset($_SESSION['user_id']);
 
     <footer>
         <div class="footer-container">
+            <a href="mailto:contact@nordkisapizzaoggrill.com" class="footer-item">Send oss en mail her</a>
             <div class="opening-hours-footer footer-item">
                 <h3>Åpningstider</h3>
                 <p>Mandag - Fredag: 10:00 - 22:00</p>

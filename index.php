@@ -56,7 +56,7 @@ $is_logged_in = isset($_SESSION['user_id']);
             <h2>Kontakt</h2>
             <p>Du kan kontakte meg via følgende kanaler:</p>
             <ul>
-                <li>Email: <a href="mailto:robin.kopperud@robinkopperud.no">robin.kopperud@robinkopperud.no</a></li>
+                <li>Email: <a href="mailto:robinkopperud@robinkopperud.no">robinkopperud@gmail.com</a></li>
                 <li>LinkedIn: <a href="https://www.linkedin.com/in/robin-kopperud-33615b2bb/" target="_blank">Robin Kopperud</a></li>
             </ul>
         </section>

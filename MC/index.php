@@ -20,7 +20,7 @@
     <nav>
         <a href="#about">Om Oss</a>
         <a href="#mission">Vår Misjon</a>
-        <a href="galleri.php">Galleri</a>
+        <a href="ref/galleri.php">Galleri</a>
         <a href="#contact">Kontakt</a>
         <a href="admin.php">Administrator</a>
     </nav>

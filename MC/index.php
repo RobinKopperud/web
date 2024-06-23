@@ -47,24 +47,22 @@
         <p>til neste race!</p>
     </section>
 
-    <main class="container">
-        <section id="about" class="content-section">
-            <h2>Om Mental Racing Team</h2>
-            <p>Mental Racing Team ble grunnlagt av en ung racerfører som gjennomgikk en hjertetransplantasjon i en alder av 16 år. Denne livsendrende erfaringen har formet vår misjon om å bruke racing som en plattform for å rette oppmerksomhet mot menns mentale helse.</p>
-        </section>
+    <section id="about" class="content-section">
+        <h2>Om Mental Racing Team</h2>
+        <p>Mental Racing Team ble grunnlagt av en ung racerfører som gjennomgikk en hjertetransplantasjon i en alder av 16 år. Denne livsendrende erfaringen har formet vår misjon om å bruke racing som en plattform for å rette oppmerksomhet mot menns mentale helse.</p>
+    </section>
 
-        <section id="mission" class="content-section">
-            <h2>Vår Misjon</h2>
-            <p>Vi er dedikert til å bryte ned stigmaet rundt menns mentale helse gjennom kraften av motorsport. Vår visjon er å skape et fellesskap der menn føler seg trygge på å diskutere sine mentale helseproblemer, og hvor støtte alltid er tilgjengelig.</p>
-        </section>
+    <section id="mission" class="content-section">
+        <h2>Vår Misjon</h2>
+        <p>Vi er dedikert til å bryte ned stigmaet rundt menns mentale helse gjennom kraften av motorsport. Vår visjon er å skape et fellesskap der menn føler seg trygge på å diskutere sine mentale helseproblemer, og hvor støtte alltid er tilgjengelig.</p>
+    </section>
 
-        <section id="contact" class="content-section">
-            <h2>Kontakt Oss</h2>
-            <p>Interessert i å sponse eller støtte vårt oppdrag? Ta kontakt med oss på Instagram eller send oss en e-post.</p>
-            <p>Instagram: @Mental.racing22</p>
-            <p>E-post: kontakt@mentalracingteam.no</p>
-        </section>
-    </main>
+    <section id="contact" class="content-section">
+        <h2>Kontakt Oss</h2>
+        <p>Interessert i å sponse eller støtte vårt oppdrag? Ta kontakt med oss på Instagram eller send oss en e-post.</p>
+        <p>Instagram: @Mental.racing22</p>
+        <p>E-post: kontakt@mentalracingteam.no</p>
+    </section>
 
     <footer>
         <div class="social-links">

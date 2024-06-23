@@ -116,4 +116,12 @@ footer {
 
 .menu-toggle {
     display: none; /* Hide by default */
+    background-color: #333;
+    color: #ffffff;
+    border: none;
+    font-size: 24px;
+    padding: 10px 15px;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
 }

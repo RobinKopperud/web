@@ -11,8 +11,6 @@ header h1 {
     font-size: 24px; /* Smaller header for mobile */
 }
 
-
-
 /* Media query to display the menu toggle button on small screens */
 @media screen and (max-width: 768px) {
     .menu-toggle {

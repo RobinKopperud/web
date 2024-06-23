@@ -48,6 +48,39 @@ nav a:hover {
 .content-section {
     padding: 50px 0;
     text-align: center;
+    opacity: 1; /* Ensure sections are visible */
+    transform: translateY(0); /* Remove transform */
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    border-bottom: 1px solid #555; /* Add border to separate sections */
+    margin-bottom: 20px; /* Add some margin below each section */
+}
+
+#countdown-section .countdown {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+#countdown-section .countdown > div {
+    padding: 10px;
+    background: #333;
+    margin: 0 5px;
+    border: 1px solid #555; /* Add border around each countdown item */
+    border-radius: 3px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#countdown-section .countdown div > span {
+    display: block;
+    font-size: 24px;
+}
+
+#countdown-section .countdown div > .smalltext {
+    padding-top: 5px;
+    font-size: 12px;
 }
 
 footer {

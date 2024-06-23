@@ -1,6 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Mental Racing Team website loaded');
 
+    // Toggle menu visibility on mobile devices
+    const menuToggle = document.querySelector('.menu-toggle');
+    const nav = document.querySelector('nav');
+    
+    menuToggle.addEventListener('click', function() {
+        nav.classList.toggle('show');
+    });
+
     // Hent neste arrangementsdato
     fetch('next_event.txt')
         .then(response => response.text())
@@ -13,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 const days = Math.floor(distance / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const minutes = Math.floor((distance % (1000 * 60)) / (1000 * 60));
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
                 document.getElementById("days").innerHTML = days;

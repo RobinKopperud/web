@@ -15,13 +15,14 @@
         </div>
     </header>
 
+    <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+
     <nav>
         <a href="#about">Om Oss</a>
         <a href="#mission">Vår Misjon</a>
-        <a href="#gallery">Galleri</a>
+        <a href="galleri.php">Galleri</a>
         <a href="#contact">Kontakt</a>
         <a href="admin.php">Administrator</a>
-
     </nav>
 
     <section class="hero">
@@ -57,21 +58,6 @@
         <section id="mission" class="content-section">
             <h2>Vår Misjon</h2>
             <p>Vi er dedikert til å bryte ned stigmaet rundt menns mentale helse gjennom kraften av motorsport. Vår visjon er å skape et fellesskap der menn føler seg trygge på å diskutere sine mentale helseproblemer, og hvor støtte alltid er tilgjengelig.</p>
-        </section>
-
-        <section id="gallery" class="content-section">
-            <h2>Galleri</h2>
-            <div class="image-gallery">
-                <a href="images/v1.jpg" data-lightbox="gallery" data-title="Racing bilde 1">
-                    <img src="images/v1.jpg" alt="Racing bilde 1">
-                </a>
-                <a href="images/v2.jpg" data-lightbox="gallery" data-title="Racing bilde 2">
-                    <img src="images/v2.jpg" alt="Racing bilde 2">
-                </a>
-                <a href="images/v3.jpg" data-lightbox="gallery" data-title="Racing bilde 3">
-                    <img src="images/v3.jpg" alt="Racing bilde 3">
-                </a>
-            </div>
         </section>
 
         <section id="contact" class="content-section">

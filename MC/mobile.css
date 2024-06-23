@@ -1,20 +1,30 @@
-/* mobile.css */
-
-body {
-    font-size: 16px; /* Increase base font size for better readability on small screens */
+/* Show the menu toggle button on mobile devices */
+.menu-toggle {
+    display: none; /* Hide by default */
+    background-color: #333;
+    color: #ffffff;
+    border: none;
+    font-size: 24px;
+    padding: 10px 15px;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
 }
 
-.container {
-    width: 95%; /* Use more of the screen width on mobile */
-    padding: 10px;
-}
-
-header h1 {
-    font-size: 24px; /* Smaller header for mobile */
+/* Menu toggle button visible on mobile devices */
+.menu-toggle {
+    display: block;
 }
 
 nav {
-    flex-direction: column; /* Stack nav items vertically */
+    display: none; /* Hide the nav by default */
+    flex-direction: column; /* Stack items vertically */
+    width: 100%;
+    text-align: center;
+}
+
+nav.show {
+    display: flex; /* Show the nav when menu is toggled */
 }
 
 nav a {
@@ -23,42 +33,13 @@ nav a {
     text-align: center;
 }
 
-.hero {
-    height: auto;
-    padding: 40px 0;
-}
-
-.hero h2 {
-    font-size: 28px;
-}
-
-.hero p {
-    font-size: 16px;
-}
-
-.countdown > div {
-    padding: 5px;
-    margin: 0 2px;
-}
-
-.countdown div > span {
-    font-size: 18px;
-}
-
-.countdown div > .smalltext {
-    font-size: 10px;
-}
-
-.content-section {
-    padding: 30px 0;
-}
-
+/* Responsive image gallery */
 .image-gallery img {
     width: 100%; /* Full width images on mobile */
     margin-bottom: 15px;
 }
 
-footer {
+.footer {
     padding: 15px 0;
 }
 

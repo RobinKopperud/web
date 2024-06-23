@@ -46,7 +46,7 @@ nav a:hover {
 }
 
 .content-section {
-    padding: 50px 15px;
+    padding: 50px 30px;
     text-align: center;
     opacity: 1; /* Ensure sections are visible */
     transform: translateY(0); /* Remove transform */

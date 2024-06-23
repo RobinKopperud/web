@@ -113,3 +113,7 @@ footer {
 .social-links a:hover {
     color: #e8491d;
 }
+
+.menu-toggle {
+    display: none; /* Hide by default */
+}

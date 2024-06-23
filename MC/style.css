@@ -45,40 +45,9 @@ nav a:hover {
     background-color: #555;
 }
 
-#countdown-section {
-    text-align: center;
-    padding: 50px 0;
-    background-color: #222;
-    color: #fff;
-}
-
-#countdown {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-}
-
-#countdown > div {
-    padding: 10px;
-    background: #333;
-    margin: 0 5px;
-    border-radius: 3px;
-    display: inline-block;
-}
-
-#countdown div > span {
-    display: block;
-    text-align: center;
-    font-size: 24px;
-}
-
-#countdown div > .smalltext {
-    padding-top: 5px;
-    font-size: 12px;
-}
-
 .content-section {
     padding: 50px 0;
+    text-align: center;
     opacity: 0;
     transform: translateY(20px);
     transition: opacity 0.5s ease, transform 0.5s ease;
@@ -89,8 +58,29 @@ nav a:hover {
     transform: translateY(0);
 }
 
-.content-section h2 {
-    margin-bottom: 20px;
+#countdown-section .countdown {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+#countdown-section .countdown > div {
+    padding: 10px;
+    background: #333;
+    margin: 0 5px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+#countdown-section .countdown div > span {
+    display: block;
+    text-align: center;
+    font-size: 24px;
+}
+
+#countdown-section .countdown div > .smalltext {
+    padding-top: 5px;
+    font-size: 12px;
 }
 
 footer {
@@ -113,6 +103,7 @@ footer {
 .social-links a:hover {
     color: #e8491d;
 }
+
 
 .menu-toggle {
     display: none; /* Hide by default */

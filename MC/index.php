@@ -64,7 +64,7 @@
         <p>E-post: kontakt@mentalracingteam.no</p>
     </section>
 
-    <footer>
+    <footer class="content-section">
         <div class="social-links">
             <a href="https://www.instagram.com/Mental.racing22" target="_blank">Instagram</a>
             <a href="https://www.tiktok.com/@mentalracingteam" target="_blank">TikTok</a>

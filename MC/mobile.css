@@ -34,25 +34,21 @@ header h1 {
         text-align: center;
     }
 
-    #countdown-section {
+    .content-section {
         padding: 30px 0;
     }
 
-    #countdown > div {
+    #countdown-section .countdown > div {
         padding: 5px;
         margin: 0 2px;
     }
 
-    #countdown div > span {
+    #countdown-section .countdown div > span {
         font-size: 18px;
     }
 
-    #countdown div > .smalltext {
+    #countdown-section .countdown div > .smalltext {
         font-size: 10px;
-    }
-
-    .content-section {
-        padding: 30px 0;
     }
 
     footer {

@@ -11,52 +11,49 @@ header h1 {
     font-size: 24px; /* Smaller header for mobile */
 }
 
-/* Media query to display the menu toggle button on small screens */
-@media screen and (max-width: 768px) {
-    .menu-toggle {
-        display: block; /* Show the menu toggle button */
-    }
+.menu-toggle {
+    display: block; /* Show the menu toggle button */
+}
 
-    nav {
-        display: none; /* Hide the nav by default on mobile */
-        flex-direction: column; /* Stack items vertically */
-        width: 100%;
-        text-align: center;
-    }
+nav {
+    display: none; /* Hide the nav by default on mobile */
+    flex-direction: column; /* Stack items vertically */
+    width: 100%;
+    text-align: center;
+}
 
-    nav.show {
-        display: flex; /* Show the nav when menu is toggled */
-    }
+nav.show {
+    display: flex; /* Show the nav when menu is toggled */
+}
 
-    nav a {
-        padding: 15px 0; /* Increase tap target size */
-        width: 100%;
-        text-align: center;
-    }
+nav a {
+    padding: 15px 0; /* Increase tap target size */
+    width: 100%;
+    text-align: center;
+}
 
-    .content-section {
-        padding: 30px 0;
-    }
+.content-section {
+    padding: 30px 0;
+}
 
-    #countdown-section .countdown > div {
-        padding: 5px;
-        margin: 0 2px;
-    }
+#countdown-section .countdown > div {
+    padding: 5px;
+    margin: 0 2px;
+}
 
-    #countdown-section .countdown div > span {
-        font-size: 18px;
-    }
+#countdown-section .countdown div > span {
+    font-size: 18px;
+}
 
-    #countdown-section .countdown div > .smalltext {
-        font-size: 10px;
-    }
+#countdown-section .countdown div > .smalltext {
+    font-size: 10px;
+}
 
-    footer {
-        padding: 15px 0;
-    }
+footer {
+    padding: 15px 0;
+}
 
-    .social-links a {
-        font-size: 20px;
-        margin: 0 15px;
-    }
+.social-links a {
+    font-size: 20px;
+    margin: 0 15px;
 }

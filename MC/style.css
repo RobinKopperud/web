@@ -48,39 +48,6 @@ nav a:hover {
 .content-section {
     padding: 50px 0;
     text-align: center;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.content-section.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-#countdown-section .countdown {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-}
-
-#countdown-section .countdown > div {
-    padding: 10px;
-    background: #333;
-    margin: 0 5px;
-    border-radius: 3px;
-    display: inline-block;
-}
-
-#countdown-section .countdown div > span {
-    display: block;
-    text-align: center;
-    font-size: 24px;
-}
-
-#countdown-section .countdown div > .smalltext {
-    padding-top: 5px;
-    font-size: 12px;
 }
 
 footer {
@@ -104,15 +71,6 @@ footer {
     color: #e8491d;
 }
 
-
 .menu-toggle {
     display: none; /* Hide by default */
-    background-color: #333;
-    color: #ffffff;
-    border: none;
-    font-size: 24px;
-    padding: 10px 15px;
-    cursor: pointer;
-    width: 100%;
-    text-align: center;
 }

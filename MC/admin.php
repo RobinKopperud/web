@@ -1,3 +1,24 @@
+<?php
+session_start();
+$error = '';
+
+// Enkel autentisering (erstatt med en mer sikker metode i produksjon)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
+    if ($_POST['password'] === 'admintest') { // Bytt ut med en sikker passord-håndtering
+        $_SESSION['authenticated'] = true;
+    } else {
+        $error = 'Feil passord';
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['event_date']) && $_SESSION['authenticated']) {
+    $event_date = $_POST['event_date'];
+    file_put_contents('next_event.txt', $event_date);
+    $success = 'Dato oppdatert suksessfullt!';
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="no">
 <head>

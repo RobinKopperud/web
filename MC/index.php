@@ -18,7 +18,8 @@
     <button class="menu-toggle" aria-label="Toggle menu">☰</button>
 
     <nav>
-        <a href="#contact">Resultater</a>
+        <a href="#resultater">Resultater</a>
+        <a href="#Tidslinje">Tidslinje</a>
         <a href="ref/galleri.php">Galleri</a>
         <a href="#contact">Kontakt</a>
         <a href="admin/admin.php">Administrator</a>

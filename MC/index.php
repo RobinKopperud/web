@@ -18,9 +18,10 @@
     <button class="menu-toggle" aria-label="Toggle menu">☰</button>
 
     <nav>
+        <a href="#contact">Resultater</a>
         <a href="ref/galleri.php">Galleri</a>
         <a href="#contact">Kontakt</a>
-        <a href="admin.php">Administrator</a>
+        <a href="admin/admin.php">Administrator</a>
     </nav>
 
     <section id="countdown-section" class="content-section">

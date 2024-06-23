@@ -24,6 +24,8 @@ $is_logged_in = isset($_SESSION['user_id']);
         <a href="krypto.html">KryptoTjeneste</a>
         <a href="Tjenester/index.php">Tjenester</a>
         <a href="pizza/index.php">Pizza</a>
+        <a href="MC/index.php">MC</a>
+
 
 
         <?php if ($is_logged_in): ?>

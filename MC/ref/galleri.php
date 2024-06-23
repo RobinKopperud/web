@@ -16,11 +16,11 @@
     </header>
 
     <nav>
-        <a href="index.php#about">Om Oss</a>
-        <a href="index.php#mission">Vår Misjon</a>
+        <a href="../index.php#about">Om Oss</a>
+        <a href="../index.php#mission">Vår Misjon</a>
         <a href="galleri.php">Galleri</a>
-        <a href="index.php#contact">Kontakt</a>
-        <a href="admin.php">Administrator</a>
+        <a href="../index.php#contact">Kontakt</a>
+        <a href="../admin.php">Administrator</a>
     </nav>
 
     <section class="container">

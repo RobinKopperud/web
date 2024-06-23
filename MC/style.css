@@ -46,7 +46,7 @@ nav a:hover {
 }
 
 .content-section {
-    padding: 50px 0;
+    padding: 50px 15px;
     text-align: center;
     opacity: 1; /* Ensure sections are visible */
     transform: translateY(0); /* Remove transform */
@@ -106,4 +106,21 @@ footer {
 
 .menu-toggle {
     display: none; /* Hide by default */
+}
+
+.image-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.image-gallery a {
+    flex: 1 1 calc(33.333% - 10px);
+    margin: 5px;
+}
+
+.image-gallery img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
 }

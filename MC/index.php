@@ -24,9 +24,8 @@
         <a href="admin.php">Administrator</a>
     </nav>
 
-    <section class="hero">
-        <h2>Mer enn bare racing</h2>
-        <p>Vi kjører for å skape bevissthet rundt menns mentale helse</p>
+    <section id="countdown-section">
+        <h2>Countdown to Next Race</h2>
         <div id="countdown" class="countdown">
             <div>
                 <span id="days"></span>

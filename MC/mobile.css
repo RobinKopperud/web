@@ -46,39 +46,25 @@ header h1 {
         text-align: center;
     }
 
-    .hero {
-        height: auto;
-        padding: 40px 0;
+    #countdown-section {
+        padding: 30px 0;
     }
 
-    .hero h2 {
-        font-size: 28px;
-    }
-
-    .hero p {
-        font-size: 16px;
-    }
-
-    .countdown > div {
+    #countdown > div {
         padding: 5px;
         margin: 0 2px;
     }
 
-    .countdown div > span {
+    #countdown div > span {
         font-size: 18px;
     }
 
-    .countdown div > .smalltext {
+    #countdown div > .smalltext {
         font-size: 10px;
     }
 
     .content-section {
         padding: 30px 0;
-    }
-
-    .image-gallery img {
-        width: 100%; /* Full width images on mobile */
-        margin-bottom: 15px;
     }
 
     footer {
@@ -88,18 +74,5 @@ header h1 {
     .social-links a {
         font-size: 20px;
         margin: 0 15px;
-    }
-
-    /* Adjustments for the admin page */
-    .admin-form {
-        width: 90%;
-        margin: 10px auto;
-        padding: 15px;
-    }
-
-    .admin-form input,
-    .admin-form button {
-        font-size: 16px;
-        padding: 12px;
     }
 }

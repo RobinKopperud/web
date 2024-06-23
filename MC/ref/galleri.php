@@ -27,14 +27,14 @@
         <section id="gallery" class="content-section">
             <h2>Galleri</h2>
             <div class="image-gallery">
-                <a href="../images/v1.jpg" data-lightbox="gallery" data-title="Racing bilde 1">
-                    <img src="../images/v1.jpg" alt="Racing bilde 1">
+                <a href="../images/v1.jpg" data-lightbox="gallery" data-title="Racing bilde 1" style="flex: 1 1 calc(33.333% - 10px); margin: 5px;">
+                    <img src="../images/v1.jpg" alt="Racing bilde 1" style="width: 100%; height: auto; border-radius: 8px;">
                 </a>
-                <a href="../images/v2.jpg" data-lightbox="gallery" data-title="Racing bilde 2">
-                    <img src="../images/v2.jpg" alt="Racing bilde 2">
+                <a href="../images/v2.jpg" data-lightbox="gallery" data-title="Racing bilde 2" style="flex: 1 1 calc(33.333% - 10px); margin: 5px;">
+                    <img src="../images/v2.jpg" alt="Racing bilde 2" style="width: 100%; height: auto; border-radius: 8px;">
                 </a>
-                <a href="../images/v3.jpg" data-lightbox="gallery" data-title="Racing bilde 3">
-                    <img src="../images/v3.jpg" alt="Racing bilde 3">
+                <a href="../images/v3.jpg" data-lightbox="gallery" data-title="Racing bilde 3" style="flex: 1 1 calc(33.333% - 10px); margin: 5px;">
+                    <img src="../images/v3.jpg" alt="Racing bilde 3" style="width: 100%; height: auto; border-radius: 8px;">
                 </a>
             </div>
         </section>

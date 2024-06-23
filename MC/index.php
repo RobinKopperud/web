@@ -24,8 +24,8 @@
         <a href="admin.php">Administrator</a>
     </nav>
 
-    <section id="countdown-section">
-        <h2>Countdown to Next Race</h2>
+    <section id="countdown-section" class="content-section">
+        <h2>Nedtelling til neste race</h2>
         <div id="countdown" class="countdown">
             <div>
                 <span id="days"></span>

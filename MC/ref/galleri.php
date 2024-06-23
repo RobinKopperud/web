@@ -6,6 +6,7 @@
     <title>Galleri - Mental Racing Team</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="../mobile.css" media="screen and (max-width: 768px)">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
 </head>
 <body>
     <header>
@@ -22,7 +23,7 @@
         <a href="admin.php">Administrator</a>
     </nav>
 
-    <main class="container">
+    <section class="container">
         <section id="gallery" class="content-section">
             <h2>Galleri</h2>
             <div class="image-gallery">
@@ -37,7 +38,7 @@
                 </a>
             </div>
         </section>
-    </main>
+    </section>
 
     <footer>
         <div class="social-links">
@@ -47,6 +48,7 @@
         <p>&copy; 2024 Mental Racing Team. Alle rettigheter reservert.</p>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox-plus-jquery.min.js"></script>
+    <script src="../script.js"></script>
 </body>
 </html>

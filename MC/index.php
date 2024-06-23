@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mental Racing Team</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="css/mobile.css" media="screen and (max-width: 768px)">
+    <link rel="stylesheet" href="mobile.css" media="screen and (max-width: 768px)">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
 </head>
 <body>

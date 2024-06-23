@@ -10,15 +10,14 @@
 <body>
     <header>
         <div class="container">
-            <h1>Mental Racing Team</h1>
+        <a href="../index.php"> <h1>Mental Racing Team</h1></a>
+        </div>
         </div>
     </header>
 
     <button class="menu-toggle" aria-label="Toggle menu">☰</button>
 
     <nav>
-        <a href="#about">Om Oss</a>
-        <a href="#mission">Vår Misjon</a>
         <a href="ref/galleri.php">Galleri</a>
         <a href="#contact">Kontakt</a>
         <a href="admin.php">Administrator</a>

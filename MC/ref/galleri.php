@@ -11,9 +11,10 @@
 <body>
     <header>
         <div class="container">
-            <h1>Mental Racing Team</h1>
+        <a href="../index.php"> <h1>Mental Racing Team</h1></a>
         </div>
     </header>
+    <button class="menu-toggle" aria-label="Toggle menu">☰</button>
 
     <nav>
         <a href="../index.php#about">Om Oss</a>

@@ -20,9 +20,7 @@ if ($result->num_rows > 0) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tidslinje - Mental Racing Team</title>
-    <link rel="stylesheet" href="../style.css">
-    <link rel="stylesheet" href="../mobile.css" media="screen and (max-width: 768px)">
-    <link rel="stylesheet" href="timeline.css">
+    <link rel="stylesheet" href="timeline.css?v=1.0">
 </head>
 <body>
     <header>

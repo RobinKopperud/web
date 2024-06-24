@@ -17,9 +17,7 @@
     <button class="menu-toggle" aria-label="Toggle menu">☰</button>
 
     <nav>
-        <a href="galleri.php">Galleri</a>
         <a href="../index.php#contact">Kontakt</a>
-        <a href="../admin.php">Administrator</a>
     </nav>
 
     <section class="container">

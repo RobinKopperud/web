@@ -10,7 +10,7 @@
 <body>
     <header>
         <div class="container">
-        <a href="../index.php"> <h1>Mental Racing Team</h1></a>
+        <a href="index.php"> <h1>Mental Racing Team</h1></a>
         </div>
         </div>
     </header>

@@ -43,7 +43,9 @@ if ($result->num_rows > 0) {
                 echo '    <div class="content">';
                 echo '        <h2>' . htmlspecialchars($event['title']) . '</h2>';
                 echo '        <p>' . htmlspecialchars($event['comment']) . '</p>';
-                echo '        <img src="../uploads/' . htmlspecialchars($event['image']) . '" alt="' . htmlspecialchars($event['title']) . '">';
+                if (!empty($event['image'])) {
+                    echo '        <img src="../uploads/' . htmlspecialchars($event['image']) . '" alt="' . htmlspecialchars($event['title']) . '">';
+                }
                 echo '    </div>';
                 echo '    <div class="date">' . htmlspecialchars($event['event_date']) . '</div>';
                 echo '</div>';

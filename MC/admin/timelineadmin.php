@@ -6,10 +6,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['timeline_title']) && 
     $event_date = $_POST['timeline_date'];
     $comment = $_POST['timeline_comment'];
     $image = $_FILES['timeline_image']['name'];
-    $target = "../uploads/" . basename($image);
 
-    if (move_uploaded_file($_FILES['timeline_image']['tmp_name'], $target)) {
-        $sql = "INSERT INTO timeline_events (title, event_date, comment, image) VALUES ('$title', '$event_date', '$comment', '$image')";
+    // Set a default value for image
+    $target = null;
+    if (!empty($image)) {
+        $target = "../uploads/" . basename($image);
+    }
+
+    // Attempt to move the uploaded image if one was provided
+    if (empty($image) || move_uploaded_file($_FILES['timeline_image']['tmp_name'], $target)) {
+        $image = empty($image) ? null : basename($image); // Use null if no image was uploaded
+        $sql = "INSERT INTO timeline_events (title, event_date, comment, image) VALUES ('$title', '$event_date', '$comment', " . ($image ? "'$image'" : "NULL") . ")";
         if ($conn->query($sql) === TRUE) {
             $success = 'Timeline event uploaded successfully!';
         } else {

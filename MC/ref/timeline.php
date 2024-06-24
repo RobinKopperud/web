@@ -40,12 +40,14 @@ if ($result->num_rows > 0) {
             $side = 'left';
             foreach ($events as $event) {
                 echo '<div class="timeline-event ' . $side . '">';
-                echo '    <div class="content">';
-                echo '        <h2>' . htmlspecialchars($event['title']) . '</h2>';
-                echo '        <p>' . htmlspecialchars($event['comment']) . '</p>';
+                echo '    <div class="image-container">';
                 if (!empty($event['image'])) {
                     echo '        <img src="../uploads/' . htmlspecialchars($event['image']) . '" alt="' . htmlspecialchars($event['title']) . '">';
                 }
+                echo '    </div>';
+                echo '    <div class="content">';
+                echo '        <h2>' . htmlspecialchars($event['title']) . '</h2>';
+                echo '        <p>' . htmlspecialchars($event['comment']) . '</p>';
                 echo '    </div>';
                 echo '    <div class="date">' . htmlspecialchars($event['event_date']) . '</div>';
                 echo '</div>';

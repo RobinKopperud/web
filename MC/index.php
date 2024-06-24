@@ -73,6 +73,6 @@
         <p>&copy; 2024 Mental Racing Team. Alle rettigheter reservert.</p>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="nextrace.js"></script>
 </body>
 </html>

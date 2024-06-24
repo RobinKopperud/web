@@ -1,22 +1,16 @@
 <?php
 session_start();
-$error = '';
+include_once '../../../db.php'; // Adjust the path as needed
 
-// Enkel autentisering (erstatt med en mer sikker metode i produksjon)
+
+// Simple authentication (replace with a more secure method in production)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
-    if ($_POST['password'] === 'admintest') { // Bytt ut med en sikker passord-håndtering
+    if ($_POST['password'] === 'admintest') { // Replace with secure password handling
         $_SESSION['authenticated'] = true;
     } else {
         $error = 'Feil passord';
     }
 }
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['event_date']) && $_SESSION['authenticated']) {
-    $event_date = $_POST['event_date'];
-    file_put_contents('next_event.txt', $event_date);
-    $success = 'Dato oppdatert suksessfullt!';
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -29,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['event_date']) && $_SE
     <link rel="stylesheet" href="../mobile.css" media="screen and (max-width: 768px)">
     <style>
         .admin-form { max-width: 300px; margin: 20px auto; padding: 20px; background: #333; border-radius: 5px; }
-        .admin-form input { width: 100%; padding: 10px; margin-bottom: 10px; }
+        .admin-form input, .admin-form textarea { width: 100%; padding: 10px; margin-bottom: 10px; }
         .admin-form button { width: 100%; padding: 10px; background: #e8491d; color: white; border: none; cursor: pointer; }
         .error { color: red; }
         .success { color: green; }
@@ -40,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['event_date']) && $_SE
 <body>
     <div class="container">
         <h1>Admin - Mental Racing Team</h1>
-        <a href="index.php" class="back-link">Tilbake til hovedsiden</a>
+        <a href="../index.php" class="back-link">Tilbake til hovedsiden</a>
         <?php if (!isset($_SESSION['authenticated'])): ?>
             <form class="admin-form" method="POST">
                 <input type="password" name="password" placeholder="Passord" required>
@@ -50,15 +44,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['event_date']) && $_SE
                 <?php endif; ?>
             </form>
         <?php else: ?>
-            <form class="admin-form" method="POST">
-                <input type="datetime-local" name="event_date" required>
-                <button type="submit">Oppdater neste arrangementsdato</button>
-                <?php if (isset($success)): ?>
-                    <p class="success"><?php echo $success; ?></p>
-                <?php endif; ?>
-            </form>
+            <h2>Oppdater neste arrangementsdato</h2>
+            <?php include('nextrace.php'); ?>
+
+            <h2>Last opp tidslinjehendelse</h2>
+            <?php include('timelineadmin.php'); ?>
         <?php endif; ?>
-        
     </div>
+    <script src="nextrace.js"></script>
 </body>
 </html>

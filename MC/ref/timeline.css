@@ -1,7 +1,7 @@
 body {
     font-family: 'Arial', sans-serif;
-    background-color: #f5f5f5;
-    color: #333;
+    background-color: #1a1a1a;
+    color: #f5f5f5;
     margin: 0;
     padding: 0;
 }
@@ -13,15 +13,15 @@ body {
 }
 
 header {
-    background: #333;
-    color: #fff;
+    background: #000;
+    color: #f5f5f5;
     padding: 10px 0;
     text-align: center;
-    border-bottom: #4CAF50 3px solid;
+    border-bottom: #e74c3c 3px solid;
 }
 
 header a {
-    color: #fff;
+    color: #f5f5f5;
     text-decoration: none;
 }
 
@@ -36,7 +36,7 @@ header a {
     content: '';
     position: absolute;
     width: 2px;
-    background-color: #4CAF50;
+    background-color: #e74c3c;
     top: 0;
     bottom: 0;
     left: 50%;
@@ -45,12 +45,13 @@ header a {
 
 .timeline-event {
     position: relative;
-    background-color: #fff;
+    background-color: #333;
     width: 50%;
     padding: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     margin: 10px 0;
     border-radius: 8px;
+    color: #f5f5f5;
 }
 
 .timeline-event::after {
@@ -58,8 +59,8 @@ header a {
     position: absolute;
     width: 20px;
     height: 20px;
-    background-color: #fff;
-    border: 2px solid #4CAF50;
+    background-color: transparent; /* Make the circle transparent */
+    border: none; /* Remove the border */
     top: 20px;
     left: -10px;
     transform: translateX(-50%) rotate(45deg);
@@ -77,18 +78,23 @@ header a {
 
 .timeline-event .date {
     font-weight: bold;
-    color: #4CAF50;
+    color: #e74c3c;
     margin-bottom: 10px;
+    font-size: 1.2em;
+    background: #000;
+    padding: 5px 10px;
+    border-radius: 4px;
+    display: inline-block;
 }
 
 .timeline-event .content h2 {
     margin-top: 0;
-    color: #333;
+    color: #e74c3c;
 }
 
 .timeline-event .content p {
     margin: 10px 0;
-    color: #666;
+    color: #ccc;
 }
 
 .timeline-event .image-container {
@@ -96,7 +102,7 @@ header a {
     height: 100px;
     border-radius: 50%;
     overflow: hidden;
-    border: 2px solid #4CAF50;
+    border: 2px solid #e74c3c;
     margin: 20px 0;
 }
 

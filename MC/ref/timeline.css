@@ -26,13 +26,11 @@ header a {
 }
 
 .timeline {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     padding: 20px 0;
-    overflow-x: auto;
-    white-space: nowrap;
 }
 
 .timeline::before {
@@ -49,16 +47,14 @@ header a {
 
 .timeline-card {
     position: relative;
-    display: inline-block;
     background-color: #333;
-    width: 200px;
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     border-radius: 8px;
     color: #f5f5f5;
     transition: transform 0.3s ease-in-out;
     text-align: center;
-    margin: 20px;
+    margin: 20px 0;
 }
 
 .timeline-card:hover {
@@ -115,8 +111,8 @@ header a {
 
     .timeline-card {
         display: block;
-        width: 80%;
-        margin: 20px auto;
+        width: 100%;
+        margin: 20px 0;
     }
 
     .timeline-card.high, .timeline-card.low {

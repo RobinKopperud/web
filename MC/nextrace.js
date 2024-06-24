@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Admin page loaded');
 
     // Hent neste arrangementsdato
-    fetch('../next_event.txt')
+    fetch('next_event.txt')
         .then(response => response.text())
         .then(date => {
             console.log('Fetched event date:', date); // Log the fetched date

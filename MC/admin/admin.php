@@ -19,17 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Mental Racing Team</title>
-    <link rel="stylesheet" href="../style.css">
-    <link rel="stylesheet" href="../mobile.css" media="screen and (max-width: 768px)">
-    <style>
-        .admin-form { max-width: 300px; margin: 20px auto; padding: 20px; background: #333; border-radius: 5px; }
-        .admin-form input, .admin-form textarea { width: 100%; padding: 10px; margin-bottom: 10px; }
-        .admin-form button { width: 100%; padding: 10px; background: #e8491d; color: white; border: none; cursor: pointer; }
-        .error { color: red; }
-        .success { color: green; }
-        .back-link { display: block; margin-top: 20px; text-align: center; color: #e8491d; text-decoration: none; }
-        .back-link:hover { text-decoration: underline; }
-    </style>
+    <link rel="stylesheet" href="admin_style.css">
 </head>
 <body>
     <div class="container">

@@ -19,7 +19,7 @@
 
     <nav>
         <a href="#resultater">Resultater</a>
-        <a href="#Tidslinje">Tidslinje</a>
+        <a href="ref/timeline.php">Tidslinje</a>
         <a href="ref/galleri.php">Galleri</a>
         <a href="#contact">Kontakt</a>
         <a href="admin/admin.php">Administrator</a>
@@ -73,6 +73,7 @@
         <p>&copy; 2024 Mental Racing Team. Alle rettigheter reservert.</p>
     </footer>
 
+    <script src="script.js"></script>
     <script src="nextrace.js"></script>
 </body>
 </html>

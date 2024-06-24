@@ -27,10 +27,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['timeline_title']) && 
     <input type="date" id="timeline_date" name="timeline_date" required>
 
     <label for="timeline_comment">Kommentar:</label>
-    <textarea id="timeline_comment" name="timeline_comment" required></textarea>
+    <textarea id="timeline_comment" name="timeline_comment" optional></textarea>
 
     <label for="timeline_image">Bilde:</label>
-    <input type="file" id="timeline_image" name="timeline_image" accept="image/*" required>
+    <input type="file" id="timeline_image" name="timeline_image" accept="image/*" optional>
 
     <button type="submit">Last opp hendelse</button>
     <?php if (isset($success)): ?>

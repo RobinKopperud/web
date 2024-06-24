@@ -41,9 +41,8 @@ if ($result->num_rows > 0) {
             foreach ($events as $event) {
                 echo '<div class="timeline-event ' . $side . '">';
                 echo '    <div class="image-container">';
-                if (!empty($event['image'])) {
-                    echo '        <img src="../uploads/' . htmlspecialchars($event['image']) . '" alt="' . htmlspecialchars($event['title']) . '">';
-                }
+                $image = !empty($event['image']) ? htmlspecialchars($event['image']) : 'v3.jpg';
+                echo '        <img src="../uploads/' . $image . '" alt="' . htmlspecialchars($event['title']) . '">';
                 echo '    </div>';
                 echo '    <div class="content">';
                 echo '        <h2>' . htmlspecialchars($event['title']) . '</h2>';

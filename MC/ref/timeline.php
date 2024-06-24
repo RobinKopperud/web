@@ -20,7 +20,7 @@ if ($result->num_rows > 0) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tidslinje - Mental Racing Team</title>
-    <link rel="stylesheet" href="timeline.css?v=1.2">
+    <link rel="stylesheet" href="timeline.css?v=1.3">
 </head>
 <body>
     <header>
@@ -34,23 +34,19 @@ if ($result->num_rows > 0) {
     <section class="container">
         <h2>Tidslinje</h2>
         <div class="timeline">
-            <?php
-            $side = 'left';
-            foreach ($events as $event) {
-                echo '<div class="timeline-card ' . $side . '">';
-                echo '    <div class="image-container">';
-                $image = !empty($event['image']) ? htmlspecialchars($event['image']) : 'v3.jpg';
-                echo '        <img src="../uploads/' . $image . '" alt="' . htmlspecialchars($event['title']) . '">';
-                echo '    </div>';
-                echo '    <div class="content">';
-                echo '        <h2>' . htmlspecialchars($event['title']) . '</h2>';
-                echo '        <p>' . htmlspecialchars($event['comment']) . '</p>';
-                echo '        <div class="date">' . htmlspecialchars($event['event_date']) . '</div>';
-                echo '    </div>';
-                echo '</div>';
-                $side = ($side === 'left') ? 'right' : 'left';
-            }
-            ?>
+            <?php foreach ($events as $event): ?>
+                <div class="timeline-card">
+                    <div class="date"><?php echo htmlspecialchars($event['event_date']); ?></div>
+                    <div class="image-container">
+                        <?php $image = !empty($event['image']) ? htmlspecialchars($event['image']) : 'v3.jpg'; ?>
+                        <img src="../uploads/<?php echo $image; ?>" alt="<?php echo htmlspecialchars($event['title']); ?>">
+                    </div>
+                    <div class="content">
+                        <h2><?php echo htmlspecialchars($event['title']); ?></h2>
+                        <p><?php echo htmlspecialchars($event['comment']); ?></p>
+                    </div>
+                </div>
+            <?php endforeach; ?>
         </div>
     </section>
 </body>

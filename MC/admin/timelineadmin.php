@@ -1,4 +1,6 @@
 <?php
+include_once '../../../db.php'; // Adjust the path as needed
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['timeline_title']) && $_SESSION['authenticated']) {
     $title = $_POST['timeline_title'];
     $event_date = $_POST['timeline_date'];

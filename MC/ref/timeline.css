@@ -1,7 +1,7 @@
 body {
     font-family: 'Arial', sans-serif;
-    background-color: #1a1a1a;
-    color: #f5f5f5;
+    background-color: #f5f5f5;
+    color: #333;
     margin: 0;
     padding: 0;
 }
@@ -10,10 +10,6 @@ body {
     width: 80%;
     margin: auto;
     padding: 20px;
-}
-
-.container h2 {
-    text-align: center;
 }
 
 header {
@@ -63,26 +59,16 @@ header a {
     transform: scale(1.05); /* Slightly increase size on hover */
 }
 
-.timeline-event::after {
-    content: '';
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background-color: transparent; /* Make the circle transparent */
-    border: none; /* Remove the border */
-    top: 20px;
-    left: -10px;
-    transform: translateX(-50%) rotate(45deg);
-    border-radius: 50%;
+.timeline-event.left {
+    left: -50%;
+    text-align: right;
+    transform: translateX(-30px);
 }
 
-.left {
-    left: -47%; /* Adjusted left position to give even spacing */
-}
-
-.right {
-    left: 53%; /* Adjusted right position to give even spacing */
-    transform: translateX(-100%);
+.timeline-event.right {
+    left: 50%;
+    text-align: left;
+    transform: translateX(30px);
 }
 
 .timeline-event .date {
@@ -132,9 +118,10 @@ header a {
         transform: translateX(0);
     }
 
-    .left, .right {
+    .timeline-event.left, .timeline-event.right {
         left: 5%;
         transform: translateX(0);
+        text-align: left;
     }
 
     .timeline-event::after {

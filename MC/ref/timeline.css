@@ -31,7 +31,7 @@ header a {
     margin: 20px auto;
 }
 
-.timeline::after {
+.timeline::before {
     content: '';
     position: absolute;
     width: 6px;
@@ -40,6 +40,7 @@ header a {
     bottom: 0;
     left: 50%;
     margin-left: -3px;
+    z-index: -1; /* Ensure the line is below all items */
 }
 
 .timeline-event {
@@ -48,19 +49,7 @@ header a {
     background-color: inherit;
     width: 50%;
     box-sizing: border-box;
-}
-
-.timeline-event::after {
-    content: '';
-    position: absolute;
-    width: 35px;
-    height: 35px;
-    right: -22px;
-    background-color: white;
-    border: 4px solid #e74c3c;
-    top: 15px;
-    border-radius: 50%;
-    z-index: 1;
+    z-index: 1; /* Ensure the event is above the line */
 }
 
 .left {
@@ -97,18 +86,17 @@ header a {
     border-color: transparent #e74c3c transparent transparent;
 }
 
-.right::after {
-    left: -20px;
-}
-
 .timeline-event .date {
     padding: 5px 10px;
     background: #e74c3c;
     color: white;
     position: absolute;
     top: 15px;
-    right: -55px;
     border-radius: 6px;
+}
+
+.left .date {
+    right: -55px;
 }
 
 .right .date {
@@ -120,6 +108,7 @@ header a {
     background: #34495e;
     position: relative;
     border-radius: 6px;
+    margin-top: 20px;
 }
 
 .timeline-event .content h2 {
@@ -133,15 +122,22 @@ header a {
 
 .timeline-event .image-container {
     position: absolute;
-    top: -15px;
-    right: -90px;
-    width: 100px;
-    height: 100px;
+    top: 20px;
+    width: 300px;
+    height: 300px;
     border-radius: 50%;
     overflow: hidden;
     border: 3px solid #e74c3c;
     background-color: white;
-    z-index: 2;
+    z-index: 1;
+}
+
+.left .image-container {
+    right: -310px;
+}
+
+.right .image-container {
+    left: -310px;
 }
 
 .timeline-event .image-container img {
@@ -157,11 +153,6 @@ header a {
         padding-right: 25px;
     }
 
-    .timeline-event::after {
-        right: auto;
-        left: -17px;
-    }
-
     .left::before,
     .right::before {
         left: -30px;
@@ -174,7 +165,16 @@ header a {
     }
 
     .timeline-event .image-container {
-        right: auto;
-        left: -50px;
+        width: 100px;
+        height: 100px;
+        top: 20px;
+    }
+
+    .left .image-container {
+        right: -110px;
+    }
+
+    .right .image-container {
+        left: -110px;
     }
 }

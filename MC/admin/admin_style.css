@@ -31,6 +31,7 @@ header a {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     margin: 20px;
     padding: 20px;
+    box-sizing: border-box;
 }
 
 .admin-form label {
@@ -96,12 +97,14 @@ header a {
 }
 
 .admin-section {
-    flex: 0 0 48%; /* Take up roughly half of the container */
+    flex: 0 0 35%; /* Take up to 35% of the container */
+    max-width: 35%; /* Ensure the maximum width is 35% */
     box-sizing: border-box;
 }
 
 @media (max-width: 768px) {
     .admin-section {
         flex: 0 0 100%; /* Take up the full width on small screens */
+        max-width: 100%;
     }
 }

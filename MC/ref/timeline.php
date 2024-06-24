@@ -34,8 +34,8 @@ if ($result->num_rows > 0) {
     <section class="container">
         <h2>Tidslinje</h2>
         <div class="timeline">
-            <?php foreach ($events as $event): ?>
-                <div class="timeline-card">
+            <?php foreach ($events as $index => $event): ?>
+                <div class="timeline-card <?php echo $index % 2 == 0 ? 'high' : 'low'; ?>">
                     <div class="date"><?php echo htmlspecialchars($event['event_date']); ?></div>
                     <div class="image-container">
                         <?php $image = !empty($event['image']) ? htmlspecialchars($event['image']) : 'v3.jpg'; ?>

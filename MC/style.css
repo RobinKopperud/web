@@ -27,6 +27,11 @@ header h1 {
     text-align: center;
 }
 
+header a {
+    color: #ffffff;
+    text-decoration: none; /* Remove underline from link */
+}
+
 nav {
     display: flex;
     justify-content: center;

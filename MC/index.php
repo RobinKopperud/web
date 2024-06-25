@@ -12,7 +12,6 @@
         <div class="container">
         <a href="index.php"> <h1>Mental Racing Team</h1></a>
         </div>
-        </div>
     </header>
 
     <button class="menu-toggle" aria-label="Toggle menu">☰</button>

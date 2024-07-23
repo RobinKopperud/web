@@ -15,7 +15,13 @@ while($row = $result->fetch_assoc()) {
     $logs[] = $row;
 }
 
+// Check last log entry
+$lastLogType = '';
+if (!empty($logs)) {
+    $lastLogType = $logs[0]['log_type'];
+}
+
 $conn->close();
 
-echo json_encode($logs);
+echo json_encode(['logs' => $logs, 'lastLogType' => $lastLogType]);
 ?>

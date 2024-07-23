@@ -1,14 +1,21 @@
+<?php
+session_start();
+if (isset($_SESSION['user_id'])) {
+    header("Location: employees.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fleksitid Logging</title>
+    <title>System Login</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Fleksitid Logger</h1>
+        <h1>Fleksitid System</h1>
 
         <div id="auth-section">
             <h2>Register</h2>
@@ -25,22 +32,7 @@
                 <button type="submit">Login</button>
             </form>
         </div>
-
-        <div id="top-section">
-            <h2>Top 3 Fleksitid</h2>
-            <ul id="top-list"></ul>
-        </div>
-
-        <div id="log-section" style="display: none;">
-            <button id="login-btn">Logg Inn</button>
-            <button id="logout-btn">Logg Ut</button>
-            <div id="log-display" class="log-display">
-                <h2>Logg</h2>
-                <ul id="log-list"></ul>
-                <h3 id="time-status"></h3>
-            </div>
-        </div>
     </div>
-    <script src="script.js"></script>
+    <script src="auth.js"></script>
 </body>
 </html>

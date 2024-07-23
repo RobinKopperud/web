@@ -9,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $sql = "SELECT id, password FROM users WHERE username='$username'";
+    $sql = "SELECT id, password FROM brukere WHERE username='$username'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {

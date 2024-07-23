@@ -3,7 +3,7 @@ session_start();
 include_once '../../db.php'; // Adjust the path as needed
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: index.html");
+    header("Location: index.php");
     exit();
 }
 

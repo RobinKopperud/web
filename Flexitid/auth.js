@@ -18,7 +18,7 @@ document.getElementById('logout-btn-system').addEventListener('click', function(
     const xhr = new XMLHttpRequest();
     xhr.open('POST', 'logout.php', true);
     xhr.onload = function() {
-        window.location.href = 'index.html';
+        window.location.href = 'index.php';
     };
     xhr.send();
 });

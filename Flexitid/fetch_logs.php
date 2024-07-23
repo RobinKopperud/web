@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $userId = $_SESSION['user_id'];
-$sql = "SELECT log_type, log_time FROM logs WHERE user_id='$userId' ORDER BY log_time DESC";
+$sql = "SELECT log_type, log_time FROM logs WHERE user_id='$userId' ORDER BY log_time ASC";
 $result = $conn->query($sql);
 
 $logs = array();
@@ -18,7 +18,7 @@ while ($row = $result->fetch_assoc()) {
 // Check last log entry
 $lastLogType = '';
 if (!empty($logs)) {
-    $lastLogType = $logs[0]['log_type'];
+    $lastLogType = $logs[count($logs) - 1]['log_type'];
 }
 
 $conn->close();

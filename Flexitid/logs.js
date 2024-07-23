@@ -30,18 +30,51 @@ function fetchLogs() {
             const response = JSON.parse(this.responseText);
             const logs = response.logs;
             const lastLogType = response.lastLogType;
-            let totalMinutes = 0;
-            let lastLogTime = '';
+            let totalMinutesToday = 0;
+            let totalMinutesWeek = 0;
+            let lastLogTimeToday = '';
+            let lastLogTimeWeek = '';
+
+            const todayStart = new Date().setHours(0, 0, 0, 0);
+            const todayEnd = new Date().setHours(23, 59, 59, 999);
+            const weekStart = new Date();
+            weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
+            weekStart.setHours(0, 0, 0, 0);
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            weekEnd.setHours(23, 59, 59, 999);
 
             logs.forEach(function(log) {
-                if (lastLogTime) {
-                    const diff = (new Date(log.log_time) - new Date(lastLogTime)) / 1000 / 60;
-                    totalMinutes += (log.log_type === 'inn' ? diff : -diff);
+                const logTime = new Date(log.log_time);
+                if (logTime >= todayStart && logTime <= todayEnd) {
+                    if (lastLogTimeToday) {
+                        const diff = (logTime - new Date(lastLogTimeToday)) / 1000 / 60;
+                        if (lastLogType === 'inn' && log.log_type === 'ut') {
+                            totalMinutesToday += diff; // Time spent working today
+                        }
+                    }
+                    lastLogTimeToday = log.log_time;
                 }
-                lastLogTime = log.log_time;
+
+                if (logTime >= weekStart && logTime <= weekEnd) {
+                    if (lastLogTimeWeek) {
+                        const diff = (logTime - new Date(lastLogTimeWeek)) / 1000 / 60;
+                        if (lastLogType === 'inn' && log.log_type === 'ut') {
+                            totalMinutesWeek += diff; // Time spent working this week
+                        }
+                    }
+                    lastLogTimeWeek = log.log_time;
+                }
+
+                lastLogType = log.log_type;
             });
 
-            document.querySelector('.container p').textContent = `Total tid i pluss/minus: ${totalMinutes} minutter`;
+            const standardWorkDayMinutes = 480; // 8 hours * 60 minutes
+            const flexitimeBalance = totalMinutesToday - standardWorkDayMinutes;
+
+            document.getElementById('today-time').textContent = `Time spent today: ${totalMinutesToday} minutes`;
+            document.querySelector('.container p').textContent = `Total time this week: ${totalMinutesWeek} minutes`;
+            document.getElementById('flexitime-balance').textContent = `Flexitime balance: ${flexitimeBalance} minutes`;
 
             // Enable or disable buttons based on the last log type
             document.getElementById('login-btn').disabled = (lastLogType === 'inn');

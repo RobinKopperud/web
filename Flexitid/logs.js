@@ -16,7 +16,17 @@ function logTime(type) {
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     xhr.onload = function() {
         if (this.status === 200) {
-            fetchLogs();
+            const response = JSON.parse(this.responseText);
+            if (response.success) {
+                fetchLogs();
+                if (type === 'inn') {
+                    alert('Du logget inn på: ' + response.logTime);
+                } else if (type === 'ut') {
+                    alert('Du logget ut på: ' + response.logTime);
+                }
+            } else {
+                alert('En feil oppstod: ' + response.error);
+            }
         }
     };
     xhr.send('logType=' + type);

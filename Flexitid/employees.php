@@ -78,6 +78,8 @@ $conn->close();
 <body>
     <div class="container">
         <h1>Velkommen, <?php echo $_SESSION['username']; ?>!</h1>
+        <button id="logout-btn-system">Logg ut</button>
+
         <h2>Alle Ansatte</h2>
         <ul>
             <?php foreach ($employees as $employee): ?>
@@ -88,7 +90,6 @@ $conn->close();
         <p id="today-time">Tid brukt i dag: <?php echo $todayMinutes; ?> minutter</p>
         <button id="login-btn">Kom på jobb nå</button>
         <button id="logout-btn">Drar fra jobb nå</button>
-        <button id="logout-btn-system">Logg ut</button>
 
         <h2>Arbeidstimer Denne Uken</h2>
         <p>Total tid denne uken: <?php echo $weekMinutes; ?> minutter</p>

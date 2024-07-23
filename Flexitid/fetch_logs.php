@@ -11,7 +11,7 @@ $sql = "SELECT log_type, log_time FROM logs WHERE user_id='$userId' ORDER BY log
 $result = $conn->query($sql);
 
 $logs = array();
-while($row = $result->fetch_assoc()) {
+while ($row = $result->fetch_assoc()) {
     $logs[] = $row;
 }
 

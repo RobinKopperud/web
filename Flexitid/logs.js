@@ -1,9 +1,13 @@
-document.getElementById('login-btn').addEventListener('click', function() {
-    logTime('inn');
-});
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('login-btn').addEventListener('click', function() {
+        logTime('inn');
+    });
 
-document.getElementById('logout-btn').addEventListener('click', function() {
-    logTime('ut');
+    document.getElementById('logout-btn').addEventListener('click', function() {
+        logTime('ut');
+    });
+
+    fetchLogs();
 });
 
 function logTime(type) {
@@ -46,5 +50,3 @@ function fetchLogs() {
     };
     xhr.send();
 }
-
-document.addEventListener('DOMContentLoaded', fetchLogs);

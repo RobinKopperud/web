@@ -13,6 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $row = $result->fetch_assoc();
         if (password_verify($password, $row['password'])) {
             $_SESSION['user_id'] = $row['id'];
+            $_SESSION['username'] = $username;
             echo "Login successful";
         } else {
             echo "Invalid password";

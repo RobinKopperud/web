@@ -1,3 +1,7 @@
+document.addEventListener('DOMContentLoaded', function() {
+    fetchTopUsers();
+});
+
 function fetchTopUsers() {
     const xhr = new XMLHttpRequest();
     xhr.open('GET', 'fetch_top_users.php', true);
@@ -15,7 +19,3 @@ function fetchTopUsers() {
     };
     xhr.send();
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    fetchTopUsers();
-});

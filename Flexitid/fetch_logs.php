@@ -2,10 +2,6 @@
 session_start();
 include_once '../../db.php'; // Adjust the path as needed
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
 if (!isset($_SESSION['user_id'])) {
     die("Not authenticated");
 }

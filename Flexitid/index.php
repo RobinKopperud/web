@@ -26,6 +26,11 @@
             </form>
         </div>
 
+        <div id="top-section">
+            <h2>Top 3 Fleksitid</h2>
+            <ul id="top-list"></ul>
+        </div>
+
         <div id="log-section" style="display: none;">
             <button id="login-btn">Logg Inn</button>
             <button id="logout-btn">Logg Ut</button>

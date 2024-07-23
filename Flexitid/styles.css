@@ -21,6 +21,10 @@ h1 {
     margin-bottom: 20px;
 }
 
+h2 {
+    margin-bottom: 10px;
+}
+
 .log-section {
     margin-bottom: 20px;
 }
@@ -38,6 +42,14 @@ button {
 
 button:hover {
     background-color: #0056b3;
+}
+
+input[type="text"], input[type="password"] {
+    width: 80%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: 1px solid #ddd;
 }
 
 .log-display {

@@ -86,9 +86,7 @@ function fetchLogs() {
             document.querySelector('.container p').textContent = `Total tid denne uken: ${totalMinutesWeek} minutter`;
             document.getElementById('flexitime-balance').textContent = `Fleksitid balanse: ${flexitimeBalance} minutter`;
 
-            // Aktiver eller deaktiver knapper basert på siste loggtype
-            document.getElementById('login-btn').disabled = (lastLogType === 'inn');
-            document.getElementById('logout-btn').disabled = (lastLogType !== 'inn');
+        
         }
     };
     xhr.send();

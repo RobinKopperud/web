@@ -1,9 +1,9 @@
 <?php
 session_start();
-include_once '../../db.php'; // Adjust the path as needed
+include_once '../../db.php'; // Juster stien etter behov
 
 if (!isset($_SESSION['user_id'])) {
-    die("Not authenticated");
+    die("Ikke autentisert");
 }
 
 $userId = $_SESSION['user_id'];
@@ -15,7 +15,7 @@ while ($row = $result->fetch_assoc()) {
     $logs[] = $row;
 }
 
-// Check last log entry
+// Sjekk siste loggoppføring
 $lastLogType = '';
 if (!empty($logs)) {
     $lastLogType = $logs[count($logs) - 1]['log_type'];

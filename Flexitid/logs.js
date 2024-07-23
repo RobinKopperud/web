@@ -50,7 +50,7 @@ function fetchLogs() {
                     if (lastLogTimeToday) {
                         const diff = (logTime - new Date(lastLogTimeToday)) / 1000 / 60;
                         if (lastLogType === 'inn' && log.log_type === 'ut') {
-                            totalMinutesToday += diff; // Time spent working today
+                            totalMinutesToday += diff; // Tid brukt på jobb i dag
                         }
                     }
                     lastLogTimeToday = log.log_time;
@@ -60,7 +60,7 @@ function fetchLogs() {
                     if (lastLogTimeWeek) {
                         const diff = (logTime - new Date(lastLogTimeWeek)) / 1000 / 60;
                         if (lastLogType === 'inn' && log.log_type === 'ut') {
-                            totalMinutesWeek += diff; // Time spent working this week
+                            totalMinutesWeek += diff; // Tid brukt på jobb denne uken
                         }
                     }
                     lastLogTimeWeek = log.log_time;
@@ -69,14 +69,14 @@ function fetchLogs() {
                 lastLogType = log.log_type;
             });
 
-            const standardWorkDayMinutes = 480; // 8 hours * 60 minutes
+            const standardWorkDayMinutes = 480; // 8 timer * 60 minutter
             const flexitimeBalance = totalMinutesToday - standardWorkDayMinutes;
 
-            document.getElementById('today-time').textContent = `Time spent today: ${totalMinutesToday} minutes`;
-            document.querySelector('.container p').textContent = `Total time this week: ${totalMinutesWeek} minutes`;
-            document.getElementById('flexitime-balance').textContent = `Flexitime balance: ${flexitimeBalance} minutes`;
+            document.getElementById('today-time').textContent = `Tid brukt i dag: ${totalMinutesToday} minutter`;
+            document.querySelector('.container p').textContent = `Total tid denne uken: ${totalMinutesWeek} minutter`;
+            document.getElementById('flexitime-balance').textContent = `Fleksitid balanse: ${flexitimeBalance} minutter`;
 
-            // Enable or disable buttons based on the last log type
+            // Aktiver eller deaktiver knapper basert på siste loggtype
             document.getElementById('login-btn').disabled = (lastLogType === 'inn');
             document.getElementById('logout-btn').disabled = (lastLogType !== 'inn');
         }

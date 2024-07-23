@@ -1,13 +1,13 @@
 <?php
 session_start();
-include_once '../../db.php'; // Adjust the path as needed
+include_once '../../db.php'; // Juster stien etter behov
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
 }
 
-// Fetch all employees
+// Hent alle ansatte
 $sql = "SELECT username FROM brukere";
 $result = $conn->query($sql);
 
@@ -16,7 +16,7 @@ while ($row = $result->fetch_assoc()) {
     $employees[] = $row['username'];
 }
 
-// Fetch today's working hours
+// Hent dagens arbeidstimer
 $userId = $_SESSION['user_id'];
 $todayStart = date("Y-m-d 00:00:00");
 $todayEnd = date("Y-m-d 23:59:59");
@@ -32,14 +32,14 @@ while ($row = $result->fetch_assoc()) {
     if ($lastLogTime) {
         $diff = (strtotime($row['log_time']) - strtotime($lastLogTime)) / 60;
         if ($lastLogType === 'inn' && $row['log_type'] === 'ut') {
-            $todayMinutes += $diff; // Time spent working today
+            $todayMinutes += $diff; // Tid brukt på jobb i dag
         }
     }
     $lastLogType = $row['log_type'];
     $lastLogTime = $row['log_time'];
 }
 
-// Fetch this week's working hours
+// Hent denne ukens arbeidstimer
 $weekStart = date("Y-m-d 00:00:00", strtotime('monday this week'));
 $weekEnd = date("Y-m-d 23:59:59", strtotime('sunday this week'));
 
@@ -54,48 +54,48 @@ while ($row = $result->fetch_assoc()) {
     if ($lastLogTime) {
         $diff = (strtotime($row['log_time']) - strtotime($lastLogTime)) / 60;
         if ($lastLogType === 'inn' && $row['log_type'] === 'ut') {
-            $weekMinutes += $diff; // Time spent working this week
+            $weekMinutes += $diff; // Tid brukt på jobb denne uken
         }
     }
     $lastLogType = $row['log_type'];
     $lastLogTime = $row['log_time'];
 }
 
-// Calculate flexitime balance
-$standardWorkDayMinutes = 480; // 8 hours * 60 minutes
+// Beregn fleksitid balanse
+$standardWorkDayMinutes = 480; // 8 timer * 60 minutter
 $flexitime = $todayMinutes - $standardWorkDayMinutes;
 
 $conn->close();
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="no">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fleksitid Employee Page</title>
+    <title>Fleksitid Ansatteside</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Welcome, <?php echo $_SESSION['username']; ?>!</h1>
-        <h2>All Employees</h2>
+        <h1>Velkommen, <?php echo $_SESSION['username']; ?>!</h1>
+        <h2>Alle Ansatte</h2>
         <ul>
             <?php foreach ($employees as $employee): ?>
                 <li><?php echo htmlspecialchars($employee); ?></li>
             <?php endforeach; ?>
         </ul>
-        <h2>Today's Working Hours</h2>
-        <p id="today-time">Time spent today: <?php echo $todayMinutes; ?> minutes</p>
+        <h2>Dagens Arbeidstimer</h2>
+        <p id="today-time">Tid brukt i dag: <?php echo $todayMinutes; ?> minutter</p>
         <button id="login-btn">Kom på jobb nå</button>
         <button id="logout-btn">Drar fra jobb nå</button>
-        <button id="logout-btn-system">Log Out</button>
+        <button id="logout-btn-system">Logg ut</button>
 
-        <h2>This Week's Working Hours</h2>
-        <p>Total time this week: <?php echo $weekMinutes; ?> minutes</p>
-        <p>Current week: <?php echo date('W, Y'); ?></p>
+        <h2>Arbeidstimer Denne Uken</h2>
+        <p>Total tid denne uken: <?php echo $weekMinutes; ?> minutter</p>
+        <p>Nåværende uke: <?php echo date('W, Y'); ?></p>
 
-        <h2>Flexitime Balance</h2>
-        <p id="flexitime-balance">Flexitime balance: <?php echo $flexitime; ?> minutes</p>
+        <h2>Fleksitid Balanse</h2>
+        <p id="flexitime-balance">Fleksitid balanse: <?php echo $flexitime; ?> minutter</p>
     </div>
     <script src="auth.js"></script>
     <script src="logs.js"></script>

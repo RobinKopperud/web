@@ -1,6 +1,9 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 session_start();
-include_once 'db.php'; // Adjust the path as needed
+include_once '../../db.php'; // Adjust the path as needed
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");

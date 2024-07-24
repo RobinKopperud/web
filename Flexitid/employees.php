@@ -1,6 +1,6 @@
 <?php
 session_start();
-include_once '../../db.php'; // Adjust the path as needed
+include_once 'db.php'; // Adjust the path as needed
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
@@ -17,20 +17,11 @@ $message = '';
 include 'includes/handle_log.php';
 include 'includes/manual_log.php';
 
+// Handle log in/out actions
+$message = handleLog($conn, $userId);
+
 // Fetch today's and this week's work hours and flexitime balance
 include 'includes/fetch_logs.php';
-
-// Fetch all employees
-$employees = [];
-$sql = "SELECT username FROM brukere";
-$result = $conn->query($sql);
-
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $employees[] = $row['username'];
-    }
-}
-
 
 $conn->close();
 ?>
@@ -94,44 +85,29 @@ $conn->close();
             <h2>Fleksitid Balanse</h2>
             <p id="flexitime-balance">Fleksitid balanse: <?php echo $flexitimeBalance; ?> minutter</p>
         </div>
+
+        <div class="container">
+            <h2>Velg en dato for å se timer jobbet</h2>
+            <form method="post" action="">
+                <label for="selected-date">Velg dato:</label>
+                <input type="date" id="selected-date" name="selected-date" required>
+                <button type="submit">Vis timer</button>
+            </form>
+
+            <?php if (isset($selectedDate) && isset($hoursWorkedOnSelectedDate)): ?>
+                <h3>Timer jobbet på <?php echo htmlspecialchars($selectedDate); ?>:</h3>
+                <p><?php echo htmlspecialchars($hoursWorkedOnSelectedDate); ?> timer</p>
+            <?php endif; ?>
+        </div>
     </div>
 
-    <!-- Confirmation Modal -->
     <div id="confirmationModal" style="display: none;">
         <p id="confirmationMessage"></p>
         <button onclick="confirmLog()">Bekreft</button>
         <button onclick="denyLog()">Avbryt</button>
     </div>
 
+    <script src="js/log.js"></script>
     <script src="js/auth.js"></script>
-    <script>
-        function logTime(type) {
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'includes/handle_log.php', true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    const response = JSON.parse(xhr.responseText);
-                    if (response.success) {
-                        document.getElementById('confirmationMessage').textContent = response.message;
-                        document.getElementById('confirmationModal').style.display = 'block';
-                        document.getElementById('logType').value = type;
-                    } else {
-                        alert('En feil oppstod: ' + response.error);
-                    }
-                }
-            };
-            xhr.send('logType=' + type);
-        }
-
-        function confirmLog() {
-            document.getElementById('logForm').submit();
-        }
-
-        function denyLog() {
-            document.getElementById('confirmationModal').style.display = 'none';
-            alert('Vennligst legg inn timer manuelt.');
-        }
-    </script>
 </body>
 </html>

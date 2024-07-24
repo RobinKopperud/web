@@ -1,4 +1,13 @@
 <?php
+session_start(); // Ensure session is started
+
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode(['success' => false, 'error' => 'User not authenticated.']);
+    exit();
+}
+
+$userId = $_SESSION['user_id']; // Retrieve the user ID from the session
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $logType = $_POST['logType'];
     $logTime = date("Y-m-d H:i:s");

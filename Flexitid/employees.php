@@ -20,6 +20,18 @@ include 'includes/manual_log.php';
 // Fetch today's and this week's work hours and flexitime balance
 include 'includes/fetch_logs.php';
 
+// Fetch all employees
+$employees = [];
+$sql = "SELECT username FROM brukere";
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $employees[] = $row['username'];
+    }
+}
+
+
 $conn->close();
 ?>
 <!DOCTYPE html>

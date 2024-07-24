@@ -3,11 +3,57 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $logType = $_POST['logType'];
     $logTime = date("Y-m-d H:i:s");
 
-    $sql = "INSERT INTO logs (user_id, log_type, log_time) VALUES ('$userId', '$logType', '$logTime')";
-    if ($conn->query($sql) === TRUE) {
+    $conn->begin_transaction();
+    try {
+        // Insert log entry
+        $sql = "INSERT INTO logs (user_id, log_type, log_time) VALUES ('$userId', '$logType', '$logTime')";
+        $conn->query($sql);
+
+        // Fetch last log entry
+        $lastLogSql = "SELECT log_type, log_time FROM logs WHERE user_id='$userId' ORDER BY log_time DESC LIMIT 2";
+        $lastLogResult = $conn->query($lastLogSql);
+        $lastLogs = [];
+        while ($row = $lastLogResult->fetch_assoc()) {
+            $lastLogs[] = $row;
+        }
+
+        // Calculate flexitime balance
+        if (count($lastLogs) == 2) {
+            $previousLog = $lastLogs[1];
+            $previousLogType = $previousLog['log_type'];
+            $previousLogTime = strtotime($previousLog['log_time']);
+            $currentLogTime = strtotime($logTime);
+
+            $balanceSql = "SELECT balance_minutes FROM flexitime_balance WHERE user_id='$userId' FOR UPDATE";
+            $balanceResult = $conn->query($balanceSql);
+            $balanceRow = $balanceResult->fetch_assoc();
+
+            if ($balanceRow) {
+                $balanceMinutes = $balanceRow['balance_minutes'];
+                if ($previousLogType === 'inn' && $logType === 'ut') {
+                    $diff = ($currentLogTime - $previousLogTime) / 60;
+                    $balanceMinutes += $diff - 480; // Adjust by standard workday
+                } elseif ($previousLogType === 'ut' && $logType === 'inn') {
+                    $diff = ($currentLogTime - $previousLogTime) / 60;
+                    $balanceMinutes -= $diff; // Subtract break time
+                }
+
+                // Update balance
+                $updateSql = "UPDATE flexitime_balance SET balance_minutes='$balanceMinutes', last_update='$logTime' WHERE user_id='$userId'";
+                $conn->query($updateSql);
+            } else {
+                // Insert new balance record
+                $balanceMinutes = 0;
+                $insertSql = "INSERT INTO flexitime_balance (user_id, balance_minutes, last_update) VALUES ('$userId', '$balanceMinutes', '$logTime')";
+                $conn->query($insertSql);
+            }
+        }
+
+        $conn->commit();
         $message = ($logType === 'inn') ? 'Du logget inn på: ' . $logTime : 'Du logget ut på: ' . $logTime;
-    } else {
-        $message = 'En feil oppstod: ' . $conn->error;
+    } catch (Exception $e) {
+        $conn->rollback();
+        $message = 'En feil oppstod: ' . $e->getMessage();
     }
 }
 ?>

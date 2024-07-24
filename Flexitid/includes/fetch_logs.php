@@ -44,4 +44,9 @@ while ($row = $result->fetch_assoc()) {
 // Beregn fleksitid balanse
 $standardWorkDayMinutes = 480; // 8 timer * 60 minutter
 $flexitime = $todayMinutes - $standardWorkDayMinutes;
+
+// Hent fleksitid balanse
+$sql = "SELECT balance_minutes FROM flexitime_balance WHERE user_id='$userId'";
+$result = $conn->query($sql);
+$flexitimeBalance = $result->fetch_assoc()['balance_minutes'];
 ?>

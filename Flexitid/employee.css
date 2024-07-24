@@ -1,0 +1,41 @@
+.log-section {
+    margin-bottom: 20px;
+}
+
+.log-display {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.navbar {
+    background-color: #007BFF;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.navbar button {
+    background-color: white;
+    color: #007BFF;
+    border: 1px solid #007BFF;
+    padding: 5px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.navbar button:hover {
+    background-color: #0056b3;
+    color: white;
+}

@@ -1,6 +1,6 @@
 <?php
 session_start();
-include_once '../../db.php'; // Juster stien etter behov
+include_once '../../db.php'; // Adjust the path as needed
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
@@ -13,11 +13,11 @@ $weekMinutes = 0;
 $flexitimeBalance = 0;
 $message = '';
 
-// Inkluder logikk for håndtering av logginn/ut og manuell input
+// Include logic for handling log in/out and manual input
 include 'includes/handle_log.php';
 include 'includes/manual_log.php';
 
-// Hent dagens og ukens arbeidstimer samt fleksitid balanse
+// Fetch today's and this week's work hours and flexitime balance
 include 'includes/fetch_logs.php';
 
 $conn->close();
@@ -30,10 +30,9 @@ $conn->close();
     <title>Fleksitid Ansatteside</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="employee.css">
-
 </head>
 <body>
-    <header class="navbar">
+    <header>
         <h1>Velkommen, <?php echo $_SESSION['username']; ?>!</h1>
         <button id="logout-btn-system">Logg ut</button>
     </header>
@@ -68,7 +67,7 @@ $conn->close();
             <input type="hidden" name="manualLog" value="true">
             <label for="date">Dato:</label>
             <input type="date" id="date" name="date" required>
-            <label for="hours">Timer jobbet(inkludert pause):</label>
+            <label for="hours">Timer jobbet (inkludert pause):</label>
             <input type="number" id="hours" name="hours" step="0.1" required>
             <button type="submit">Legg til timer</button>
         </form>
@@ -91,6 +90,34 @@ $conn->close();
     </div>
 
     <script src="js/auth.js"></script>
-    <script src="js/flexitest.js"></script>
+    <script>
+        function logTime(type) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'includes/handle_log.php', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        document.getElementById('confirmationMessage').textContent = response.message;
+                        document.getElementById('confirmationModal').style.display = 'block';
+                        document.getElementById('logType').value = type;
+                    } else {
+                        alert('En feil oppstod: ' + response.error);
+                    }
+                }
+            };
+            xhr.send('logType=' + type);
+        }
+
+        function confirmLog() {
+            document.getElementById('logForm').submit();
+        }
+
+        function denyLog() {
+            document.getElementById('confirmationModal').style.display = 'none';
+            alert('Vennligst legg inn timer manuelt.');
+        }
+    </script>
 </body>
 </html>

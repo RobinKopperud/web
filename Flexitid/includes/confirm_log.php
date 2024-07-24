@@ -14,10 +14,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logType'])) {
 
     $conn->begin_transaction();
     try {
-        // Insert log entry
-        $sql = "INSERT INTO logs (user_id, log_type, log_time) VALUES ('$userId', '$logType', '$logTime')";
-        $conn->query($sql);
-
         // Fetch last log entry
         $lastLogSql = "SELECT log_type, log_time FROM logs WHERE user_id='$userId' ORDER BY log_time DESC LIMIT 2";
         $lastLogResult = $conn->query($lastLogSql);
@@ -41,24 +37,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logType'])) {
                 $balanceMinutes = $balanceRow['balance_minutes'];
                 if ($previousLogType === 'inn' && $logType === 'ut') {
                     $diff = ($currentLogTime - $previousLogTime) / 60;
-                    $calculatedFlexitime = $balanceMinutes + ($diff - 480); // Adjust by standard workday
+                    $balanceMinutes += $diff - 480; // Adjust by standard workday
                 } elseif ($previousLogType === 'ut' && $logType === 'inn') {
                     $diff = ($currentLogTime - $previousLogTime) / 60;
-                    $calculatedFlexitime = $balanceMinutes - $diff; // Subtract break time
+                    $balanceMinutes -= $diff; // Subtract break time
                 }
 
-                // Return response with calculated flexitime
+                // Update balance
+                $updateSql = "UPDATE flexitime_balance SET balance_minutes='$balanceMinutes', last_update=NOW() WHERE user_id='$userId'";
+                $conn->query($updateSql);
+
                 echo json_encode([
                     'success' => true,
-                    'message' => 'Beregnet fleksitid: ' . $calculatedFlexitime . ' minutter. Vil du bekrefte?',
-                    'calculatedFlexitime' => $calculatedFlexitime
+                    'message' => 'Loggoppføring bekreftet og fleksitid oppdatert.'
                 ]);
-            } else {
-                // Insert new balance record
-                $balanceMinutes = 0;
-                $insertSql = "INSERT INTO flexitime_balance (user_id, balance_minutes, last_update) VALUES ('$userId', '$balanceMinutes', '$logTime')";
-                $conn->query($insertSql);
-                echo json_encode(['success' => true, 'message' => 'Ingen tidligere fleksitid funnet.']);
             }
         }
 

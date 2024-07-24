@@ -24,9 +24,6 @@ include 'includes/fetch_employees.php';
 // Include logic for fetching hours worked for a selected date
 include 'includes/fetch_hours_for_date.php';
 
-// Handle log in/out actions
-$message = handleLog($conn, $userId);
-
 // Fetch today's and this week's work hours and flexitime balance
 include 'includes/fetch_logs.php';
 
@@ -40,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected-date'])) {
     $selectedDate = $_POST['selected-date'];
     $hoursWorkedOnSelectedDate = fetchHoursForDate($conn, $userId, $selectedDate);
 }
+
 
 $conn->close();
 ?>

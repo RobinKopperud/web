@@ -32,28 +32,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $balanceMinutes = $balanceRow['balance_minutes'];
                 if ($previousLogType === 'inn' && $logType === 'ut') {
                     $diff = ($currentLogTime - $previousLogTime) / 60;
-                    $balanceMinutes += $diff - 480; // Adjust by standard workday
+                    $calculatedFlexitime = $balanceMinutes + ($diff - 480); // Adjust by standard workday
                 } elseif ($previousLogType === 'ut' && $logType === 'inn') {
                     $diff = ($currentLogTime - $previousLogTime) / 60;
-                    $balanceMinutes -= $diff; // Subtract break time
+                    $calculatedFlexitime = $balanceMinutes - $diff; // Subtract break time
                 }
 
-                // Update balance
-                $updateSql = "UPDATE flexitime_balance SET balance_minutes='$balanceMinutes', last_update='$logTime' WHERE user_id='$userId'";
-                $conn->query($updateSql);
+                // Return response with calculated flexitime
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Beregnet fleksitid: ' . $calculatedFlexitime . ' minutter. Vil du bekrefte?',
+                    'calculatedFlexitime' => $calculatedFlexitime
+                ]);
             } else {
                 // Insert new balance record
                 $balanceMinutes = 0;
                 $insertSql = "INSERT INTO flexitime_balance (user_id, balance_minutes, last_update) VALUES ('$userId', '$balanceMinutes', '$logTime')";
                 $conn->query($insertSql);
+                echo json_encode(['success' => true, 'message' => 'Ingen tidligere fleksitid funnet.']);
             }
         }
 
         $conn->commit();
-        $message = ($logType === 'inn') ? 'Du logget inn på: ' . $logTime : 'Du logget ut på: ' . $logTime;
     } catch (Exception $e) {
         $conn->rollback();
-        $message = 'En feil oppstod: ' . $e->getMessage();
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
 }
 ?>

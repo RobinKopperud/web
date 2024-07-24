@@ -10,6 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 $userId = $_SESSION['user_id'];
 $todayMinutes = 0;
 $weekMinutes = 0;
+$flexitimeBalance = 0;
 $message = '';
 
 // Inkluder logikk for håndtering av logginn/ut og manuell input
@@ -30,52 +31,45 @@ $conn->close();
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    
     <nav class="navbar">
         <h1>Velkommen, <?php echo $_SESSION['username']; ?>!</h1>
         <button id="logout-btn-system">Logg ut</button>
     </nav>
 
     <div class="container">
-        <h1>Velkommen, <?php echo $_SESSION['username']; ?>!</h1>
-        <button id="logout-btn-system">Logg ut</button>
-
         <h2>Alle Ansatte</h2>
         <ul>
             <?php foreach ($employees as $employee): ?>
                 <li><?php echo htmlspecialchars($employee); ?></li>
             <?php endforeach; ?>
         </ul>
+    </div>
 
+    <div class="container">
         <h2>Dagens Arbeidstimer</h2>
-        <p id="today-time">Tid brukt i dag: <?php echo $todayMinutes; ?> minutter</p>
+        <p id="today-time">Tid brukt på jobb i dag: <?php echo $todayMinutes; ?> minutter</p>
 
-        <form method="post" action="">
-            <input type="hidden" name="logType" value="inn">
-            <button type="submit">Kom på jobb nå</button>
-        </form>
-
-        <form method="post" action="">
-            <input type="hidden" name="logType" value="ut">
-            <button type="submit">Drar fra jobb nå</button>
+        <form method="post" action="" id="logForm">
+            <input type="hidden" name="logType" id="logType">
+            <button type="button" onclick="logTime('inn')">Kom på jobb nå</button>
+            <button type="button" onclick="logTime('ut')">Drar fra jobb nå</button>
         </form>
 
         <?php if ($message): ?>
             <p><?php echo $message; ?></p>
         <?php endif; ?>
-        
     </div>
 
     <div class="container">
         <h2>Manuell Innlegging av Timer</h2>
-            <form method="post" action="">
-                <input type="hidden" name="manualLog" value="true">
-                <label for="date">Dato:</label>
-                <input type="date" id="date" name="date" required>
-                <label for="hours">Timer jobbet:</label>
-                <input type="number" id="hours" name="hours" step="0.1" required>
-                <button type="submit">Legg til timer</button>
-            </form>
+        <form method="post" action="">
+            <input type="hidden" name="manualLog" value="true">
+            <label for="date">Dato:</label>
+            <input type="date" id="date" name="date" required>
+            <label for="hours">Timer jobbet(inkludert pause):</label>
+            <input type="number" id="hours" name="hours" step="0.1" required>
+            <button type="submit">Legg til timer</button>
+        </form>
     </div>
 
     <div class="container">
@@ -87,7 +81,14 @@ $conn->close();
         <p id="flexitime-balance">Fleksitid balanse: <?php echo $flexitimeBalance; ?> minutter</p>
     </div>
 
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" style="display: none;">
+        <p id="confirmationMessage"></p>
+        <button onclick="confirmLog()">Bekreft</button>
+        <button onclick="denyLog()">Avbryt</button>
+    </div>
+
     <script src="js/auth.js"></script>
-    <script src="js/logs.js"></script>
+    <script src="js/flexitest.js"></script>
 </body>
 </html>

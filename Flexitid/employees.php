@@ -19,12 +19,27 @@ $message = '';
 // Include logic for handling log in/out and manual input
 include 'includes/handle_log.php';
 include 'includes/manual_log.php';
+// Include logic for fetching employees
+include 'includes/fetch_employees.php';
+// Include logic for fetching hours worked for a selected date
+include 'includes/fetch_hours_for_date.php';
 
 // Handle log in/out actions
 $message = handleLog($conn, $userId);
 
 // Fetch today's and this week's work hours and flexitime balance
 include 'includes/fetch_logs.php';
+
+// Fetch all employees
+$employees = fetchEmployees($conn);
+
+// Fetch hours worked on a selected date
+$selectedDate = '';
+$hoursWorkedOnSelectedDate = 0;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected-date'])) {
+    $selectedDate = $_POST['selected-date'];
+    $hoursWorkedOnSelectedDate = fetchHoursForDate($conn, $userId, $selectedDate);
+}
 
 $conn->close();
 ?>
@@ -97,7 +112,7 @@ $conn->close();
                 <button type="submit">Vis timer</button>
             </form>
 
-            <?php if (isset($selectedDate) && isset($hoursWorkedOnSelectedDate)): ?>
+            <?php if ($selectedDate && $hoursWorkedOnSelectedDate): ?>
                 <h3>Timer jobbet på <?php echo htmlspecialchars($selectedDate); ?>:</h3>
                 <p><?php echo htmlspecialchars($hoursWorkedOnSelectedDate); ?> timer</p>
             <?php endif; ?>

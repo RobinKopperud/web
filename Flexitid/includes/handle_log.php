@@ -1,6 +1,5 @@
 <?php
-session_start();
-
+// Remove session_start() from here
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'error' => 'User not authenticated.']);
     exit();

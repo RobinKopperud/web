@@ -6,6 +6,8 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
+    padding: 20px; /* Add padding for better spacing on smaller screens */
+    box-sizing: border-box; /* Ensure padding and border are included in the element's total width and height */
 }
 
 .container {
@@ -14,7 +16,9 @@ body {
     border-radius: 15px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
-    width: 300px;
+    width: 100%;
+    max-width: 500px; /* Limit the maximum width for better readability on larger screens */
+    margin: 20px 0; /* Add margin for spacing between containers */
 }
 
 h1 {
@@ -41,11 +45,12 @@ button:hover {
 }
 
 input[type="text"], input[type="password"], input[type="date"], input[type="number"] {
-    width: 80%;
+    width: calc(100% - 20px);
     padding: 10px;
     margin: 10px 0;
     border-radius: 10px;
     border: 1px solid #ddd;
+    box-sizing: border-box; /* Ensure padding is included in the total width */
 }
 
 ul {

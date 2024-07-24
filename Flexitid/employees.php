@@ -33,10 +33,10 @@ $conn->close();
 
 </head>
 <body>
-    <nav class="navbar">
+    <header class="navbar">
         <h1>Velkommen, <?php echo $_SESSION['username']; ?>!</h1>
         <button id="logout-btn-system">Logg ut</button>
-    </nav>
+    </header>
 
     <div class="container">
         <h2>Alle Ansatte</h2>

@@ -9,23 +9,21 @@
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
-.navbar {
+header {
     background-color: #007BFF;
     padding: 10px;
     border-radius: 10px;
     margin-bottom: 20px;
     color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    text-align: center;
 }
 
-.navbar h1 {
+header h1 {
     margin: 0;
     font-size: 24px;
 }
 
-.navbar button {
+header button {
     background-color: white;
     color: #007BFF;
     border: 1px solid #007BFF;
@@ -33,9 +31,10 @@
     border-radius: 10px;
     cursor: pointer;
     font-size: 14px;
+    margin-top: 10px; /* Add margin for spacing between button and title */
 }
 
-.navbar button:hover {
+header button:hover {
     background-color: #0056b3;
     color: white;
 }

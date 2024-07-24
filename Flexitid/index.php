@@ -33,6 +33,6 @@ if (isset($_SESSION['user_id'])) {
             </form>
         </div>
     </div>
-    <script src="auth.js"></script>
+    <script src="js/auth.js"></script>
 </body>
 </html>

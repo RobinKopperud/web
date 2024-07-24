@@ -43,13 +43,24 @@ header button:hover {
     color: white;
 }
 
+.main-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    max-width: 1200px;
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 20px;
+}
+
 .container {
     background-color: #fff;
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
-    width: 100%;
+    width: calc(100% - 40px);
     max-width: 500px;
     margin: 20px;
     box-sizing: border-box;
@@ -103,5 +114,11 @@ li {
 
     header h1 {
         margin-bottom: 10px;
+    }
+}
+
+@media (min-width: 768px) {
+    .container {
+        flex: 1 1 calc(50% - 40px); /* Ensure two containers per row with margin */
     }
 }

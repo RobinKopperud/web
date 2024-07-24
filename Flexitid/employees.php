@@ -37,49 +37,51 @@ $conn->close();
         <button id="logout-btn-system">Logg ut</button>
     </header>
 
-    <div class="container">
-        <h2>Alle Ansatte</h2>
-        <ul>
-            <?php foreach ($employees as $employee): ?>
-                <li><?php echo htmlspecialchars($employee); ?></li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
+    <div class="main-container">
+        <div class="container">
+            <h2>Alle Ansatte</h2>
+            <ul>
+                <?php foreach ($employees as $employee): ?>
+                    <li><?php echo htmlspecialchars($employee); ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
 
-    <div class="container">
-        <h2>Dagens Arbeidstimer</h2>
-        <p id="today-time">Tid brukt på jobb i dag: <?php echo $todayMinutes; ?> minutter</p>
+        <div class="container">
+            <h2>Dagens Arbeidstimer</h2>
+            <p id="today-time">Tid brukt på jobb i dag: <?php echo $todayMinutes; ?> minutter</p>
 
-        <form method="post" action="" id="logForm">
-            <input type="hidden" name="logType" id="logType">
-            <button type="button" onclick="logTime('inn')">Kom på jobb nå</button>
-            <button type="button" onclick="logTime('ut')">Drar fra jobb nå</button>
-        </form>
+            <form method="post" action="" id="logForm">
+                <input type="hidden" name="logType" id="logType">
+                <button type="button" onclick="logTime('inn')">Kom på jobb nå</button>
+                <button type="button" onclick="logTime('ut')">Drar fra jobb nå</button>
+            </form>
 
-        <?php if ($message): ?>
-            <p><?php echo $message; ?></p>
-        <?php endif; ?>
-    </div>
+            <?php if ($message): ?>
+                <p><?php echo $message; ?></p>
+            <?php endif; ?>
+        </div>
 
-    <div class="container">
-        <h2>Manuell Innlegging av Timer</h2>
-        <form method="post" action="">
-            <input type="hidden" name="manualLog" value="true">
-            <label for="date">Dato:</label>
-            <input type="date" id="date" name="date" required>
-            <label for="hours">Timer jobbet (inkludert pause):</label>
-            <input type="number" id="hours" name="hours" step="0.1" required>
-            <button type="submit">Legg til timer</button>
-        </form>
-    </div>
+        <div class="container">
+            <h2>Manuell Innlegging av Timer</h2>
+            <form method="post" action="">
+                <input type="hidden" name="manualLog" value="true">
+                <label for="date">Dato:</label>
+                <input type="date" id="date" name="date" required>
+                <label for="hours">Timer jobbet (inkludert pause):</label>
+                <input type="number" id="hours" name="hours" step="0.1" required>
+                <button type="submit">Legg til timer</button>
+            </form>
+        </div>
 
-    <div class="container">
-        <h2>Arbeidstimer Denne Uken</h2>
-        <p>Total tid denne uken: <?php echo $weekMinutes; ?> minutter</p>
-        <p>Nåværende uke: <?php echo date('W, Y'); ?></p>
+        <div class="container">
+            <h2>Arbeidstimer Denne Uken</h2>
+            <p>Total tid denne uken: <?php echo $weekMinutes; ?> minutter</p>
+            <p>Nåværende uke: <?php echo date('W, Y'); ?></p>
 
-        <h2>Fleksitid Balanse</h2>
-        <p id="flexitime-balance">Fleksitid balanse: <?php echo $flexitimeBalance; ?> minutter</p>
+            <h2>Fleksitid Balanse</h2>
+            <p id="flexitime-balance">Fleksitid balanse: <?php echo $flexitimeBalance; ?> minutter</p>
+        </div>
     </div>
 
     <!-- Confirmation Modal -->

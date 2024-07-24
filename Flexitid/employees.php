@@ -7,63 +7,17 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Hent alle ansatte
-$sql = "SELECT username FROM brukere";
-$result = $conn->query($sql);
-
-$employees = array();
-while ($row = $result->fetch_assoc()) {
-    $employees[] = $row['username'];
-}
-
-// Hent dagens arbeidstimer
 $userId = $_SESSION['user_id'];
-$todayStart = date("Y-m-d 00:00:00");
-$todayEnd = date("Y-m-d 23:59:59");
-
-$sql = "SELECT log_type, log_time FROM logs WHERE user_id='$userId' AND log_time BETWEEN '$todayStart' AND '$todayEnd' ORDER BY log_time ASC";
-$result = $conn->query($sql);
-
 $todayMinutes = 0;
-$lastLogType = '';
-$lastLogTime = '';
-
-while ($row = $result->fetch_assoc()) {
-    if ($lastLogTime) {
-        $diff = (strtotime($row['log_time']) - strtotime($lastLogTime)) / 60;
-        if ($lastLogType === 'inn' && $row['log_type'] === 'ut') {
-            $todayMinutes += $diff; // Tid brukt på jobb i dag
-        }
-    }
-    $lastLogType = $row['log_type'];
-    $lastLogTime = $row['log_time'];
-}
-
-// Hent denne ukens arbeidstimer
-$weekStart = date("Y-m-d 00:00:00", strtotime('monday this week'));
-$weekEnd = date("Y-m-d 23:59:59", strtotime('sunday this week'));
-
-$sql = "SELECT log_type, log_time FROM logs WHERE user_id='$userId' AND log_time BETWEEN '$weekStart' AND '$weekEnd' ORDER BY log_time ASC";
-$result = $conn->query($sql);
-
 $weekMinutes = 0;
-$lastLogType = '';
-$lastLogTime = '';
+$flexitime = 0;
+$message = '';
 
-while ($row = $result->fetch_assoc()) {
-    if ($lastLogTime) {
-        $diff = (strtotime($row['log_time']) - strtotime($lastLogTime)) / 60;
-        if ($lastLogType === 'inn' && $row['log_type'] === 'ut') {
-            $weekMinutes += $diff; // Tid brukt på jobb denne uken
-        }
-    }
-    $lastLogType = $row['log_type'];
-    $lastLogTime = $row['log_time'];
-}
+// Inkluder logikk for håndtering av logginn/ut
+include 'includes/handle_log.php';
 
-// Beregn fleksitid balanse
-$standardWorkDayMinutes = 480; // 8 timer * 60 minutter
-$flexitime = $todayMinutes - $standardWorkDayMinutes;
+// Hent dagens og ukens arbeidstimer
+include 'includes/fetch_logs.php';
 
 $conn->close();
 ?>
@@ -86,11 +40,26 @@ $conn->close();
                 <li><?php echo htmlspecialchars($employee); ?></li>
             <?php endforeach; ?>
         </ul>
+
         <h2>Dagens Arbeidstimer</h2>
         <p id="today-time">Tid brukt i dag: <?php echo $todayMinutes; ?> minutter</p>
-        <button id="login-btn">Kom på jobb nå</button>
-        <button id="logout-btn">Drar fra jobb nå</button>
 
+        <form method="post" action="">
+            <input type="hidden" name="logType" value="inn">
+            <button type="submit">Kom på jobb nå</button>
+        </form>
+
+        <form method="post" action="">
+            <input type="hidden" name="logType" value="ut">
+            <button type="submit">Drar fra jobb nå</button>
+        </form>
+
+        <?php if ($message): ?>
+            <p><?php echo $message; ?></p>
+        <?php endif; ?>
+    </div>
+
+    <div class="container">
         <h2>Arbeidstimer Denne Uken</h2>
         <p>Total tid denne uken: <?php echo $weekMinutes; ?> minutter</p>
         <p>Nåværende uke: <?php echo date('W, Y'); ?></p>
@@ -98,8 +67,8 @@ $conn->close();
         <h2>Fleksitid Balanse</h2>
         <p id="flexitime-balance">Fleksitid balanse: <?php echo $flexitime; ?> minutter</p>
     </div>
-    <script src="auth.js"></script>
-    <script src="logs.js"></script>
-    <script src="topUsers.js"></script>
+
+    <script src="js/auth.js"></script>
+    <script src="js/logs.js"></script>
 </body>
 </html>

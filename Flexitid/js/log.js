@@ -5,13 +5,19 @@ function logTime(type) {
     xhr.withCredentials = true; // Ensure cookies are sent with the request
     xhr.onload = function() {
         if (xhr.status === 200) {
-            const response = JSON.parse(xhr.responseText);
-            if (response.success) {
-                document.getElementById('confirmationMessage').textContent = response.message;
-                document.getElementById('confirmationModal').style.display = 'block';
-                document.getElementById('logType').value = type;
-            } else {
-                alert('En feil oppstod: ' + response.error);
+            try {
+                const response = JSON.parse(xhr.responseText);
+                if (response.success) {
+                    document.getElementById('confirmationMessage').textContent = response.message;
+                    document.getElementById('confirmationModal').style.display = 'block';
+                    document.getElementById('logType').value = type;
+                } else {
+                    alert('En feil oppstod: ' + response.error);
+                }
+            } catch (e) {
+                console.error('Error parsing JSON response:', e);
+                console.error('Response text:', xhr.responseText);
+                alert('En feil oppstod ved parsing av serverens respons.');
             }
         }
     };
@@ -26,12 +32,18 @@ function confirmLog() {
     xhr.withCredentials = true; // Ensure cookies are sent with the request
     xhr.onload = function() {
         if (xhr.status === 200) {
-            const response = JSON.parse(xhr.responseText);
-            if (response.success) {
-                alert(response.message);
-                location.reload(); // Refresh the page to update the displayed times
-            } else {
-                alert('En feil oppstod: ' + response.error);
+            try {
+                const response = JSON.parse(xhr.responseText);
+                if (response.success) {
+                    alert(response.message);
+                    location.reload(); // Refresh the page to update the displayed times
+                } else {
+                    alert('En feil oppstod: ' + response.error);
+                }
+            } catch (e) {
+                console.error('Error parsing JSON response:', e);
+                console.error('Response text:', xhr.responseText);
+                alert('En feil oppstod ved parsing av serverens respons.');
             }
         }
     };

@@ -1,4 +1,5 @@
 <?php
+session_start();
 
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'error' => 'User not authenticated.']);
@@ -6,8 +7,12 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $userId = $_SESSION['user_id'];
+error_log("User ID: $userId");
+
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logType'])) {
+    error_log("Log Type: " . $_POST['logType']);
+
     $logType = $_POST['logType'];
     $logTime = date("Y-m-d H:i:s");
 

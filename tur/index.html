@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="name-list">
-        <h1>Name Status <span class="clickable" onclick="promptPassword()">List</span></h1>
+        <h1>Hvem skal knipse <span class="clickable" onclick="promptPassword()">i danmag</span></h1>
         <div id="nameContainer"></div>
         <div id="okCounter" class="counter"></div>
     </div>
@@ -35,7 +35,7 @@
                 }
             });
 
-            document.getElementById('okCounter').textContent = `Total OK: ${okCount}`;
+            document.getElementById('okCounter').textContent = `Så mænge skal på tur: ${okCount}`;
         }
 
         function promptPassword() {

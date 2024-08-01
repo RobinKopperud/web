@@ -23,6 +23,16 @@ h1 {
     margin-bottom: 20px;
 }
 
+h1 .clickable {
+    color: #007bff;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+h1 .clickable:hover {
+    color: #0056b3;
+}
+
 .name {
     display: flex;
     justify-content: space-between;
@@ -41,7 +51,6 @@ h1 {
 
 .name span {
     font-size: 18px;
-    color: #333;
 }
 
 .status-ok {
@@ -54,22 +63,8 @@ h1 {
     font-size: 20px;
 }
 
-.admin-button {
+.counter {
     margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.3s;
-}
-
-.admin-button:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
-}
-
-.admin-button:active {
-    background-color: #004085;
+    font-size: 18px;
+    color: #333;
 }

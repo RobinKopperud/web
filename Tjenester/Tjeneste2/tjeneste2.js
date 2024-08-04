@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const button = document.getElementById('fetch-data');
     button.addEventListener('click', async () => {
-        let inputValue = document.getElementById('input-value').value;
+        let inputValue = document.getElementById('input-value').value.trim().toUpperCase();
 
         // Regular expressions for Norwegian license plates
         const mcRegex = /^[A-Z]{2}[0-9]{4}$/;   // 2 letters + 4 numbers (for motorcycles)

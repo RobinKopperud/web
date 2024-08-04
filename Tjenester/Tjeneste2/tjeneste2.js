@@ -3,8 +3,13 @@ document.addEventListener('DOMContentLoaded', () => {
     button.addEventListener('click', async () => {
         let inputValue = document.getElementById('input-value').value;
 
-        if (inputValue.length !== 7) {
-            alert("Please enter exactly 7 characters.");
+        // Regular expressions for Norwegian license plates
+        const mcRegex = /^[A-Z]{2}[0-9]{4}$/;   // 2 letters + 4 numbers (for motorcycles)
+        const carRegex = /^[A-Z]{2}[0-9]{5}$/;  // 2 letters + 5 numbers (for cars)
+
+        // Validate input value against the regex patterns
+        if (!mcRegex.test(inputValue) && !carRegex.test(inputValue)) {
+            alert("Please enter a valid Norwegian license plate. (MC: 2 letters + 4 numbers, Car: 2 letters + 5 numbers)");
             return;
         }
 

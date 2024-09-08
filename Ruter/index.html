@@ -3,26 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Departures</title>
+    <title>Select Your Route</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
+    <script src="fetch-stop-ids.js" defer></script> <!-- Include the new JavaScript file -->
 </head>
 <body>
     <div class="container">
-        <h1>Live Departures</h1>
-        
-        <!-- Buttons to set home location or use GPS -->
-        <div id="location-options">
-            <button id="use-gps">Use My Location (GPS)</button>
-            <label for="home-station">Or Select a Home Station:</label>
-            <input type="text" id="home-station" placeholder="Enter station name" />
-            <button id="set-home">Set Home Station</button>
-        </div>
+        <h1>Set Your Route</h1>
+        <form id="locationForm">
+            <!-- Input for Current Location -->
+            <div class="form-group">
+                <label for="current-location">Where are you now?</label>
+                <input type="text" id="current-location" name="current_location" placeholder="Enter current T-bane stop" required />
+                <button type="button" id="use-gps">Use My Location (GPS)</button>
+            </div>
 
-        <!-- Div to display departures -->
-        <div id="departure-container">
-            <p>Please set your location or use GPS to find nearby stops.</p>
-        </div>
+            <!-- Input for Destination -->
+            <div class="form-group">
+                <label for="destination">Where do you want to go?</label>
+                <input type="text" id="destination" name="destination" placeholder="Enter destination T-bane stop" required />
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit">See Live Departures</button>
+        </form>
     </div>
 </body>
 </html>

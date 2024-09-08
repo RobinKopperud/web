@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Departures</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Live Departures</h1>
+        
+        <!-- Buttons to set home location or use GPS -->
+        <div id="location-options">
+            <button id="use-gps">Use My Location (GPS)</button>
+            <label for="home-station">Or Select a Home Station:</label>
+            <input type="text" id="home-station" placeholder="Enter station name" />
+            <button id="set-home">Set Home Station</button>
+        </div>
+
+        <!-- Div to display departures -->
+        <div id="departure-container">
+            <p>Please set your location or use GPS to find nearby stops.</p>
+        </div>
+    </div>
+</body>
+</html>

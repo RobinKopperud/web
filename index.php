@@ -54,7 +54,7 @@ $is_logged_in = isset($_SESSION['user_id']);
                 <li>Prosjekt 1 - Deepfake.</li>
                 <li>Prosjekt 2 - IOT.</li>
                 <li>Prosjekt 3 - OpenAI API, Chatbot som går ut ifra ditt gitte humør når den svarer</li>
-                <li><a href="ruter/index.html">Prosjekt ruter live-tider</a></li>
+                <li><a href="Ruter/index.html">Prosjekt ruter live-tider</a></li>
 
             </ul>
         </section>

@@ -7,7 +7,7 @@
 </head>
 <body>
 <header>
-  <h1>Vote for Our Next Destination</h1>
+  <h1>Hvor skal man dra?</h1>
   <nav>
     <a href="index.php">Home</a>
   </nav>

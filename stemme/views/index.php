@@ -13,7 +13,7 @@ $destinationsResult = $conn->query($destinationsQuery);
 
 // Check if there’s an error (user already voted)
 if (isset($_GET['vote_error']) && $_GET['vote_error'] == 'already_voted') {
-    echo "<p style='color: red; text-align: center;'>You have already voted for this destination.</p>";
+    echo "<p style='color: red;'>You have already voted for this destination.</p>";
 }
 ?>
 

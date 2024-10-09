@@ -16,9 +16,7 @@ body {
     color: #2c3e50;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    min-height: 100vh; /* Ensure the body fills the viewport height */
 }
 
 header, footer {
@@ -31,13 +29,13 @@ header, footer {
 
 main {
     max-width: 1200px;
-    margin: 20px auto;
+    margin: 0 auto;
     padding: 20px;
+    flex-grow: 1; /* Make main grow to fill the available height */
+    width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex-grow: 1;
+    justify-content: flex-start; /* Disable vertical centering */
     text-align: center;
 }
 
@@ -128,6 +126,11 @@ form button {
 @media (max-width: 599px) {
     .destination-card {
         width: 100%; /* Full width on mobile */
+    }
+
+    main {
+        flex-grow: 1; /* Ensure main fills the available space */
+        padding-bottom: 20px; /* Extra padding at the bottom for spacing */
     }
 }
 

@@ -1,6 +1,6 @@
 <?php
 define('APP_INIT', true);
-include_once '../../../includes/db.php';  // Database connection
+include_once '../../../db.php';  // Database connection
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $destinationName = $conn->real_escape_string($_POST['destination_name']);

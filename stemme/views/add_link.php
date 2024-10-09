@@ -1,6 +1,6 @@
 <?php
 define('APP_INIT', true);
-include_once '../../../includes/db.php';  // Database connection
+include_once '../../../db.php';  // Database connection
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $destinationId = $_POST['destination_id'];

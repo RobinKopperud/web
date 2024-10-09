@@ -1,15 +1,21 @@
 <?php
-include_once '../../../includes/db.php';
+define('APP_INIT', true);
+include_once '../../../includes/db.php';  // Database connection
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $destinationId = $_POST['destination_id'];
     $url = $conn->real_escape_string($_POST['url']);
     $description = $conn->real_escape_string($_POST['description']);
-    $query = "INSERT INTO links (destination_id, url, description) VALUES ($destinationId, '$url', '$description')";
-    if ($conn->query($query) === TRUE) {
-        header("Location: destination.php?id=$destinationId");
-    } else {
-        echo "Error: " . $conn->error;
-    }
+
+    // Insert the link into the database
+    $query = "INSERT INTO links (destination_id, url, description) VALUES (?, ?, ?)";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("iss", $destinationId, $url, $description);
+    $stmt->execute();
+    $stmt->close();
 }
+
+// Redirect back to the destination page
+header("Location: destination.php?id=$destinationId");
+exit;
 ?>

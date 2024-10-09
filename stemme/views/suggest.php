@@ -1,24 +1,19 @@
 <?php
 define('APP_INIT', true);
-include_once '../../../includes/db.php';
+include_once '../../../includes/db.php';  // Database connection
 
-header('Content-Type: application/json');
-
-// Process the form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $destinationName = $conn->real_escape_string($_POST['destination_name']);
+    
+    // Insert the new destination into the database
     $query = "INSERT INTO destinations (name, votes) VALUES (?, 0)";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("s", $destinationName);
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true]);
-    } else {
-        echo json_encode(['success' => false, 'error' => $conn->error]);
-    }
+    $stmt->execute();
     $stmt->close();
-} else {
-    echo json_encode(['success' => false, 'error' => 'Invalid request method']);
 }
 
-$conn->close();
+// Redirect back to the home page
+header('Location: index.php');
+exit;
 ?>

@@ -1,33 +1,19 @@
 <?php
 define('APP_INIT', true);
-include_once '../../../includes/db.php';
+include_once '../../../includes/db.php';  // Database connection
 
-header('Content-Type: application/json');
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $destinationId = $_POST['destination_id'];
 
-$data = json_decode(file_get_contents('php://input'), true);
-$destinationId = $data['destination_id'];
-
-if ($destinationId) {
+    // Update the vote count for the destination
     $query = "UPDATE destinations SET votes = votes + 1 WHERE id = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $destinationId);
-    if ($stmt->execute()) {
-        // Fetch the new vote count
-        $query = "SELECT votes FROM destinations WHERE id = ?";
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param("i", $destinationId);
-        $stmt->execute();
-        $stmt->bind_result($newVoteCount);
-        $stmt->fetch();
-
-        echo json_encode(['success' => true, 'newVoteCount' => $newVoteCount]);
-    } else {
-        echo json_encode(['success' => false]);
-    }
+    $stmt->execute();
     $stmt->close();
-} else {
-    echo json_encode(['success' => false]);
 }
 
-$conn->close();
+// Redirect back to the home page
+header('Location: index.php');
+exit;
 ?>

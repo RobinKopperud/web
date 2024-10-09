@@ -5,45 +5,55 @@
     box-sizing: border-box;
 }
 
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f9f9f9; /* Lighter background for a cleaner look */
-    color: #333;
-    line-height: 1.6;
-    padding: 10px;
+html, body {
+    height: 100%; /* Ensure body and html take full height */
 }
 
-/* Header and Footer */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #ecf0f1; /* Light background */
+    color: #2c3e50; /* Dark slate gray text */
+    line-height: 1.6;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Ensure full height on smaller screens */
+}
+
 header, footer {
-    background-color: #2c3e50; /* Darker background for a more modern look */
+    background-color: #1abc9c; /* Primary teal color */
     color: white;
     text-align: center;
     padding: 20px 0;
+    width: 100%;
 }
 
 main {
     max-width: 1200px;
     margin: 20px auto;
     padding: 0 20px;
+    width: 100%;
 }
 
 h1, h2 {
     margin-bottom: 20px;
-    color: #34495e; /* Softer dark blue for headings */
+    color: #2c3e50; /* Dark slate gray headings */
     text-align: center;
     font-size: 24px;
 }
 
-/* Paragraph Styles */
 p {
     margin-bottom: 20px;
     font-size: 16px;
-    color: #666; /* Softer gray text */
+    color: #34495e;
+    text-align: center; /* Center text */
 }
 
 /* Destination Cards */
 .destination-card {
-    background-color: #ffffff; /* Bright white background */
+    background-color: #ffffff; /* White background */
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Softer shadow */
     padding: 20px;
@@ -67,7 +77,7 @@ p {
 }
 
 button {
-    background-color: #3498db; /* Modern blue button */
+    background-color: #f39c12; /* Accent peach color */
     color: white;
     padding: 12px 24px;
     border: none;
@@ -78,7 +88,7 @@ button {
 }
 
 button:hover {
-    background-color: #2980b9; /* Slightly darker blue on hover */
+    background-color: #e67e22; /* Slightly darker accent color on hover */
     transform: scale(1.05); /* Button grows slightly on hover */
 }
 
@@ -122,26 +132,37 @@ img {
 
 /* Link Styling */
 a {
-    color: #3498db; /* Same color as the button for a consistent palette */
+    color: #1abc9c; /* Primary teal for links */
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
 a:hover {
     text-decoration: underline;
-    color: #2980b9;
+    color: #16a085;
 }
 
 /* Responsive Design */
 @media (max-width: 599px) {
     /* For small screens and mobile */
     body {
-        padding: 5px;
+        padding: 0;
+        justify-content: flex-start; /* Align content to start on mobile */
+        min-height: 100vh; /* Ensure full height on small screens */
+    }
+    
+    header, footer {
+        padding: 15px 0;
+    }
+
+    main {
+        margin-top: 20px;
     }
     
     .destination-card {
         padding: 15px;
         margin-bottom: 15px;
+        width: 100%;
     }
     
     h1, h2 {
@@ -164,10 +185,11 @@ a:hover {
         display: flex;
         flex-wrap: wrap;
         gap: 20px;
+        justify-content: center; /* Center cards in the grid */
     }
 
     .destination-card {
-        width: calc(50% - 10px); /* Two columns for medium screens */
+        width: calc(50% - 20px); /* Two columns for medium screens */
     }
 }
 

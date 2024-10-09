@@ -1,11 +1,6 @@
 <?php
-define('APP_INIT', true);
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 include_once '../../../db.php';  // Database connection
-include_once '../includes/header.php';   // Include the header
+include_once '../includes/header.php';    // Include the header
 
 // Fetch the most upvoted destination
 $topDestinationQuery = "SELECT * FROM destinations ORDER BY votes DESC LIMIT 1";
@@ -15,6 +10,11 @@ $topDestination = $topDestinationResult->fetch_assoc();
 // Fetch all destinations
 $destinationsQuery = "SELECT * FROM destinations ORDER BY name ASC";
 $destinationsResult = $conn->query($destinationsQuery);
+
+// Check if there’s an error (user already voted)
+if (isset($_GET['vote_error']) && $_GET['vote_error'] == 'already_voted') {
+    echo "<p style='color: red; text-align: center;'>You have already voted for this destination.</p>";
+}
 ?>
 
 <main>
@@ -31,19 +31,25 @@ $destinationsResult = $conn->query($destinationsQuery);
       <p>No destinations yet.</p>
     <?php } ?>
   </section>
-  <p>Test content to check if the main section is working</p>
 
   <!-- All Destinations -->
   <section id="destinations">
     <h2>All Destinations</h2>
-    <?php while ($destination = $destinationsResult->fetch_assoc()) { ?>
+    <?php while ($destination = $destinationsResult->fetch_assoc()) { 
+        // Check if the user has voted for this destination using cookies
+        $hasVoted = isset($_COOKIE['voted_' . $destination['id']]);
+    ?>
       <div class="destination-card">
         <h3><?php echo $destination['name']; ?></h3>
         <p>Votes: <?php echo $destination['votes']; ?></p>
         <a href="destination.php?id=<?php echo $destination['id']; ?>">View Details</a>
+
+        <!-- Disable vote button if the user has already voted -->
         <form action="vote.php" method="post">
           <input type="hidden" name="destination_id" value="<?php echo $destination['id']; ?>">
-          <button type="submit">Vote</button>
+          <button type="submit" <?php echo $hasVoted ? 'disabled' : ''; ?>>
+            <?php echo $hasVoted ? 'Already Voted' : 'Vote'; ?>
+          </button>
         </form>
       </div>
     <?php } ?>

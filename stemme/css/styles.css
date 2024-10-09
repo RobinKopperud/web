@@ -7,17 +7,18 @@
 
 body {
     font-family: 'Arial', sans-serif;
-    background-color: #f4f4f4;
+    background-color: #f9f9f9; /* Lighter background for a cleaner look */
     color: #333;
     line-height: 1.6;
     padding: 10px;
 }
 
+/* Header and Footer */
 header, footer {
-    background-color: #000000;
+    background-color: #2c3e50; /* Darker background for a more modern look */
     color: white;
     text-align: center;
-    padding: 15px 0;
+    padding: 20px 0;
 }
 
 main {
@@ -28,22 +29,26 @@ main {
 
 h1, h2 {
     margin-bottom: 20px;
-    color: #333;
+    color: #34495e; /* Softer dark blue for headings */
     text-align: center;
+    font-size: 24px;
 }
 
+/* Paragraph Styles */
 p {
     margin-bottom: 20px;
+    font-size: 16px;
+    color: #666; /* Softer gray text */
 }
 
 /* Destination Cards */
 .destination-card {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff; /* Bright white background */
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Softer shadow */
     padding: 20px;
     margin-bottom: 20px;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -52,25 +57,34 @@ p {
 
 .destination-card h3 {
     margin-bottom: 10px;
+    font-size: 20px;
+    color: #2c3e50; /* Darker text for the title */
 }
 
 .destination-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px); /* Stronger hover effect */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); /* Deepen the shadow on hover */
 }
 
 button {
-    background-color: #4CAF50;
+    background-color: #3498db; /* Modern blue button */
     color: white;
-    padding: 10px 20px;
+    padding: 12px 24px;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.3s ease;
     font-size: 16px;
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #2980b9; /* Slightly darker blue on hover */
+    transform: scale(1.05); /* Button grows slightly on hover */
+}
+
+button:disabled {
+    background-color: #bdc3c7; /* Softer gray for disabled buttons */
+    cursor: not-allowed;
 }
 
 /* Forms */
@@ -79,45 +93,73 @@ form {
     flex-direction: column;
     align-items: center;
     gap: 10px;
+    width: 100%;
 }
 
 form input[type="text"], form input[type="url"], form input[type="file"] {
-    padding: 10px;
+    padding: 12px;
     width: 100%;
     max-width: 400px;
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 6px;
     font-size: 16px;
 }
 
 form button {
     width: 100%;
     max-width: 200px;
-    padding: 10px;
+    padding: 12px;
     font-size: 16px;
 }
 
-/* Image styling */
+/* Image Styling */
 img {
     max-width: 100%;
     height: auto;
-    border-radius: 8px;
+    border-radius: 10px;
     margin-bottom: 20px;
 }
 
-/* Link styling */
+/* Link Styling */
 a {
-    color: #4CAF50;
+    color: #3498db; /* Same color as the button for a consistent palette */
     text-decoration: none;
+    transition: color 0.3s ease;
 }
 
 a:hover {
     text-decoration: underline;
+    color: #2980b9;
 }
 
 /* Responsive Design */
+@media (max-width: 599px) {
+    /* For small screens and mobile */
+    body {
+        padding: 5px;
+    }
+    
+    .destination-card {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    h1, h2 {
+        font-size: 20px;
+    }
+
+    form input, form button {
+        max-width: 90%;
+    }
+
+    button {
+        font-size: 14px;
+        padding: 10px 20px;
+    }
+}
+
 @media (min-width: 600px) {
-    /* For larger screens */
+    /* For medium screens and up */
     #destinations {
         display: flex;
         flex-wrap: wrap;
@@ -125,13 +167,13 @@ a:hover {
     }
 
     .destination-card {
-        width: calc(50% - 10px);
+        width: calc(50% - 10px); /* Two columns for medium screens */
     }
 }
 
 @media (min-width: 900px) {
-    /* For wider screens */
+    /* For larger screens */
     .destination-card {
-        width: calc(33.3333% - 20px);
+        width: calc(33.3333% - 20px); /* Three columns for large screens */
     }
 }

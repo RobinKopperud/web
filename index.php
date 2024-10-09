@@ -27,6 +27,8 @@ $is_logged_in = isset($_SESSION['user_id']);
         <a href="MC/index.php">MC</a>
         <a href="Flexitid/index.php">Fleksitid</a>
         <a href="tur/index.html">Tur</a>
+        <a href="stemme/views/index.php">Tur</a>
+
 
 
 

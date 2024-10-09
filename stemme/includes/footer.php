@@ -1,5 +1,5 @@
 <footer>
-    <p>&copy; 2024 Trip Planner</p>
+  <p>&copy; <?php echo date('Y'); ?> Trip Planner</p>
 </footer>
 </body>
 </html>

@@ -1,5 +1,5 @@
 <?php
-include_once '../../includes/db.php';
+include_once '../../../includes/db.php';
 include_once 'header.php';
 
 $destinationId = $_GET['id'];

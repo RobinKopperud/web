@@ -1,5 +1,5 @@
 <?php
-include_once '../../includes/db.php';
+include_once '../../../includes/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $destinationId = $_POST['destination_id'];

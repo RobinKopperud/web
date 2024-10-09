@@ -1,5 +1,5 @@
 <?php
-include_once '../../includes/db.php';
+include_once '../../../includes/db.php';
 
 $destinationId = $_POST['destination_id'];
 $targetDir = "../uploads/";

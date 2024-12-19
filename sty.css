@@ -7,7 +7,7 @@ body {
     height: 100vh;
     background: linear-gradient(to bottom, #87ceeb, #f7f7f7) no-repeat center center fixed;
     font-family: 'Arial', sans-serif;
-    overflow: hidden;
+    overflow: scroll;
     position: relative;
 }
 
@@ -107,4 +107,9 @@ body {
     100% {
         transform: translateY(120vh);
     }
+}
+
+img {
+    width: 100%;
+    height: auto;
 }

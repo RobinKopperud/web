@@ -10,9 +10,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST['email']); // Trim any unnecessary spaces
     $password = $_POST['password'];
 
-    // Debug: Output the raw inputs for validation
-    echo "Email: $email<br>";
-    echo "Password: $password<br>";
 
     // Prepare SQL query to fetch the user by email
     if ($stmt = $conn->prepare("SELECT id, password FROM tren_users WHERE email = ?")) {

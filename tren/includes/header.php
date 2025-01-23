@@ -14,6 +14,7 @@
                 <li><a href="index.php">Hjem</a></li>
                 <li><a href="register.php">Registrer</a></li>
                 <li><a href="login.php">Logg Inn</a></li>
+                <li><a href="view_all_measurements.php">Se Alle Målinger</a></li>
             </ul>
         </nav>
     </header>

@@ -1,7 +1,6 @@
 <?php include_once '../../../../db.php'; ?>
 
 <?php
-
 session_start();
 
 // Enable error reporting
@@ -34,20 +33,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_result($id, $hashed_password);
         $stmt->fetch();
 
+        // Debug: Output the password comparison
+        echo "Entered password: $password<br>";
+        echo "Hashed password from DB: $hashed_password<br>";
+        echo "Password verification: " . (password_verify($password, $hashed_password) ? "Match" : "No match") . "<br>";
+
         if (password_verify($password, $hashed_password)) {
             $_SESSION['user_id'] = $id;
             header("Location: dashboard.php");
             exit();
         } else {
-            echo "Password mismatch.";
+            echo "Password mismatch.<br>";
         }
     } else {
-        echo "No user found.";
+        echo "No user found.<br>";
     }
 
     $stmt->close();
 }
 ?>
+
 <main>
     <h2>Logg Inn</h2>
     <form method="POST">

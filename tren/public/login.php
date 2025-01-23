@@ -1,4 +1,5 @@
-<?php include_once '../../../../db.php'; ?>
+<?php include_once '/home/jmntxjwa/public_html/Web/db.php';
+ ?>
 
 <?php
 session_start();

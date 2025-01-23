@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Upload Photo
     if (isset($_POST['upload_photo']) && isset($_FILES['photo'])) {
-        $upload_dir = '../../uploads/';
+        $upload_dir = '../uploads/';
         $file_name = uniqid() . "_" . basename($_FILES['photo']['name']);
         $target_path = $upload_dir . $file_name;
 

@@ -12,10 +12,13 @@ include_once '../../../../db.php';
 $user_id = $_SESSION['user_id'];
 
 // Fetch all measurements
-$stmt = $pdo->prepare("SELECT * FROM tren_measurements WHERE user_id = :user_id ORDER BY date DESC");
-$stmt->bindParam(':user_id', $user_id);
+$stmt = $conn->prepare("SELECT * FROM tren_measurements WHERE user_id = ? ORDER BY date DESC");
+$stmt->bind_param("i", $user_id); // Bind user_id as an integer
 $stmt->execute();
-$measurements = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$result = $stmt->get_result();
+$measurements = $result->fetch_all(MYSQLI_ASSOC); // Fetch all results as an associative array
+$stmt->close();
+
 ?>
 
 <?php include_once '../includes/header.php'; ?>

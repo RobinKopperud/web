@@ -2,17 +2,18 @@
 
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    include_once '../../../db.php';
     $email = $_POST['email'];
     $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
 
-    $stmt = $pdo->prepare("INSERT INTO tren_users (email, password) VALUES (:email, :password)");
-    $stmt->bindParam(':email', $email);
-    $stmt->bindParam(':password', $password);
+    $stmt = $conn->prepare("INSERT INTO tren_users (email, password) VALUES (?, ?)");
+    $stmt->bind_param("ss", $email, $password);
     $stmt->execute();
 
     echo "Bruker registrert! <a href='login.php'>Logg inn her</a>";
 }
 ?>
+
 
 <?php include_once '../includes/header.php'; ?>
 

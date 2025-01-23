@@ -2,13 +2,15 @@
 include_once '../../../../db.php';
 
 function getPredictedMeasurements($user_id, $future_days = 30) {
-    global $pdo;
+    global $conn;
 
     // Fetch historical measurements
-    $stmt = $pdo->prepare("SELECT date, weight FROM tren_measurements WHERE user_id = :user_id ORDER BY date ASC");
-    $stmt->bindParam(':user_id', $user_id);
+    $stmt = $conn->prepare("SELECT date, weight FROM tren_measurements WHERE user_id = ? ORDER BY date ASC");
+    $stmt->bind_param("i", $user_id); // Bind user_id as an integer
     $stmt->execute();
-    $measurements = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $result = $stmt->get_result();
+    $measurements = $result->fetch_all(MYSQLI_ASSOC); // Fetch all results as an associative array
+    $stmt->close();
 
     if (count($measurements) < 2) {
         return []; // Not enough data for prediction

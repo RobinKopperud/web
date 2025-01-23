@@ -20,11 +20,13 @@ if (!isset($_GET['id'])) {
 $measurement_id = $_GET['id'];
 
 // Fetch the specific measurement
-$stmt = $pdo->prepare("SELECT * FROM tren_measurements WHERE id = :id AND user_id = :user_id");
-$stmt->bindParam(':id', $measurement_id);
-$stmt->bindParam(':user_id', $user_id);
+$stmt = $conn->prepare("SELECT * FROM tren_measurements WHERE id = ? AND user_id = ?");
+$stmt->bind_param("ii", $measurement_id, $user_id); // Bind id and user_id as integers
 $stmt->execute();
-$measurement = $stmt->fetch(PDO::FETCH_ASSOC);
+$result = $stmt->get_result();
+$measurement = $result->fetch_assoc(); // Fetch the result as an associative array
+$stmt->close();
+
 
 if (!$measurement) {
     header('Location: view_all_measurements.php');
@@ -38,14 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $widest = $_POST['widest'];
     $date = $_POST['date'];
 
-    $stmt = $pdo->prepare("UPDATE tren_measurements SET weight = :weight, waist = :waist, widest = :widest, date = :date WHERE id = :id AND user_id = :user_id");
-    $stmt->bindParam(':weight', $weight);
-    $stmt->bindParam(':waist', $waist);
-    $stmt->bindParam(':widest', $widest);
-    $stmt->bindParam(':date', $date);
-    $stmt->bindParam(':id', $measurement_id);
-    $stmt->bindParam(':user_id', $user_id);
+    $stmt = $conn->prepare("UPDATE tren_measurements SET weight = ?, waist = ?, widest = ?, date = ? WHERE id = ? AND user_id = ?");
+    $stmt->bind_param("ddssii", $weight, $waist, $widest, $date, $measurement_id, $user_id); // Bind parameters
     $stmt->execute();
+    $stmt->close();
+
 
     header('Location: view_all_measurements.php');
 }

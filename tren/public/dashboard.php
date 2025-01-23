@@ -50,39 +50,46 @@ $user_id = $_SESSION['user_id'];
 
     <!-- Display Latest Measurements -->
     <section>
-        <h3>Dine Nyeste Målinger</h3>
-        <?php
-        $stmt = $pdo->prepare("SELECT * FROM tren_measurements WHERE user_id = :user_id ORDER BY date DESC LIMIT 1");
-        $stmt->bindParam(':user_id', $user_id);
-        $stmt->execute();
-        $latest_measurement = $stmt->fetch(PDO::FETCH_ASSOC);
+    <h3>Dine Nyeste Målinger</h3>
+    <?php
+    $stmt = $conn->prepare("SELECT * FROM tren_measurements WHERE user_id = ? ORDER BY date DESC LIMIT 1");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $latest_measurement = $result->fetch_assoc();
 
-        if ($latest_measurement) {
-            echo "<p><strong>Vekt:</strong> {$latest_measurement['weight']} kg</p>";
-            echo "<p><strong>Livvidde:</strong> {$latest_measurement['waist']} cm</p>";
-            echo "<p><strong>Bredeste Vidde:</strong> {$latest_measurement['widest']} cm</p>";
-        } else {
-            echo "<p>Ingen målinger funnet. Legg til dine første målinger!</p>";
-        }
-        ?>
-    </section>
+    if ($latest_measurement) {
+        echo "<p><strong>Vekt:</strong> {$latest_measurement['weight']} kg</p>";
+        echo "<p><strong>Livvidde:</strong> {$latest_measurement['waist']} cm</p>";
+        echo "<p><strong>Bredeste Vidde:</strong> {$latest_measurement['widest']} cm</p>";
+    } else {
+        echo "<p>Ingen målinger funnet. Legg til dine første målinger!</p>";
+    }
 
-    <!-- Display Latest Photo -->
-    <section>
-        <h3>Ditt Nyeste Bilde</h3>
-        <?php
-        $stmt = $pdo->prepare("SELECT * FROM tren_photos WHERE user_id = :user_id ORDER BY uploaded_at DESC LIMIT 1");
-        $stmt->bindParam(':user_id', $user_id);
-        $stmt->execute();
-        $latest_photo = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt->close();
+    ?>
+</section>
 
-        if ($latest_photo) {
-            echo "<img src='../../uploads/{$latest_photo['file_path']}' alt='Nyeste Bilde' style='max-width: 200px;'>";
-        } else {
-            echo "<p>Ingen bilder funnet. Last opp ditt første bilde!</p>";
-        }
-        ?>
-    </section>
+<!-- Display Latest Photo -->
+<section>
+    <h3>Ditt Nyeste Bilde</h3>
+    <?php
+    $stmt = $conn->prepare("SELECT * FROM tren_photos WHERE user_id = ? ORDER BY uploaded_at DESC LIMIT 1");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $latest_photo = $result->fetch_assoc();
+
+    if ($latest_photo) {
+        echo "<img src='../../uploads/{$latest_photo['file_path']}' alt='Nyeste Bilde' style='max-width: 200px;'>";
+    } else {
+        echo "<p>Ingen bilder funnet. Last opp ditt første bilde!</p>";
+    }
+
+    $stmt->close();
+    ?>
+</section>
+
 </main>
 
 <?php include_once '../includes/footer.php'; ?>
@@ -97,14 +104,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $widest = $_POST['widest'];
         $date = $_POST['date'];
 
-        $stmt = $pdo->prepare("INSERT INTO tren_measurements (user_id, weight, waist, widest, date) VALUES (:user_id, :weight, :waist, :widest, :date)");
-        $stmt->bindParam(':user_id', $user_id);
-        $stmt->bindParam(':weight', $weight);
-        $stmt->bindParam(':waist', $waist);
-        $stmt->bindParam(':widest', $widest);
-        $stmt->bindParam(':date', $date);
-        
+        // Prepare and execute the MySQLi query
+        $stmt = $conn->prepare("INSERT INTO tren_measurements (user_id, weight, waist, widest, date) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("iddss", $user_id, $weight, $waist, $widest, $date); // Bind user_id (integer), weight, waist, widest (doubles), and date (string)
         $stmt->execute();
+
         header("Location: dashboard.php");
     }
 
@@ -114,11 +118,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $file_name = uniqid() . "_" . basename($_FILES['photo']['name']);
         $target_path = $upload_dir . $file_name;
 
+        // Move uploaded file to target directory
         if (move_uploaded_file($_FILES['photo']['tmp_name'], $target_path)) {
-            $stmt = $pdo->prepare("INSERT INTO tren_photos (user_id, file_path) VALUES (:user_id, :file_path)");
-            $stmt->bindParam(':user_id', $user_id);
-            $stmt->bindParam(':file_path', $file_name);
+            // Prepare and execute the MySQLi query for photo upload
+            $stmt = $conn->prepare("INSERT INTO tren_photos (user_id, file_path) VALUES (?, ?)");
+            $stmt->bind_param("is", $user_id, $file_name); // Bind user_id (integer) and file_path (string)
             $stmt->execute();
+
             header("Location: dashboard.php");
         } else {
             echo "<p>Feil ved opplasting av bilde.</p>";
@@ -126,3 +132,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+

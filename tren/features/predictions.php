@@ -1,5 +1,5 @@
 <?php
-include_once '../../db.php';
+include_once '../../../db.php';
 
 function getPredictedMeasurements($user_id, $future_days = 30) {
     global $pdo;

@@ -1,4 +1,4 @@
-<?php include_once '../../../db.php'; ?>
+<?php include_once '../../../../db.php'; ?>
 
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

@@ -6,7 +6,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Include database connection
-include_once '../../../db.php';
+include_once '../../../../db.php';
 
 // User ID from session
 $user_id = $_SESSION['user_id'];

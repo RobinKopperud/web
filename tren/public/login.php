@@ -3,7 +3,7 @@
 
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    include_once '../../../db.php';
+    include_once '../../../../db.php';
     $email = $_POST['email'];
     $password = $_POST['password'];
 

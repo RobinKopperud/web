@@ -10,7 +10,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("ss", $email, $password);
     $stmt->execute();
 
-    echo "Bruker registrert! <a href='login.php'>Logg inn her</a>";
+    if ($stmt->execute()) {
+        // Redirect to login.php on successful registration
+        header("Location: login.php");
+        exit();
+    } else {
+        // Optional: Display an error message if registration fails
+        echo "Noe gikk galt. Vennligst prøv igjen.";
+    }
 }
 ?>
 

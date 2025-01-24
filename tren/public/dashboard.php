@@ -7,8 +7,7 @@ if (!isset($_SESSION['user_id'])) {
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 include_once '../includes/functions.php';
-include_once '../features/predictions.php';
-
+include_once '../features/predictions.php'; // Include predictions logic
 
 // User ID from session
 $user_id = $_SESSION['user_id'];
@@ -21,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $widest = $_POST['widest'];
         $date = $_POST['date'];
 
+        // Add measurement using a function from functions.php
         addMeasurement($conn, $user_id, $weight, $waist, $widest, $date);
         $_SESSION['success_message'] = "Målingene ble lagt til!";
     }
@@ -31,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $target_path = $upload_dir . $file_name;
 
         if (move_uploaded_file($_FILES['photo']['tmp_name'], $target_path)) {
+            // Upload photo using a function from functions.php
             uploadPhoto($conn, $user_id, $file_name);
             $_SESSION['success_message'] = "Bilde ble lastet opp!";
         } else {

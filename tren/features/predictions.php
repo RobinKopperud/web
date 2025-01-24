@@ -1,31 +1,29 @@
 <?php
 include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 
-
-function getPredictedMeasurements($user_id, $future_days = 30) {
-    global $conn;
-
+// Function to calculate predictions
+function getPredictedMeasurements($conn, $user_id, $days) {
     // Fetch historical measurements
     $stmt = $conn->prepare("SELECT date, weight FROM tren_measurements WHERE user_id = ? ORDER BY date ASC");
-    $stmt->bind_param("i", $user_id); // Bind user_id as an integer
+    $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
-    $measurements = $result->fetch_all(MYSQLI_ASSOC); // Fetch all results as an associative array
+    $measurements = $result->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
 
     if (count($measurements) < 2) {
-        return []; // Not enough data for prediction
+        return []; // Not enough data for predictions
     }
 
-    // Linear regression for predictions
+    // Perform simple logic for predictions
     $dates = [];
     $weights = [];
     foreach ($measurements as $m) {
-        $dates[] = strtotime($m['date']); // Convert dates to timestamps
+        $dates[] = strtotime($m['date']);
         $weights[] = $m['weight'];
     }
 
-    // Calculate slope and intercept for y = mx + c
+    // Calculate slope and intercept (linear regression)
     $n = count($dates);
     $x_mean = array_sum($dates) / $n;
     $y_mean = array_sum($weights) / $n;
@@ -39,17 +37,19 @@ function getPredictedMeasurements($user_id, $future_days = 30) {
     $slope = $numerator / $denominator;
     $intercept = $y_mean - $slope * $x_mean;
 
-    // Predict future measurements
-    $predicted = [];
+    // Generate predictions
+    $predictions = [];
     $last_date = end($dates);
-    for ($i = 1; $i <= $future_days; $i++) {
-        $future_date = $last_date + ($i * 86400); // Add days in seconds
-        $predicted[] = [
+    for ($i = 1; $i <= $days; $i++) {
+        $future_date = $last_date + ($i * 86400); // Add 1 day in seconds
+        $predicted_weight = $slope * $future_date + $intercept;
+
+        $predictions[] = [
             'date' => date('Y-m-d', $future_date),
-            'weight' => $slope * $future_date + $intercept
+            'weight' => round($predicted_weight, 1)
         ];
     }
 
-    return $predicted;
+    return $predictions;
 }
 ?>

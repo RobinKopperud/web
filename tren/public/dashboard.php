@@ -41,8 +41,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $latest_measurement = getLatestMeasurement($conn, $user_id);
 $latest_photo = getLatestPhoto($conn, $user_id);
 
+// Fetch the number of days from the user's input or default to 30
+$days = isset($_GET['days']) && is_numeric($_GET['days']) ? intval($_GET['days']) : 30;
+
 // Fetch predicted measurements
-$predicted_measurements = getPredictedMeasurements($user_id, 30);
+$predicted_measurements = getPredictedMeasurements($conn, $user_id, $days);
 ?>
 
 <?php include_once '../includes/header.php'; ?>
@@ -90,21 +93,14 @@ $predicted_measurements = getPredictedMeasurements($user_id, 30);
         </form>
     </section>
 
-    <!-- Display Latest Measurements -->
-    <section>
-        <h3>Dine Nyeste Målinger</h3>
-        <?php if ($latest_measurement): ?>
-            <p><strong>Vekt:</strong> <?= htmlspecialchars($latest_measurement['weight']); ?> kg</p>
-            <p><strong>Livvidde:</strong> <?= htmlspecialchars($latest_measurement['waist']); ?> cm</p>
-            <p><strong>Bredeste Vidde:</strong> <?= htmlspecialchars($latest_measurement['widest']); ?> cm</p>
-        <?php else: ?>
-            <p>Ingen målinger funnet. Legg til dine første målinger!</p>
-        <?php endif; ?>
-    </section>
-
     <!-- Section: Predictions -->
     <section>
-        <h3>Prediksjoner for Fremtidige Målinger</h3>
+        <h3>Prediksjoner for Fremtidige Målinger (<?= htmlspecialchars($days); ?> dager)</h3>
+        <form method="GET" action="dashboard.php">
+            <label for="days">Antall dager for prediksjon:</label>
+            <input type="number" name="days" id="days" min="1" value="<?= htmlspecialchars($days); ?>" required>
+            <button type="submit">Oppdater</button>
+        </form>
         <?php if (!empty($predicted_measurements)): ?>
             <table>
                 <thead>

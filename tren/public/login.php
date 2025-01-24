@@ -1,8 +1,9 @@
 <?php
-include_once '../../../../db.php';
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    include_once '../../../../db.php';
+
     $email = $_POST['email'];
     $password = $_POST['password'];
 

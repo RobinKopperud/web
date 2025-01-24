@@ -33,3 +33,23 @@ function uploadPhoto($conn, $user_id, $file_path) {
     $stmt->execute();
     $stmt->close();
 }
+
+function getFirstPhoto($conn, $user_id) {
+    $stmt = $conn->prepare("SELECT file_path FROM tren_photos WHERE user_id = ? ORDER BY uploaded_at ASC LIMIT 1");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $first_photo = $result->fetch_assoc();
+    $stmt->close();
+    return $first_photo ? $first_photo['file_path'] : null;
+}
+
+function getLastPhoto($conn, $user_id) {
+    $stmt = $conn->prepare("SELECT file_path FROM tren_photos WHERE user_id = ? ORDER BY uploaded_at DESC LIMIT 1");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $last_photo = $result->fetch_assoc();
+    $stmt->close();
+    return $last_photo ? $last_photo['file_path'] : null;
+}

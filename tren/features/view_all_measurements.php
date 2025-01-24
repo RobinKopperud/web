@@ -26,30 +26,53 @@ $stmt->close();
 <main>
     <h2>Alle Målinger</h2>
 
-    <table border="1">
+        <table>
         <thead>
             <tr>
                 <th>Dato</th>
                 <th>Vekt (kg)</th>
                 <th>Livvidde (cm)</th>
                 <th>Bredeste Vidde (cm)</th>
+                <th>Bilde</th>
                 <th>Handlinger</th>
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($measurements as $measurement): ?>
+            <?php
+            $stmt = $conn->prepare("
+                SELECT m.id, m.date, m.weight, m.waist, m.widest, p.file_path 
+                FROM tren_measurements m
+                LEFT JOIN tren_photos p ON m.id = p.measurement_id
+                WHERE m.user_id = ?
+                ORDER BY m.date DESC
+            ");
+            $stmt->bind_param("i", $user_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            while ($measurement = $result->fetch_assoc()):
+            ?>
                 <tr>
                     <td><?= htmlspecialchars($measurement['date']); ?></td>
                     <td><?= htmlspecialchars($measurement['weight']); ?></td>
                     <td><?= htmlspecialchars($measurement['waist']); ?></td>
                     <td><?= htmlspecialchars($measurement['widest']); ?></td>
                     <td>
-                        <a href="edit_measurements.php?id=<?= $measurement['id']; ?>">Rediger</a>
+                        <?php if ($measurement['file_path']): ?>
+                            <img src="../uploads/<?= htmlspecialchars($measurement['file_path']); ?>" alt="Bilde" style="max-width: 100px;">
+                        <?php else: ?>
+                            Ingen bilde
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <a href="edit_measurement.php?id=<?= $measurement['id']; ?>">Rediger</a>
                     </td>
                 </tr>
-            <?php endforeach; ?>
+            <?php endwhile; ?>
+            <?php $stmt->close(); ?>
         </tbody>
     </table>
+
 </main>
 
 <?php include_once '../includes/footer.php'; ?>

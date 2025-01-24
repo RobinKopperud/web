@@ -104,19 +104,24 @@ $predicted_measurements = getPredictedMeasurements($conn, $user_id, $days);
             <input type="number" name="days" id="days" min="1" value="<?= htmlspecialchars($days); ?>" required>
             <button type="submit">Oppdater</button>
         </form>
+
         <?php if (!empty($predicted_measurements)): ?>
             <table>
                 <thead>
                     <tr>
                         <th>Dato</th>
                         <th>Forventet Vekt (kg)</th>
+                        <th>Forventet Livvidde (cm)</th>
+                        <th>Forventet Bredeste Vidde (cm)</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($predicted_measurements as $prediction): ?>
                         <tr>
                             <td><?= htmlspecialchars($prediction['date']); ?></td>
-                            <td><?= htmlspecialchars(number_format($prediction['weight'], 1)); ?></td>
+                            <td><?= htmlspecialchars($prediction['weight']); ?></td>
+                            <td><?= htmlspecialchars($prediction['waist']); ?></td>
+                            <td><?= htmlspecialchars($prediction['widest']); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

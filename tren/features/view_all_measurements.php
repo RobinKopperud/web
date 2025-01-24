@@ -44,7 +44,7 @@ $stmt->close();
                     <td><?= htmlspecialchars($measurement['waist']); ?></td>
                     <td><?= htmlspecialchars($measurement['widest']); ?></td>
                     <td>
-                        <a href="edit_measurement.php?id=<?= $measurement['id']; ?>">Rediger</a>
+                        <a href="edit_measurements.php?id=<?= $measurement['id']; ?>">Rediger</a>
                     </td>
                 </tr>
             <?php endforeach; ?>

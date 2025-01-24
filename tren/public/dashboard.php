@@ -81,7 +81,7 @@ $user_id = $_SESSION['user_id'];
     $latest_photo = $result->fetch_assoc();
 
     if ($latest_photo) {
-        echo "<img src='../../uploads/{$latest_photo['file_path']}' alt='Nyeste Bilde' style='max-width: 200px;'>";
+        echo "<img src='../uploads/{$latest_photo['file_path']}' alt='Nyeste Bilde' style='max-width: 200px;'>";
     } else {
         echo "<p>Ingen bilder funnet. Last opp ditt første bilde!</p>";
     }

@@ -1,8 +1,6 @@
-<?php include_once '../../../../db.php'; ?>
-
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    include_once '../../../db.php';
+    include_once '../../../../db.php';
     $email = $_POST['email'];
     $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
 

@@ -15,6 +15,7 @@
             <li><a href="/Web/tren/public/register.php">Registrer</a></li>
             <li><a href="/Web/tren/public/login.php">Logg Inn</a></li>
             <li><a href="../features/view_all_measurements.php">Se Alle Målinger</a></li>
+            <li><a href="/Web/tren/public/picture_comparison.php">Bildesammenligner</a></li>
             <li><a href="logout.php">Logg ut</a></li>
             </ul>
         </nav>

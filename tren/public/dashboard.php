@@ -5,8 +5,8 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Include database connection
-include_once '../../../../db.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
+
 
 // User ID from session
 $user_id = $_SESSION['user_id'];

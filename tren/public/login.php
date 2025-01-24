@@ -1,13 +1,7 @@
 <?php
 session_start();
-include_once '../../../../db.php';
-$servername = "localhost";
-$username = "jmntxjwa_AI";
-$password = "ai-Admin";
-$dbname = "jmntxjwa_users";
+include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];

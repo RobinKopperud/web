@@ -1,5 +1,6 @@
 <?php
-include_once '../../../../db.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
+
 
 function getPredictedMeasurements($user_id, $future_days = 30) {
     global $conn;

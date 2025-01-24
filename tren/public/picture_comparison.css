@@ -21,18 +21,19 @@ main {
 h2 {
     text-align: center;
     color: #0056b3; /* Deep blue */
+    margin-bottom: 20px;
 }
 
-/* Section Container */
-div {
+/* Flex Container for Left and Right Sections */
+.photo-comparison {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     gap: 20px;
 }
 
-/* Image and Info Containers */
-div > div {
+/* Left and Right Panels */
+.photo-comparison > div {
     flex: 1;
     text-align: center;
     padding: 15px;
@@ -41,12 +42,34 @@ div > div {
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+/* Titles for Each Panel */
+.photo-comparison h3 {
+    color: #0056b3; /* Deep blue */
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
 /* Images */
-img {
+.photo-comparison img {
     max-width: 100%;
+    height: auto;
     border-radius: 5px;
     border: 2px solid #ddd; /* Light border for images */
     margin-bottom: 10px;
+    cursor: pointer; /* Indicate that images are clickable */
+    transition: transform 0.3s ease;
+}
+
+/* Image Hover Effect */
+.photo-comparison img:hover {
+    transform: scale(1.05); /* Slight zoom effect on hover */
+}
+
+/* Photo Details */
+.photo-comparison p {
+    font-size: 1rem;
+    color: #555; /* Medium gray text */
+    margin: 5px 0;
 }
 
 /* Photo Slider */
@@ -79,14 +102,7 @@ input[type="range"]::-moz-range-thumb {
     cursor: pointer;
 }
 
-/* Photo Details */
-p {
-    font-size: 1rem;
-    color: #555; /* Medium gray text */
-    margin: 5px 0;
-}
-
-/* Buttons and Actions */
+/* Buttons */
 button {
     background-color: #0056b3; /* Deep blue */
     color: #ffffff;
@@ -102,10 +118,15 @@ button:hover {
     background-color: #004494; /* Darker blue */
 }
 
+/* Responsive Design */
 @media (max-width: 768px) {
-    div {
-        flex-direction: column;
-        gap: 10px;
+    .photo-comparison {
+        flex-direction: column; /* Stack the sections vertically */
+    }
+
+    .photo-comparison > div {
+        flex: none;
+        width: 100%;
     }
 
     img {

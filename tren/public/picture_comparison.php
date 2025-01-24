@@ -37,52 +37,58 @@ $first_photo = $photos[0] ?? null;
 <main>
     <h2>Sammenlign Bilder</h2>
     <div class="photo-comparison">
-        <!-- Left Side: First Photo -->
-        <div>
+        <!-- Left Side -->
+        <div class="left-side">
             <h3>Første Bilde</h3>
-            <?php if ($first_photo): ?>
-                <img src="../uploads/<?= htmlspecialchars($first_photo['file_path']); ?>" alt="Første Bilde">
+            <div class="image-container">
+                <?php if ($first_photo): ?>
+                    <img src="../uploads/<?= htmlspecialchars($first_photo['file_path']); ?>" alt="Første Bilde">
+                <?php else: ?>
+                    <p>Ingen første bilde funnet.</p>
+                <?php endif; ?>
+            </div>
+            <div class="info">
                 <p><strong>Dato:</strong> <?= htmlspecialchars($first_photo['date']); ?></p>
                 <p><strong>Vekt:</strong> <?= htmlspecialchars($first_photo['weight']); ?> kg</p>
                 <p><strong>Livvidde:</strong> <?= htmlspecialchars($first_photo['waist']); ?> cm</p>
                 <p><strong>Bredeste Vidde:</strong> <?= htmlspecialchars($first_photo['widest']); ?> cm</p>
-            <?php else: ?>
-                <p>Ingen bilder funnet.</p>
-            <?php endif; ?>
+            </div>
+            <!-- Slider for Selecting Image -->
+            <input type="range" id="photo-slider" min="0" max="<?= count($photos) - 1; ?>" value="0" onchange="updatePhoto(this.value)">
         </div>
 
-        <!-- Right Side: Slider and Selected Photo -->
-        <div>
-            <h3>Velg Bilde</h3>
-            <?php if (!empty($photos)): ?>
-                <input type="range" id="photo-slider" min="0" max="<?= count($photos) - 1; ?>" value="0" onchange="updatePhoto(this.value)">
-                <div id="selected-photo">
-                    <img src="../uploads/<?= htmlspecialchars($photos[0]['file_path']); ?>" alt="Valgt Bilde">
-                    <p><strong>Dato:</strong> <span id="photo-date"><?= htmlspecialchars($photos[0]['date']); ?></span></p>
-                    <p><strong>Vekt:</strong> <span id="photo-weight"><?= htmlspecialchars($photos[0]['weight']); ?></span> kg</p>
-                    <p><strong>Livvidde:</strong> <span id="photo-waist"><?= htmlspecialchars($photos[0]['waist']); ?></span> cm</p>
-                    <p><strong>Bredeste Vidde:</strong> <span id="photo-widest"><?= htmlspecialchars($photos[0]['widest']); ?></span> cm</p>
-                </div>
-            <?php else: ?>
-                <p>Ingen bilder funnet.</p>
-            <?php endif; ?>
+        <!-- Right Side -->
+        <div class="right-side">
+            <h3>Valgt Bilde</h3>
+            <div class="image-container" id="selected-image-container">
+                <img src="../uploads/<?= htmlspecialchars($photos[0]['file_path']); ?>" alt="Valgt Bilde">
+            </div>
+            <div class="info" id="selected-info">
+                <p><strong>Dato:</strong> <span id="photo-date"><?= htmlspecialchars($photos[0]['date']); ?></span></p>
+                <p><strong>Vekt:</strong> <span id="photo-weight"><?= htmlspecialchars($photos[0]['weight']); ?></span> kg</p>
+                <p><strong>Livvidde:</strong> <span id="photo-waist"><?= htmlspecialchars($photos[0]['waist']); ?></span> cm</p>
+                <p><strong>Bredeste Vidde:</strong> <span id="photo-widest"><?= htmlspecialchars($photos[0]['widest']); ?></span> cm</p>
+            </div>
         </div>
     </div>
 </main>
 
+
 <script>
     const photos = <?= json_encode($photos); ?>;
-    const selectedPhoto = document.getElementById('selected-photo');
-    const slider = document.getElementById('photo-slider');
 
     function updatePhoto(index) {
+        const selectedImageContainer = document.getElementById('selected-image-container');
+        const selectedInfo = document.getElementById('selected-info');
+
         const photo = photos[index];
-        selectedPhoto.querySelector('img').src = `../uploads/${photo.file_path}`;
-        selectedPhoto.querySelector('#photo-date').textContent = photo.date || 'Ingen Dato';
-        selectedPhoto.querySelector('#photo-weight').textContent = photo.weight || 'Ingen Vekt';
-        selectedPhoto.querySelector('#photo-waist').textContent = photo.waist || 'Ingen Livvidde';
-        selectedPhoto.querySelector('#photo-widest').textContent = photo.widest || 'Ingen Vidde';
+        selectedImageContainer.innerHTML = `<img src="../uploads/${photo.file_path}" alt="Valgt Bilde">`;
+        document.getElementById('photo-date').innerText = photo.date;
+        document.getElementById('photo-weight').innerText = photo.weight;
+        document.getElementById('photo-waist').innerText = photo.waist;
+        document.getElementById('photo-widest').innerText = photo.widest;
     }
 </script>
+
 
 <?php include_once '../includes/footer.php'; ?>

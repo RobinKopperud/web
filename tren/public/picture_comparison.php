@@ -36,13 +36,12 @@ $first_photo = $photos[0] ?? null;
 
 <main>
     <h2>Sammenlign Bilder</h2>
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
-
+    <div class="photo-comparison">
         <!-- Left Side: First Photo -->
-        <div style="flex: 1; text-align: center;">
+        <div>
             <h3>Første Bilde</h3>
             <?php if ($first_photo): ?>
-                <img src="../uploads/<?= htmlspecialchars($first_photo['file_path']); ?>" alt="Første Bilde" style="max-width: 100%;">
+                <img src="../uploads/<?= htmlspecialchars($first_photo['file_path']); ?>" alt="Første Bilde">
                 <p><strong>Dato:</strong> <?= htmlspecialchars($first_photo['date']); ?></p>
                 <p><strong>Vekt:</strong> <?= htmlspecialchars($first_photo['weight']); ?> kg</p>
                 <p><strong>Livvidde:</strong> <?= htmlspecialchars($first_photo['waist']); ?> cm</p>
@@ -52,13 +51,13 @@ $first_photo = $photos[0] ?? null;
             <?php endif; ?>
         </div>
 
-        <!-- Right Side: Slider for Other Photos -->
-        <div style="flex: 1; text-align: center;">
+        <!-- Right Side: Slider and Selected Photo -->
+        <div>
             <h3>Velg Bilde</h3>
             <?php if (!empty($photos)): ?>
-                <input type="range" id="photo-slider" min="0" max="<?= count($photos) - 1; ?>" value="0" style="width: 100%;" onchange="updatePhoto(this.value)">
+                <input type="range" id="photo-slider" min="0" max="<?= count($photos) - 1; ?>" value="0" onchange="updatePhoto(this.value)">
                 <div id="selected-photo">
-                    <img src="../uploads/<?= htmlspecialchars($photos[0]['file_path']); ?>" alt="Valgt Bilde" style="max-width: 100%;">
+                    <img src="../uploads/<?= htmlspecialchars($photos[0]['file_path']); ?>" alt="Valgt Bilde">
                     <p><strong>Dato:</strong> <span id="photo-date"><?= htmlspecialchars($photos[0]['date']); ?></span></p>
                     <p><strong>Vekt:</strong> <span id="photo-weight"><?= htmlspecialchars($photos[0]['weight']); ?></span> kg</p>
                     <p><strong>Livvidde:</strong> <span id="photo-waist"><?= htmlspecialchars($photos[0]['waist']); ?></span> cm</p>

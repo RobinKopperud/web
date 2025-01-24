@@ -1,6 +1,6 @@
 <?php
 // Include the database connection
-include_once '../../../../db.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']); // Sanitize email input

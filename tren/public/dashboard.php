@@ -108,8 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare("INSERT INTO tren_measurements (user_id, weight, waist, widest, date) VALUES (?, ?, ?, ?, ?)");
         $stmt->bind_param("iddss", $user_id, $weight, $waist, $widest, $date); // Bind user_id (integer), weight, waist, widest (doubles), and date (string)
         $stmt->execute();
-
-        header("Location: dashboard.php");
+        $_SESSION['success_message'] = "Målingene ble lagt til!";
     }
 
     // Upload Photo
@@ -125,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bind_param("is", $user_id, $file_name); // Bind user_id (integer) and file_path (string)
             $stmt->execute();
 
-            header("Location: dashboard.php");
+            $_SESSION['success_message'] = "Målingene ble lagt til!";
         } else {
             echo "<p>Feil ved opplasting av bilde.</p>";
         }

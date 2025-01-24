@@ -6,10 +6,40 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
-
+include_once '../includes/functions.php'; // Include the functions file
 
 // User ID from session
 $user_id = $_SESSION['user_id'];
+
+// Handle form submissions
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['add_measurements'])) {
+        $weight = $_POST['weight'];
+        $waist = $_POST['waist'];
+        $widest = $_POST['widest'];
+        $date = $_POST['date'];
+
+        addMeasurement($conn, $user_id, $weight, $waist, $widest, $date);
+        $_SESSION['success_message'] = "Målingene ble lagt til!";
+    }
+
+    if (isset($_POST['upload_photo']) && isset($_FILES['photo'])) {
+        $upload_dir = '../uploads/';
+        $file_name = uniqid() . "_" . basename($_FILES['photo']['name']);
+        $target_path = $upload_dir . $file_name;
+
+        if (move_uploaded_file($_FILES['photo']['tmp_name'], $target_path)) {
+            uploadPhoto($conn, $user_id, $file_name);
+            $_SESSION['success_message'] = "Bilde ble lastet opp!";
+        } else {
+            $_SESSION['error_message'] = "Feil ved opplasting av bilde.";
+        }
+    }
+}
+
+// Fetch data for display
+$latest_measurement = getLatestMeasurement($conn, $user_id);
+$latest_photo = getLatestPhoto($conn, $user_id);
 ?>
 
 <?php include_once '../includes/header.php'; ?>
@@ -17,26 +47,35 @@ $user_id = $_SESSION['user_id'];
 <main>
     <h2>Dashboard</h2>
 
+    <!-- Section: Success/Error Messages -->
+    <?php if (isset($_SESSION['success_message'])): ?>
+        <p style="color: green;"><?= htmlspecialchars($_SESSION['success_message']); ?></p>
+        <?php unset($_SESSION['success_message']); ?>
+    <?php endif; ?>
+    <?php if (isset($_SESSION['error_message'])): ?>
+        <p style="color: red;"><?= htmlspecialchars($_SESSION['error_message']); ?></p>
+        <?php unset($_SESSION['error_message']); ?>
+    <?php endif; ?>
+
     <!-- Section: Add Measurements -->
     <section>
-    <h3>Legg til Målinger</h3>
-    <form method="POST" action="dashboard.php">
-        <label for="weight">Vekt (kg):</label>
-        <input type="number" step="0.1" name="weight" required>
+        <h3>Legg til Målinger</h3>
+        <form method="POST" action="dashboard.php">
+            <label for="weight">Vekt (kg):</label>
+            <input type="number" step="0.1" name="weight" required>
 
-        <label for="waist">Livvidde (cm):</label>
-        <input type="number" step="0.1" name="waist" required>
+            <label for="waist">Livvidde (cm):</label>
+            <input type="number" step="0.1" name="waist" required>
 
-        <label for="widest">Bredeste Vidde (cm):</label>
-        <input type="number" step="0.1" name="widest" required>
+            <label for="widest">Bredeste Vidde (cm):</label>
+            <input type="number" step="0.1" name="widest" required>
 
-        <label for="date">Dato:</label>
-        <input type="date" name="date" required>
+            <label for="date">Dato:</label>
+            <input type="date" name="date" required>
 
-        <button type="submit" name="add_measurements">Lagre Målinger</button>
-    </form>
+            <button type="submit" name="add_measurements">Lagre Målinger</button>
+        </form>
     </section>
-
 
     <!-- Section: Photos -->
     <section>
@@ -50,85 +89,25 @@ $user_id = $_SESSION['user_id'];
 
     <!-- Display Latest Measurements -->
     <section>
-    <h3>Dine Nyeste Målinger</h3>
-    <?php
-    $stmt = $conn->prepare("SELECT * FROM tren_measurements WHERE user_id = ? ORDER BY date DESC LIMIT 1");
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $latest_measurement = $result->fetch_assoc();
+        <h3>Dine Nyeste Målinger</h3>
+        <?php if ($latest_measurement): ?>
+            <p><strong>Vekt:</strong> <?= htmlspecialchars($latest_measurement['weight']); ?> kg</p>
+            <p><strong>Livvidde:</strong> <?= htmlspecialchars($latest_measurement['waist']); ?> cm</p>
+            <p><strong>Bredeste Vidde:</strong> <?= htmlspecialchars($latest_measurement['widest']); ?> cm</p>
+        <?php else: ?>
+            <p>Ingen målinger funnet. Legg til dine første målinger!</p>
+        <?php endif; ?>
+    </section>
 
-    if ($latest_measurement) {
-        echo "<p><strong>Vekt:</strong> {$latest_measurement['weight']} kg</p>";
-        echo "<p><strong>Livvidde:</strong> {$latest_measurement['waist']} cm</p>";
-        echo "<p><strong>Bredeste Vidde:</strong> {$latest_measurement['widest']} cm</p>";
-    } else {
-        echo "<p>Ingen målinger funnet. Legg til dine første målinger!</p>";
-    }
-
-    $stmt->close();
-    ?>
-</section>
-
-<!-- Display Latest Photo -->
-<section>
-    <h3>Ditt Nyeste Bilde</h3>
-    <?php
-    $stmt = $conn->prepare("SELECT * FROM tren_photos WHERE user_id = ? ORDER BY uploaded_at DESC LIMIT 1");
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $latest_photo = $result->fetch_assoc();
-
-    if ($latest_photo) {
-        echo "<img src='../uploads/{$latest_photo['file_path']}' alt='Nyeste Bilde' style='max-width: 200px;'>";
-    } else {
-        echo "<p>Ingen bilder funnet. Last opp ditt første bilde!</p>";
-    }
-
-    $stmt->close();
-    ?>
-</section>
-
+    <!-- Display Latest Photo -->
+    <section>
+        <h3>Ditt Nyeste Bilde</h3>
+        <?php if ($latest_photo): ?>
+            <img src="../uploads/<?= htmlspecialchars($latest_photo['file_path']); ?>" alt="Nyeste Bilde" style="max-width: 200px;">
+        <?php else: ?>
+            <p>Ingen bilder funnet. Last opp ditt første bilde!</p>
+        <?php endif; ?>
+    </section>
 </main>
 
 <?php include_once '../includes/footer.php'; ?>
-
-<?php
-// Handle form submissions
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Add Measurements
-    if (isset($_POST['add_measurements'])) {
-        $weight = $_POST['weight'];
-        $waist = $_POST['waist'];
-        $widest = $_POST['widest'];
-        $date = $_POST['date'];
-
-        // Prepare and execute the MySQLi query
-        $stmt = $conn->prepare("INSERT INTO tren_measurements (user_id, weight, waist, widest, date) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("iddss", $user_id, $weight, $waist, $widest, $date); // Bind user_id (integer), weight, waist, widest (doubles), and date (string)
-        $stmt->execute();
-        $_SESSION['success_message'] = "Målingene ble lagt til!";
-    }
-
-    // Upload Photo
-    if (isset($_POST['upload_photo']) && isset($_FILES['photo'])) {
-        $upload_dir = '../uploads/';
-        $file_name = uniqid() . "_" . basename($_FILES['photo']['name']);
-        $target_path = $upload_dir . $file_name;
-
-        // Move uploaded file to target directory
-        if (move_uploaded_file($_FILES['photo']['tmp_name'], $target_path)) {
-            // Prepare and execute the MySQLi query for photo upload
-            $stmt = $conn->prepare("INSERT INTO tren_photos (user_id, file_path) VALUES (?, ?)");
-            $stmt->bind_param("is", $user_id, $file_name); // Bind user_id (integer) and file_path (string)
-            $stmt->execute();
-
-            $_SESSION['success_message'] = "Målingene ble lagt til!";
-        } else {
-            echo "<p>Feil ved opplasting av bilde.</p>";
-        }
-    }
-}
-?>
-

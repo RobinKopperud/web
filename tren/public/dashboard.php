@@ -6,7 +6,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
-include_once '../includes/functions.php'; // Include the functions file
+include_once '../includes/functions.php';
 
 // User ID from session
 $user_id = $_SESSION['user_id'];
@@ -40,6 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Fetch data for display
 $latest_measurement = getLatestMeasurement($conn, $user_id);
 $latest_photo = getLatestPhoto($conn, $user_id);
+
+// Fetch predicted measurements
+$predicted_measurements = getPredictedMeasurements($user_id, 30);
 ?>
 
 <?php include_once '../includes/header.php'; ?>
@@ -99,13 +102,28 @@ $latest_photo = getLatestPhoto($conn, $user_id);
         <?php endif; ?>
     </section>
 
-    <!-- Display Latest Photo -->
+    <!-- Section: Predictions -->
     <section>
-        <h3>Ditt Nyeste Bilde</h3>
-        <?php if ($latest_photo): ?>
-            <img src="../uploads/<?= htmlspecialchars($latest_photo['file_path']); ?>" alt="Nyeste Bilde" style="max-width: 200px;">
+        <h3>Prediksjoner for Fremtidige Målinger</h3>
+        <?php if (!empty($predicted_measurements)): ?>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Dato</th>
+                        <th>Forventet Vekt (kg)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($predicted_measurements as $prediction): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($prediction['date']); ?></td>
+                            <td><?= htmlspecialchars(number_format($prediction['weight'], 1)); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
         <?php else: ?>
-            <p>Ingen bilder funnet. Last opp ditt første bilde!</p>
+            <p>Ikke nok data til å lage prediksjoner.</p>
         <?php endif; ?>
     </section>
 </main>

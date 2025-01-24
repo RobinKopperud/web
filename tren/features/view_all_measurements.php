@@ -65,7 +65,7 @@ $stmt->close();
                         <?php endif; ?>
                     </td>
                     <td>
-                        <a href="edit_measurement.php?id=<?= $measurement['id']; ?>">Rediger</a>
+                        <a href="edit_measurements.php?id=<?= $measurement['id']; ?>">Rediger</a>
                     </td>
                 </tr>
             <?php endwhile; ?>

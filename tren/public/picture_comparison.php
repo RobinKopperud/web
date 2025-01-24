@@ -31,6 +31,9 @@ $first_photo = $photos[0] ?? null;
 
 <?php include_once '../includes/header.php'; ?>
 
+<link rel="stylesheet" href="picture_comparison.css">
+
+
 <main>
     <h2>Sammenlign Bilder</h2>
     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">

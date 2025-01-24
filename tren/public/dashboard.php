@@ -7,6 +7,8 @@ if (!isset($_SESSION['user_id'])) {
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 include_once '../includes/functions.php';
+include_once '../features/predictions.php';
+
 
 // User ID from session
 $user_id = $_SESSION['user_id'];

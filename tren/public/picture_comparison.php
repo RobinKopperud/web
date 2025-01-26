@@ -53,8 +53,7 @@ $first_photo = $photos[0] ?? null;
                 <p><strong>Livvidde:</strong> <?= htmlspecialchars($first_photo['waist']); ?> cm</p>
                 <p><strong>Bredeste Vidde:</strong> <?= htmlspecialchars($first_photo['widest']); ?> cm</p>
             </div>
-            <!-- Slider for Selecting Image -->
-            <input type="range" id="photo-slider" min="0" max="<?= count($photos) - 1; ?>" value="0" onchange="updatePhoto(this.value)">
+            
         </div>
 
         <!-- Right Side -->
@@ -69,6 +68,8 @@ $first_photo = $photos[0] ?? null;
                 <p><strong>Livvidde:</strong> <span id="photo-waist"><?= htmlspecialchars($photos[0]['waist']); ?></span> cm</p>
                 <p><strong>Bredeste Vidde:</strong> <span id="photo-widest"><?= htmlspecialchars($photos[0]['widest']); ?></span> cm</p>
             </div>
+            <!-- Slider for Selecting Image -->
+            <input type="range" id="photo-slider" min="0" max="<?= count($photos) - 1; ?>" value="0" onchange="updatePhoto(this.value)">
         </div>
     </div>
 </main>

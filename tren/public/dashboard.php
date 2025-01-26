@@ -79,10 +79,10 @@ $predicted_measurements = getPredictedMeasurements($conn, $user_id, $days);
         <h3>Legg til Målinger</h3>
         <form method="POST" action="dashboard.php">
             <label for="weight">Vekt (kg):</label>
-            <input type="number" step="0.1" name="weight" required>
+            <input type="number" step="1" name="weight" required>
 
             <label for="waist">Livvidde (cm):</label>
-            <input type="number" step="0.1" name="waist" required>
+            <input type="number" step="0.1" name="waist">
 
             <label for="widest">Bredeste Vidde (cm):</label>
             <input type="number" step="0.1" name="widest" required>

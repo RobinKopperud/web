@@ -32,26 +32,32 @@ body {
     margin: 10px 0;
 }
 
-.buttons {
-    margin-top: 20px;
-}
-
-.buttons a {
-    display: inline-block;
-    background-color: #ffe600; /* Bright yellow */
-    color: #333; /* Dark text */
-    text-decoration: none;
-    font-size: 1rem;
-    padding: 10px 20px;
-    margin: 5px;
+/* Buttons */
+button, .btn {
+    background-color: #FFD700; /* Bright yellow */
+    color: #333; /* Dark gray text */
+    border: none;
     border-radius: 5px;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s;
+    text-align: center;
+    text-decoration: none; /* For <a> buttons */
+    display: inline-block;
 }
 
-.buttons a:hover {
-    background-color: #333; /* Dark background */
-    color: #ffe600; /* Bright yellow text */
+button:hover, .btn:hover {
+    background-color: #FFC107; /* Slightly darker yellow */
+    transform: scale(1.05); /* Slight zoom effect */
 }
+
+button:active, .btn:active {
+    background-color: #FFB300; /* Even darker yellow on click */
+    transform: scale(0.95); /* Slightly smaller on click */
+}
+
 
 /* Section Styles */
 section {

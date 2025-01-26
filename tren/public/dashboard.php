@@ -53,7 +53,7 @@ $last_photo = getLastPhoto($conn, $user_id);
 
 
 // Fetch the number of days from the user's input or default to 30
-$days = isset($_GET['days']) && is_numeric($_GET['days']) ? intval($_GET['days']) : 30;
+$days = isset($_GET['days']) && is_numeric($_GET['days']) ? intval($_GET['days']) : 10;
 
 // Fetch predicted measurements
 $predicted_measurements = getPredictedMeasurements($conn, $user_id, $days);

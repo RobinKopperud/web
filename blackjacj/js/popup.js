@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const spiller_id = new URLSearchParams(window.location.search).get('spiller_id');
 
     function checkForProposal() {
-        fetch(`/php/check_proposals.php?gruppe_id=${gruppe_id}&spiller_id=${spiller_id}`)
+        fetch(`Web/blackjacj/php/check_proposals.php?gruppe_id=${gruppe_id}&spiller_id=${spiller_id}`)
             .then(res => res.json())
             .then(data => {
                 if (data && data.transaksjon_id) {

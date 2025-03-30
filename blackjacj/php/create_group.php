@@ -4,18 +4,27 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $creator_name = trim($_POST['creator_name']);
 
-    // Her kan du generere en unik gruppekode, for eksempel ved hjelp av uniqid() eller en annen metode
+    // Lag unik gruppekode (6 store bokstaver/tall)
     $gruppekode = strtoupper(substr(md5(uniqid(rand(), true)), 0, 6));
 
-    // Sett inn i tabellen BJGrupper
+    // Opprett gruppe
     $stmt = $conn->prepare("INSERT INTO BJGrupper (gruppekode, opprettet_av) VALUES (?, ?)");
     $stmt->bind_param("ss", $gruppekode, $creator_name);
-    if ($stmt->execute()) {
-        echo "Gruppe opprettet! Gruppkode: " . $gruppekode;
-    } else {
-        echo "Feil ved oppretting av gruppe: " . $stmt->error;
-    }
+    $stmt->execute();
+    $gruppe_id = $conn->insert_id;
     $stmt->close();
+
+    // Legg til oppretter som første spiller
+    $stmt2 = $conn->prepare("INSERT INTO BJSpillere (gruppe_id, navn) VALUES (?, ?)");
+    $stmt2->bind_param("is", $gruppe_id, $creator_name);
+    $stmt2->execute();
+    $spiller_id = $conn->insert_id;
+    $stmt2->close();
+
+    $conn->close();
+
+    // Send videre til bordet
+    header("Location: /view/table.php?gruppekode=$gruppekode&spiller_id=$spiller_id");
+    exit;
 }
-$conn->close();
 ?>

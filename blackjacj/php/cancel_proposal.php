@@ -13,6 +13,6 @@ $stmt->close();
 $conn->close();
 
 // Send tilbake til bordet
-header("Location: /web/blackjacj/view/table.php?gruppekode=$gruppekode&spiller_id=$spiller_id");
+header("Location: /Web/blackjacj/view/table.php?gruppekode=$gruppekode&spiller_id=$spiller_id");
 exit;
 ?>

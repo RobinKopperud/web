@@ -13,6 +13,6 @@ $stmt->bind_param("iid", $gruppe_id, $spiller_id, $belop);
 $stmt->execute();
 $stmt->close();
 
-header("Location: Web/blackjacj/view/table.php?gruppekode=" . $_GET['gruppekode'] . "&spiller_id=" . $spiller_id);
+header("Location: /Web/blackjacj/view/table.php?gruppekode=" . $_GET['gruppekode'] . "&spiller_id=" . $spiller_id);
 exit;
 ?>

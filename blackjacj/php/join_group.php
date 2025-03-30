@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $conn->close();
 
             // Videresend til spillbordet
-            header("Location: ../view/table.php?gruppekode=$group_code&spiller_id=$spiller_id");
+            header("Location: /web/blackjacj/view/table.php?gruppekode=$group_code&spiller_id=$spiller_id");
             exit; 
         } else {
             echo "Feil ved innmelding: " . $stmt2->error;

@@ -31,10 +31,10 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <title>Blackjackbord – Gruppe <?php echo htmlspecialchars($gruppekode); ?></title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="web/blackjacj/css/style.css">
     <style>
         body {
-            background: url('/img/casino_table.svg') no-repeat center center fixed;
+            background: url('web/blackjacj/img/bg.png') no-repeat center center fixed;
             background-size: contain;
             height: 100vh;
             margin: 0;
@@ -105,7 +105,7 @@ $conn->close();
             <button type="submit">❌ Avslå</button>
         </form>
     </div>
-    <script src="/js/popup.js" defer></script>
+    <script src="../js/popup.js" defer></script>
 
 </body>
 </html>

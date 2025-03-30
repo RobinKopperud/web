@@ -24,6 +24,16 @@ while ($row = $result->fetch_assoc()) {
 }
 
 $stmt->close();
+
+// Sjekk om denne spilleren har et ventende forslag
+$har_ventende = false;
+$stmt = $conn->prepare("SELECT 1 FROM BJTransaksjoner WHERE maal_spiller_id = ? AND status = 'ventende' LIMIT 1");
+$stmt->bind_param("i", $spiller_id);
+$stmt->execute();
+$stmt->store_result();
+$har_ventende = $stmt->num_rows > 0;
+$stmt->close();
+
 $conn->close();
 ?>
 <!DOCTYPE html>
@@ -31,10 +41,10 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <title>Blackjackbord – Gruppe <?php echo htmlspecialchars($gruppekode); ?></title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/Web/blackjacj/css/style.css">
     <style>
         body {
-            background: url('img/bg.png') no-repeat center center fixed;
+            background: url('/Web/blackjacj/img/bg.png') no-repeat center center fixed;
             background-size: contain;
             height: 100vh;
             margin: 0;
@@ -58,7 +68,7 @@ $conn->close();
             font-weight: bold;
         }
 
-        /* 4 faste posisjoner, kan utvides */
+        /* 4 faste posisjoner */
         .pos1 { top: 80%; left: 20%; transform: translate(-50%, -50%); }
         .pos2 { top: 80%; left: 50%; transform: translate(-50%, -50%); }
         .pos3 { top: 80%; left: 80%; transform: translate(-50%, -50%); }
@@ -67,17 +77,8 @@ $conn->close();
 </head>
 <body>
     <div class="bord">
-    <?php
-        $antall_spillere = count($spillere); // Legg dette før loopen
-        // Sjekk om denne spilleren har et ventende forslag
-        $har_ventende = false;
-        $stmt = $conn->prepare("SELECT 1 FROM BJTransaksjoner WHERE maal_spiller_id = ? AND status = 'ventende' LIMIT 1");
-        $stmt->bind_param("i", $spiller_id);
-        $stmt->execute();
-        $stmt->store_result();
-        $har_ventende = $stmt->num_rows > 0;
-        $stmt->close();
-
+        <?php
+        $antall_spillere = count($spillere);
 
         foreach ($spillere as $index => $spiller) {
             $posClass = "pos" . ($index + 1);
@@ -92,14 +93,13 @@ $conn->close();
                     echo "<p style='margin-top:10px; color: #ff0;'>⚠️ Minst 2 spillere kreves for å foreslå saldo.</p>";
                 } elseif ($har_ventende) {
                     echo "<p style='margin-top:10px; color: orange;'>⏳ Du har allerede et forslag som venter på godkjenning.</p>";
-                    echo "<form action='/php/cancel_proposal.php' method='post' style='margin-top: 5px;'>
+                    echo "<form action='/Web/blackjacj/php/cancel_proposal.php' method='post' style='margin-top: 5px;'>
                             <input type='hidden' name='spiller_id' value='{$spiller_id}'>
                             <input type='hidden' name='gruppekode' value='" . htmlspecialchars($gruppekode) . "'>
-                            <button type='submit' style='margin-top:5px;'>❌ Avbryt forslag</button>
-                        </form>";
-
+                            <button type='submit'>❌ Avbryt forslag</button>
+                          </form>";
                 } else {
-                    echo "<form action='Web/blackjacj/php/propose_sum.php' method='post' style='margin-top: 10px;'>
+                    echo "<form action='/Web/blackjacj/php/propose_sum.php' method='post' style='margin-top: 10px;'>
                             <input type='hidden' name='gruppe_id' value='{$gruppe_id}'>
                             <input type='hidden' name='spiller_id' value='{$spiller['spiller_id']}'>
                             <input type='hidden' name='gruppekode' value='" . htmlspecialchars($gruppekode) . "'>
@@ -112,24 +112,25 @@ $conn->close();
             echo "</div>";
         }
         ?>
-
     </div>
+
     <!-- Popup for forslag -->
     <div id="proposal-popup" style="display:none; position:fixed; top:30%; left:50%; transform:translate(-50%,-50%);
-    background:white; border:2px solid black; padding:20px; z-index:999;">
+        background:white; border:2px solid black; padding:20px; z-index:999;">
         <p id="proposal-text"></p>
-        <form id="accept-form" method="post" action="Web/blackjacj/php/respond_to_proposal.php">
+        <form id="accept-form" method="post" action="/Web/blackjacj/php/respond_to_proposal.php">
             <input type="hidden" name="transaksjon_id" id="transaksjon_id_accept">
             <input type="hidden" name="godkjent" value="1">
             <button type="submit">✅ Godta</button>
         </form>
-        <form id="reject-form" method="post" action="Web/blackjacj/php/respond_to_proposal.php">
+        <form id="reject-form" method="post" action="/Web/blackjacj/php/respond_to_proposal.php">
             <input type="hidden" name="transaksjon_id" id="transaksjon_id_reject">
             <input type="hidden" name="godkjent" value="0">
             <button type="submit">❌ Avslå</button>
         </form>
     </div>
-    <script src="Web/blackjacjjs/popup.js" defer></script>
 
+    <!-- Henter inn JS som sjekker for forslag -->
+    <script src="/Web/blackjacj/js/popup.js" defer></script>
 </body>
 </html>

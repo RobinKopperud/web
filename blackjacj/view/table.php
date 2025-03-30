@@ -67,45 +67,69 @@ $conn->close();
 </head>
 <body>
     <div class="bord">
-        <?php
+    <?php
+        $antall_spillere = count($spillere); // Legg dette før loopen
+        // Sjekk om denne spilleren har et ventende forslag
+        $har_ventende = false;
+        $stmt = $conn->prepare("SELECT 1 FROM BJTransaksjoner WHERE maal_spiller_id = ? AND status = 'ventende' LIMIT 1");
+        $stmt->bind_param("i", $spiller_id);
+        $stmt->execute();
+        $stmt->store_result();
+        $har_ventende = $stmt->num_rows > 0;
+        $stmt->close();
+
+
         foreach ($spillere as $index => $spiller) {
             $posClass = "pos" . ($index + 1);
             $er_meg = $spiller['spiller_id'] == $spiller_id;
-        
+
             echo "<div class='spiller $posClass'>";
             echo htmlspecialchars($spiller['navn']) . "<br>";
             echo "<small>Saldo: " . number_format($spiller['saldo'], 2, ',', ' ') . " kr</small>";
-        
+
             if ($er_meg) {
-                echo "<form action='/php/propose_sum.php' method='post' style='margin-top: 10px;'>
-                        <input type='hidden' name='gruppe_id' value='{$gruppe_id}'>
-                        <input type='hidden' name='spiller_id' value='{$spiller['spiller_id']}'>
-                        <input type='hidden' name='gruppekode' value='" . htmlspecialchars($gruppekode) . "'>
-                        <input type='number' name='belop' step='0.01' required placeholder='Ny saldo'>
-                        <input type='submit' value='Foreslå'>
-                      </form>";
+                if ($antall_spillere < 2) {
+                    echo "<p style='margin-top:10px; color: #ff0;'>⚠️ Minst 2 spillere kreves for å foreslå saldo.</p>";
+                } elseif ($har_ventende) {
+                    echo "<p style='margin-top:10px; color: orange;'>⏳ Du har allerede et forslag som venter på godkjenning.</p>";
+                    echo "<form action='/php/cancel_proposal.php' method='post' style='margin-top: 5px;'>
+                            <input type='hidden' name='spiller_id' value='{$spiller_id}'>
+                            <input type='hidden' name='gruppekode' value='" . htmlspecialchars($gruppekode) . "'>
+                            <button type='submit' style='margin-top:5px;'>❌ Avbryt forslag</button>
+                        </form>";
+
+                } else {
+                    echo "<form action='Web/blackjacj/php/propose_sum.php' method='post' style='margin-top: 10px;'>
+                            <input type='hidden' name='gruppe_id' value='{$gruppe_id}'>
+                            <input type='hidden' name='spiller_id' value='{$spiller['spiller_id']}'>
+                            <input type='hidden' name='gruppekode' value='" . htmlspecialchars($gruppekode) . "'>
+                            <input type='number' name='belop' step='0.01' required placeholder='Ny saldo'>
+                            <input type='submit' value='Foreslå'>
+                          </form>";
+                }
             }
-        
+
             echo "</div>";
         }
         ?>
+
     </div>
     <!-- Popup for forslag -->
     <div id="proposal-popup" style="display:none; position:fixed; top:30%; left:50%; transform:translate(-50%,-50%);
     background:white; border:2px solid black; padding:20px; z-index:999;">
         <p id="proposal-text"></p>
-        <form id="accept-form" method="post" action="/php/respond_to_proposal.php">
+        <form id="accept-form" method="post" action="Web/blackjacj/php/respond_to_proposal.php">
             <input type="hidden" name="transaksjon_id" id="transaksjon_id_accept">
             <input type="hidden" name="godkjent" value="1">
             <button type="submit">✅ Godta</button>
         </form>
-        <form id="reject-form" method="post" action="/php/respond_to_proposal.php">
+        <form id="reject-form" method="post" action="Web/blackjacj/php/respond_to_proposal.php">
             <input type="hidden" name="transaksjon_id" id="transaksjon_id_reject">
             <input type="hidden" name="godkjent" value="0">
             <button type="submit">❌ Avslå</button>
         </form>
     </div>
-    <script src="../js/popup.js" defer></script>
+    <script src="Web/blackjacjjs/popup.js" defer></script>
 
 </body>
 </html>

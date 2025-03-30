@@ -105,6 +105,7 @@ $conn->close();
             <button type="submit">❌ Avslå</button>
         </form>
     </div>
+    <script src="/js/popup.js" defer></script>
 
 </body>
 </html>

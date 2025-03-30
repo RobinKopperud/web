@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $conn->close();
 
     // Send videre til bordet
-    header("Location: /view/table.php?gruppekode=$gruppekode&spiller_id=$spiller_id");
+    header("Location: ../view/table.php?gruppekode=$gruppekode&spiller_id=$spiller_id");
     exit;
 }
 ?>

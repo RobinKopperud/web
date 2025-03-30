@@ -1,8 +1,13 @@
 <?php
 include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 
-$gruppe_id = $_GET['gruppe_id'];
-$spiller_id = $_GET['spiller_id'];
+$gruppe_id = $_GET['gruppe_id'] ?? null;
+$spiller_id = $_GET['spiller_id'] ?? null;
+
+if (!$gruppe_id || !$spiller_id) {
+    echo json_encode(null);
+    exit;
+}
 
 $sql = "
 SELECT t.transaksjon_id, t.belop, s.navn
@@ -24,8 +29,8 @@ $stmt->bind_param("iii", $spiller_id, $gruppe_id, $spiller_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
-$response = $result->fetch_assoc() ?? null;
-echo json_encode($response);
+$data = $result->fetch_assoc() ?? null;
+echo json_encode($data);
 
 $conn->close();
 ?>

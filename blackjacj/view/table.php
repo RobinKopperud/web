@@ -131,6 +131,9 @@ $conn->close();
     </div>
 
     <!-- Henter inn JS som sjekker for forslag -->
+    <script>
+    // Brukes av popup.js
+    window.gruppe_id = <?php echo (int)$gruppe_id; ?>; </script>
     <script src="/Web/blackjacj/js/popup.js" defer></script>
 </body>
 </html>

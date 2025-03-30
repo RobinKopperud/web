@@ -31,10 +31,10 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <title>Blackjackbord – Gruppe <?php echo htmlspecialchars($gruppekode); ?></title>
-    <link rel="stylesheet" href="web/blackjacj/css/style.css">
+    <link rel="stylesheet" href="Web/blackjacj/css/style.css">
     <style>
         body {
-            background: url('web/blackjacj/img/bg.png') no-repeat center center fixed;
+            background: url('Web/blackjacj/img/bg.png') no-repeat center center fixed;
             background-size: contain;
             height: 100vh;
             margin: 0;

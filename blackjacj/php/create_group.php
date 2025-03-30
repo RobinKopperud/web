@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $conn->close();
 
     // Redirect med full path inkludert gruppekode
-    header("Location: /web/blackjacj/view/table.php?gruppekode=$gruppekode&spiller_id=$spiller_id");
+    header("Location: /Web/blackjacj/view/table.php?gruppekode=$gruppekode&spiller_id=$spiller_id");
     exit;
 } else {
     http_response_code(405);

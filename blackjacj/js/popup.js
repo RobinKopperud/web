@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gruppe_id = window.gruppe_id;
 
     function checkForProposal() {
-        fetch(`/web/blackjacj/php/check_proposals.php?gruppe_id=${gruppe_id}&spiller_id=${spiller_id}`)
+        fetch(`/Web/blackjacj/php/check_proposals.php?gruppe_id=${gruppe_id}&spiller_id=${spiller_id}`)
             .then(res => res.json())
             .then(data => {
                 if (data && data.transaksjon_id) {

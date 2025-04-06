@@ -36,6 +36,17 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php'; // Inkluderer databasekoblin
                 <input type="submit" value="Bli med">
             </form>
         </section>
+        <section id="admin-access">
+        <h2>Admin</h2>
+            <form id="admin-login">
+                <label for="admin_password">Admin-passord:</label>
+                <input type="password" id="admin_password" required>
+                <input type="submit" value="Vis grupper">
+            </form>
+
+            <div id="admin-output" style="margin-top: 20px;"></div>
+        </section>
+
     </main>
     
     <script src="js/script.js"></script> <!-- Ekstern JavaScript -->

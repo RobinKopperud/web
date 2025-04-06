@@ -176,7 +176,7 @@ $stmt->close();
 
     <!-- Popup for forslag -->
     <div id="proposal-popup" style="display:none; position:fixed; top:30%; left:50%; transform:translate(-50%,-50%);
-        background:white; border:2px solid black; padding:20px; z-index:999;">
+        background:white; border:2px solid black; color: #000; padding:20px; z-index:999;">
         <p id="proposal-text"></p>
         <form id="accept-form" method="post" action="/Web/blackjacj/php/respond_to_proposal.php">
             <input type="hidden" name="spiller_id" value="<?php echo (int)$spiller_id; ?>">

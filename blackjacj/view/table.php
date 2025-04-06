@@ -107,7 +107,8 @@ $stmt->close();
         🪪 Gruppekode: <?php echo htmlspecialchars($gruppekode); ?>
     </div>
 
-    <div class="bord">
+    <div class="bord" id="bord">
+
         <?php
         $antall_spillere = count($spillere);
 
@@ -183,7 +184,10 @@ $stmt->close();
     <!-- JS for popup -->
     <script>
         window.gruppe_id = <?php echo (int)$gruppe_id; ?>;
+        window.gruppekode = "<?php echo $gruppekode; ?>";
+        window.spiller_id = "<?php echo $spiller_id; ?>";
     </script>
+    <script src="/Web/blackjacj/js/update_players.js" defer></script>
     <script src="/Web/blackjacj/js/popup.js" defer></script>
 </body>
 </html>

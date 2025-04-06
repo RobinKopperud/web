@@ -79,7 +79,7 @@ input[type="submit"]:hover {
     width: 100%;
     border-collapse: collapse;
     background: #222;
-    color: #fff;
+    color: #000000;
     margin-top: 10px;
     border: 1px solid #444;
     font-size: 14px;
@@ -99,7 +99,7 @@ input[type="submit"]:hover {
 
 #admin-output button {
     background: #880000;
-    color: #000000;
+    color: white;
     border: none;
     padding: 6px 12px;
     border-radius: 5px;

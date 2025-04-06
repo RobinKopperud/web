@@ -26,7 +26,8 @@ $is_logged_in = isset($_SESSION['user_id']);
         <a href="pizza/index.php">Pizza</a>
         <a href="MC/index.php">MC</a>
         <a href="Flexitid/index.php">Fleksitid</a>
-        <a href="tur/index.html">Tur</a>
+        <!-- <a href="tur/index.html">Tur</a> -->
+        
         <a href="stemme/views/index.php">Tur i Januar</a>
         <a href="blackjacj/index.php">Tur i Januar</a>
 
@@ -48,7 +49,7 @@ $is_logged_in = isset($_SESSION['user_id']);
     <div class="container">
         <section id="about">
             <h2>Om Meg</h2>
-            <p>Jeg er nyutdannet innen IT med sterke ferdigheter innen nettverk, brukerstøtte, IoT og AI. Jeg er på jakt etter spennende jobbmuligheter hvor jeg kan bruke min kompetanse til å bidra til innovative prosjekter.</p>
+            <p>Jeg er nyutdannet innen IT med sterke ferdigheter innen brukerstøtte, VA, IoT og AI. Jeg er på jakt etter spennende muligheter hvor jeg kan bruke min kompetanse til å bidra til innovative prosjekter.</p>
         </section>
         <section id="portfolio">
             <h2>Portefølje</h2>

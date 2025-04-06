@@ -74,3 +74,42 @@ input[type="submit"] {
 input[type="submit"]:hover {
     background-color: #e6c200;
 }
+
+#admin-output table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #222;
+    color: #fff;
+    margin-top: 10px;
+    border: 1px solid #444;
+    font-size: 14px;
+}
+
+#admin-output th,
+#admin-output td {
+    padding: 10px;
+    border: 1px solid #444;
+    text-align: left;
+}
+
+#admin-output th {
+    background-color: #333;
+    color: #ffd700;
+}
+
+#admin-output tr:nth-child(even) {
+    background-color: #2a2a2a;
+}
+
+#admin-output button {
+    background: #880000;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#admin-output button:hover {
+    background: #cc0000;
+}

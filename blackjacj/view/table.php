@@ -62,7 +62,7 @@ $stmt->close();
     <style>
         body {
             background: url('/Web/blackjacj/img/bg.png') no-repeat center center fixed;
-            background-size: contain;
+            background-size: cover;
             height: 100vh;
             margin: 0;
             display: flex;

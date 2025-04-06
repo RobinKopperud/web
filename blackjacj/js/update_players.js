@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const spiller_id = window.spiller_id;
 
     function oppdaterSpillere() {
-        fetch(`/Web/blackjacj/php/get_players.php?gruppekode=${gruppkode}`)
+        fetch(`/Web/blackjacj/php/get_players.php?gruppekode=${gruppekode}`)
             .then(res => res.json())
             .then(data => {
                 const bord = document.getElementById('bord');

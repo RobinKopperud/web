@@ -199,7 +199,7 @@ $stmt->close();
         window.spiller_id = "<?php echo $spiller_id; ?>";
     </script>
     <script src="/Web/blackjacj/js/popup.js" defer></script>
-    <!-- <script src="/Web/blackjacj/js/update_players.js" defer></script> valgfritt -->
+    <script src="/Web/blackjacj/js/update_players.js" defer></script>
 </body>
 </html>
 <?php $conn->close(); ?>

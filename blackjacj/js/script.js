@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const password = document.getElementById('admin_password').value;
 
-        fetch('php/admin_fetch.php', {
+        fetch('/Web/blackjacj/php/admin_fetch.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `password=${encodeURIComponent(password)}`

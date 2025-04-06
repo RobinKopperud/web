@@ -97,10 +97,6 @@ input[type="submit"]:hover {
     color: #ffd700;
 }
 
-#admin-output tr:nth-child(even) {
-    background-color: #2a2a2a;
-}
-
 #admin-output button {
     background: #880000;
     color: white;

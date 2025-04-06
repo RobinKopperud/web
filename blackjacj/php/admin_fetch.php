@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 
 $password = $_POST['password'] ?? '';
@@ -8,13 +11,9 @@ if ($password !== 'admin') {
 }
 
 $result = $conn->query("
-    SELECT g.gruppe_id, g.gruppekode, g.opprettet_tidspunkt, s.navn AS oppretter
-    FROM BJGrupper g
-    LEFT JOIN BJSpillere s ON s.gruppe_id = g.gruppe_id
-    WHERE s.spiller_id = (
-        SELECT MIN(spiller_id) FROM BJSpillere WHERE gruppe_id = g.gruppe_id
-    )
-    ORDER BY g.opprettet_tidspunkt DESC
+    SELECT gruppe_id, gruppekode, opprettet_av, opprettet_tid
+    FROM BJGrupper
+    ORDER BY opprettet_tid DESC
 ");
 
 $grupper = $result->fetch_all(MYSQLI_ASSOC);

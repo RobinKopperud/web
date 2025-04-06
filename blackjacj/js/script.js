@@ -19,8 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
             data.forEach(gruppe => {
                 html += `<tr>
                     <td>${gruppe.gruppekode}</td>
-                    <td>${gruppe.opprettet_tidspunkt}</td>
-                    <td>${gruppe.oppretter}</td>
+                    <td>${gruppe.opprettet_tid}</td>
+                    <td>${gruppe.opprettet_av}</td>
                     <td><button onclick="slettGruppe(${gruppe.gruppe_id}, '${password}')">🗑️ Slett</button></td>
                 </tr>`;
             });

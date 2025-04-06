@@ -22,7 +22,6 @@ while ($row = $result->fetch_assoc()) {
     $spillere[] = $row;
     $gruppe_id = $row['gruppe_id'];
 }
-
 $stmt->close();
 
 // Sjekk om denne spilleren har et ventende forslag
@@ -34,7 +33,25 @@ $stmt->store_result();
 $har_ventende = $stmt->num_rows > 0;
 $stmt->close();
 
-$conn->close();
+// Hent siste 5 godkjente transaksjoner
+$stmt = $conn->prepare("
+    SELECT t.belop, s.navn, t.status, t.opprettet_tidspunkt
+    FROM BJTransaksjoner t
+    JOIN BJSpillere s ON s.spiller_id = t.maal_spiller_id
+    WHERE t.gruppe_id = ?
+      AND t.status = 'godkjent'
+    ORDER BY t.opprettet_tidspunkt DESC
+    LIMIT 5
+");
+$stmt->bind_param("i", $gruppe_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+$logg = [];
+while ($row = $result->fetch_assoc()) {
+    $logg[] = $row;
+}
+$stmt->close();
 ?>
 <!DOCTYPE html>
 <html lang="no">
@@ -51,6 +68,7 @@ $conn->close();
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
         }
 
         .bord {
@@ -68,14 +86,27 @@ $conn->close();
             font-weight: bold;
         }
 
-        /* 4 faste posisjoner */
         .pos1 { top: 80%; left: 20%; transform: translate(-50%, -50%); }
         .pos2 { top: 80%; left: 50%; transform: translate(-50%, -50%); }
         .pos3 { top: 80%; left: 80%; transform: translate(-50%, -50%); }
         .pos4 { top: 10%; left: 50%; transform: translate(-50%, -50%); }
+
+        .logg {
+            margin-top: 20px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            max-width: 700px;
+        }
     </style>
 </head>
 <body>
+    <div style="margin-bottom: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 18px;">
+        🪪 Gruppekode: <?php echo htmlspecialchars($gruppekode); ?>
+    </div>
+
     <div class="bord">
         <?php
         $antall_spillere = count($spillere);
@@ -114,26 +145,46 @@ $conn->close();
         ?>
     </div>
 
+    <!-- Transaksjonslogg -->
+    <div class="logg">
+        <strong>🧾 Siste godkjente transaksjoner:</strong>
+        <ul style="list-style: none; padding: 0; margin: 10px 0 0 0;">
+            <?php if (count($logg) === 0): ?>
+                <li>Ingen godkjente transaksjoner enda.</li>
+            <?php else: ?>
+                <?php foreach ($logg as $entry): ?>
+                    <li>
+                        <?php echo htmlspecialchars($entry['navn']); ?> satte saldo til
+                        <strong><?php echo number_format($entry['belop'], 2, ',', ' '); ?> kr</strong> ✔️
+                    </li>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </ul>
+    </div>
+
     <!-- Popup for forslag -->
     <div id="proposal-popup" style="display:none; position:fixed; top:30%; left:50%; transform:translate(-50%,-50%);
         background:white; border:2px solid black; padding:20px; z-index:999;">
         <p id="proposal-text"></p>
         <form id="accept-form" method="post" action="/Web/blackjacj/php/respond_to_proposal.php">
+            <input type="hidden" name="spiller_id" value="<?php echo (int)$spiller_id; ?>">
             <input type="hidden" name="transaksjon_id" id="transaksjon_id_accept">
             <input type="hidden" name="godkjent" value="1">
             <button type="submit">✅ Godta</button>
         </form>
         <form id="reject-form" method="post" action="/Web/blackjacj/php/respond_to_proposal.php">
+            <input type="hidden" name="spiller_id" value="<?php echo (int)$spiller_id; ?>">
             <input type="hidden" name="transaksjon_id" id="transaksjon_id_reject">
             <input type="hidden" name="godkjent" value="0">
             <button type="submit">❌ Avslå</button>
         </form>
     </div>
 
-    <!-- Henter inn JS som sjekker for forslag -->
+    <!-- JS for popup -->
     <script>
-    // Brukes av popup.js
-    window.gruppe_id = <?php echo (int)$gruppe_id; ?>; </script>
+        window.gruppe_id = <?php echo (int)$gruppe_id; ?>;
+    </script>
     <script src="/Web/blackjacj/js/popup.js" defer></script>
 </body>
 </html>
+<?php $conn->close(); ?>

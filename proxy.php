@@ -15,10 +15,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ['role' => 'user', 'content' => $message]
         ],
         'temperature' => 0.7,
-        'max_tokens' => 80,
-        'top_p' => 0.2,
+        'max_tokens' => 200,
+        'top_p' => 0.8,
         'frequency_penalty' => 0.7,
-        'presence_penalty' => 0.3,
+        'presence_penalty' => 0.6,
     ];
 
     $ch = curl_init('https://api.openai.com/v1/chat/completions');

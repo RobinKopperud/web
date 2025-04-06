@@ -17,12 +17,16 @@ $result = $stmt->get_result();
 
 $spillere = [];
 $gruppe_id = null;
+$totalt = 0;
 
 while ($row = $result->fetch_assoc()) {
     $spillere[] = $row;
     $gruppe_id = $row['gruppe_id'];
+    $totalt += $row['saldo'];
 }
 $stmt->close();
+
+$snitt = count($spillere) > 0 ? $totalt / count($spillere) : 0;
 
 // Sjekk om denne spilleren har et ventende forslag
 $har_ventende = false;
@@ -103,12 +107,19 @@ $stmt->close();
     </style>
 </head>
 <body>
+    <!-- Gruppekode -->
     <div style="margin-bottom: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 18px;">
         🪪 Gruppekode: <?php echo htmlspecialchars($gruppekode); ?>
     </div>
 
-    <div class="bord" id="bord">
+    <!-- Statistikk -->
+    <div style="margin-bottom: 10px; background: rgba(0,0,0,0.8); color: #fff; padding: 8px 16px; border-radius: 8px; font-size: 16px;">
+        📊 Totalt på bordet: <strong><?php echo number_format($totalt, 2, ',', ' '); ?> kr</strong> |
+        Gjennomsnitt per spiller: <strong><?php echo number_format($snitt, 2, ',', ' '); ?> kr</strong>
+    </div>
 
+    <!-- Spillere på bordet -->
+    <div class="bord" id="bord">
         <?php
         $antall_spillere = count($spillere);
 
@@ -181,14 +192,14 @@ $stmt->close();
         </form>
     </div>
 
-    <!-- JS for popup -->
+    <!-- JS-variabler og scripts -->
     <script>
         window.gruppe_id = <?php echo (int)$gruppe_id; ?>;
         window.gruppekode = "<?php echo $gruppekode; ?>";
         window.spiller_id = "<?php echo $spiller_id; ?>";
     </script>
-    <script src="/Web/blackjacj/js/update_players.js" defer></script>
     <script src="/Web/blackjacj/js/popup.js" defer></script>
+    <!-- <script src="/Web/blackjacj/js/update_players.js" defer></script> valgfritt -->
 </body>
 </html>
 <?php $conn->close(); ?>

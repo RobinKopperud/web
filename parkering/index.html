@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <title>Parkering i Borettslaget</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.webmanifest">
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js');
+    }
+  </script>
+</head>
+<body>
+
+  <!-- Login view -->
+  <div id="loginView" style="display: none;">
+    <h2>Logg inn</h2>
+    <form id="loginForm">
+      <input type="text" name="brukernavn" placeholder="Brukernavn" required>
+      <input type="password" name="passord" placeholder="Passord" required>
+      <button type="submit">Logg inn</button>
+    </form>
+    <p id="loginError" style="color: red; display: none;">Feil brukernavn/passord</p>
+  </div>
+
+  <!-- App view -->
+  <div id="appView" style="display: none;">
+    <button id="loggUt" style="position: absolute; top: 10px; right: 10px;">Logg ut</button>
+    <div id="map"></div>
+    <button id="tilbake" style="display:none">Tilbake</button>
+    <button id="vis-rapport">Vis rapport</button>
+    <div id="oversikt"></div>
+    <section id="rapport">
+      <h2>Rapport</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Anlegg</th>
+            <th>Totalt</th>
+            <th>Ledige</th>
+            <th>Opptatte</th>
+            <th>Elbillader</th>
+            <th>Med kontrakt</th>
+          </tr>
+        </thead>
+        <tbody id="rapport-innhold"></tbody>
+      </table>
+    </section>
+    <div id="popup">
+      <h3 id="popup-tittel"></h3>
+      <p id="popup-eier"></p>
+      <p id="popup-pris"></p>
+      <p id="popup-lenke"></p>
+      <button onclick="lukkPopup()">Lukk</button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="main.js"></script>
+
+</body>
+</html>

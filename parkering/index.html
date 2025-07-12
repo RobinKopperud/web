@@ -15,14 +15,27 @@
 
   <!-- Login view -->
   <div id="loginView" style="display: none;">
-    <h2>Logg inn</h2>
+  <div class="login-container">
+    <h2>Velkommen</h2>
     <form id="loginForm">
       <input type="text" name="brukernavn" placeholder="Brukernavn" required>
       <input type="password" name="passord" placeholder="Passord" required>
       <button type="submit">Logg inn</button>
     </form>
     <p id="loginError" style="color: red; display: none;">Feil brukernavn/passord</p>
+
+    <hr>
+
+    <h3>Ny bruker?</h3>
+    <form id="registerForm">
+      <input type="text" name="ny_brukernavn" placeholder="Velg brukernavn" required>
+      <input type="text" name="navn" placeholder="Fullt navn" required>
+      <input type="password" name="ny_passord" placeholder="Velg passord" required>
+      <button type="submit">Registrer</button>
+    </form>
+    <p id="registerMsg" style="color: green; display: none;">Registrering fullført! Logg inn.</p>
   </div>
+</div>
 
   <!-- App view -->
   <div id="appView" style="display: none;">

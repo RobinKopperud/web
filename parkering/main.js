@@ -126,3 +126,18 @@ function genererRapport(data) {
     tbody.appendChild(rad);
   });
 }
+
+document.getElementById('registerForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  fetch('api/register.php', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+      if (res.success) {
+        document.getElementById('registerMsg').style.display = 'block';
+      } else {
+        alert(res.message || 'Registrering feilet');
+      }
+    });
+});
+

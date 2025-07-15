@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-require '../../../db.php';
+require '../../db.php';
 
 try {
     $stmt = $conn->query("SELECT facility_id, name, type, 

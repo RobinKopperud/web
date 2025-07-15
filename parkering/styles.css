@@ -1,0 +1,24 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5; /* Grå bakgrunn */
+}
+.navbar-light .navbar-brand, .navbar-light .nav-link {
+    color: #d4a5a5; /* Dus rosa */
+}
+.navbar-light .navbar-brand:hover, .navbar-light .nav-link:hover {
+    color: #f7e1a1; /* Dus gul */
+}
+.bg-gray {
+    background-color: #e0e0e0; /* Dus grå */
+}
+.btn-pink {
+    background-color: #d4a5a5; /* Dus rosa */
+    color: white;
+}
+.btn-pink:hover {
+    background-color: #f7e1a1; /* Dus gul */
+}
+#map {
+    border: 1px solid #ccc;
+    margin-top: 20px;
+}

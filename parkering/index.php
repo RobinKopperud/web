@@ -53,11 +53,18 @@ require '../../db.php';
         fetch('get_facilities.php')
             .then(response => response.json())
             .then(data => {
+                if (data.error) {
+                    console.error('Feil fra get_facilities.php:', data.error);
+                    return;
+                }
                 data.forEach(facility => {
-                    L.marker([facility.coordinates.lat, facility.coordinates.lng])
+                    L.marker([facility.lat, facility.lng])
                         .addTo(map)
                         .bindPopup(`<b>${facility.name}</b><br><a href="parking.php?facility_id=${facility.facility_id}">Se plasser</a>`);
                 });
+            })
+            .catch(error => {
+                console.error('Feil ved henting av anlegg:', error);
             });
     </script>
 </body>

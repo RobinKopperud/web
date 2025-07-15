@@ -1,6 +1,6 @@
 <?php
 session_start();
-require '../../db.php';
+require '../../../db.php';
 ?>
 <!DOCTYPE html>
 <html lang="nb">
@@ -44,23 +44,36 @@ require '../../db.php';
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Initialiser Leaflet-kart
-        var map = L.map('map').setView([59.8974, 10.8105], 15); // Sentrer mellom anleggene
+        var map = L.map('map').setView([59.897, 10.810], 15); // Sentrer mellom anleggene
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
 
         // Hent anlegg fra PHP
         fetch('get_facilities.php')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Nettverksfeil ved henting av get_facilities.php: ' + response.status);
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.error) {
                     console.error('Feil fra get_facilities.php:', data.error);
                     return;
                 }
+                if (!Array.isArray(data)) {
+                    console.error('Uventet responsformat:', data);
+                    return;
+                }
                 data.forEach(facility => {
-                    L.marker([facility.lat, facility.lng])
-                        .addTo(map)
-                        .bindPopup(`<b>${facility.name}</b><br><a href="parking.php?facility_id=${facility.facility_id}">Se plasser</a>`);
+                    if (facility.lat && facility.lng) {
+                        L.marker([facility.lat, facility.lng])
+                            .addTo(map)
+                            .bindPopup(`<b>${facility.name}</b><br><a href="parking.php?facility_id=${facility.facility_id}">Se plasser</a>`);
+                    } else {
+                        console.warn('Manglende koordinater for anlegg:', facility);
+                    }
                 });
             })
             .catch(error => {

@@ -18,7 +18,18 @@ body {
 .btn-pink:hover {
     background-color: #f7e1a1; /* Dus gul */
 }
-#map {
-    border: 1px solid #ccc;
+.map-container {
+    width: 100%;
+    height: 80vh; /* 80 % av vindushøyden */
     margin-top: 20px;
+}
+#map {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #ccc;
+}
+@media (max-width: 768px) {
+    .map-container {
+        height: 50vh; /* Mindre høyde på mobil */
+    }
 }

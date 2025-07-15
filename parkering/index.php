@@ -1,6 +1,6 @@
 <?php
 session_start();
-require '../../db.php';
+require '../../../db.php';
 ?>
 <!DOCTYPE html>
 <html lang="nb">
@@ -35,7 +35,9 @@ require '../../db.php';
 
     <div class="container mt-4">
         <h1>Velkommen til borettslagets parkeringsoversikt</h1>
-        <div id="map" style="height: 400px;"></div>
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

@@ -79,39 +79,9 @@ $conn->close();
     <title>Parkeringsplasser - Borettslag Parkering</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles.css">
-    <style>
-        .compact-card .card-body {
-            padding: 0.75rem;
-        }
-        .compact-card .card-title {
-            font-size: 1rem;
-            margin-bottom: 0.5rem;
-        }
-        .compact-card .card-text {
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-        .compact-card .btn {
-            font-size: 0.85rem;
-            padding: 0.25rem 0.5rem;
-        }
-    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-gray">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Borettslag Parkering</a>
-            <div class="navbar-nav">
-                <a class="nav-link" href="index.php">Hjem</a>
-                <a class="nav-link" href="parking.php">Parkeringsplasser</a>
-                <a class="nav-link" href="profile.php">Min side</a>
-                <?php if ($_SESSION['role'] === 'admin'): ?>
-                    <a class="nav-link" href="admin.php">Admin</a>
-                <?php endif; ?>
-                <a class="nav-link" href="logout.php">Logg ut</a>
-            </div>
-        </div>
-    </nav>
+    <?php include 'nav.php'; ?>
 
     <div class="container mt-4">
         <h1>Parkeringsplasser</h1>

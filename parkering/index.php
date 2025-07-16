@@ -13,25 +13,7 @@ include_once '../../db.php'; // Adjust the path as needed
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-gray">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Borettslag Parkering</a>
-            <div class="navbar-nav">
-                <a class="nav-link" href="index.php">Hjem</a>
-                <a class="nav-link" href="parking.php">Parkeringsplasser</a>
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <a class="nav-link" href="profile.php">Min side</a>
-                    <?php if ($_SESSION['role'] === 'admin'): ?>
-                        <a class="nav-link" href="admin.php">Admin</a>
-                    <?php endif; ?>
-                    <a class="nav-link" href="logout.php">Logg ut</a>
-                <?php else: ?>
-                    <a class="nav-link" href="login.php">Logg inn</a>
-                    <a class="nav-link" href="register.php">Registrer</a>
-                <?php endif; ?>
-            </div>
-        </div>
-    </nav>
+    <?php include 'nav.php'; ?>
 
     <div class="container mt-4">
         <h1>Velkommen til borettslagets parkeringsoversikt</h1>

@@ -64,20 +64,34 @@ $conn->close();
     <link rel="stylesheet" href="styles.css">
     <style>
         .table-responsive {
-            overflow-x: auto;
+            overflow-x: hidden;
         }
         .table th, .table td {
             font-size: 0.9rem;
             padding: 0.5rem;
+            white-space: nowrap;
         }
         @media (max-width: 576px) {
             .table th, .table td {
-                font-size: 0.8rem;
-                padding: 0.4rem;
+                font-size: 0.75rem;
+                padding: 0.3rem;
+            }
+            .table .hide-on-mobile {
+                display: none;
             }
             .btn {
-                font-size: 0.8rem;
-                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+                padding: 0.2rem 0.4rem;
+            }
+            .table td, .table th {
+                white-space: normal;
+                word-wrap: break-word;
+                max-width: 100px;
+            }
+            .table a, .table button {
+                display: inline-block;
+                width: 100%;
+                text-align: center;
             }
         }
     </style>
@@ -114,8 +128,8 @@ $conn->close();
                             <th>Plass</th>
                             <th>Anlegg</th>
                             <th>Kontraktfil</th>
-                            <th>Startdato</th>
-                            <th>Sluttdato</th>
+                            <th class="hide-on-mobile">Startdato</th>
+                            <th class="hide-on-mobile">Sluttdato</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -124,8 +138,8 @@ $conn->close();
                                 <td><?php echo htmlspecialchars($contract['spot_number']); ?></td>
                                 <td><?php echo htmlspecialchars($contract['name']); ?></td>
                                 <td><a href="Uploads/<?php echo htmlspecialchars($contract['contract_file']); ?>" download>Last ned</a></td>
-                                <td><?php echo htmlspecialchars($contract['start_date']); ?></td>
-                                <td><?php echo htmlspecialchars($contract['end_date']); ?></td>
+                                <td class="hide-on-mobile"><?php echo htmlspecialchars($contract['start_date']); ?></td>
+                                <td class="hide-on-mobile"><?php echo htmlspecialchars($contract['end_date']); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -145,7 +159,7 @@ $conn->close();
                             <th>Anlegg</th>
                             <th>Plass</th>
                             <th>Plassertype</th>
-                            <th>Påmeldt</th>
+                            <th class="hide-on-mobile">Påmeldt</th>
                             <th>Handling</th>
                         </tr>
                     </thead>
@@ -156,7 +170,7 @@ $conn->close();
                                 <td><?php echo htmlspecialchars($waiting['facility_name'] ?: 'Ikke spesifisert'); ?></td>
                                 <td><?php echo htmlspecialchars($waiting['spot_number'] ?: 'Ikke spesifisert'); ?></td>
                                 <td><?php echo htmlspecialchars($waiting['spot_type'] ?: 'Ikke spesifisert'); ?></td>
-                                <td><?php echo htmlspecialchars($waiting['created_at']); ?></td>
+                                <td class="hide-on-mobile"><?php echo htmlspecialchars($waiting['created_at']); ?></td>
                                 <td>
                                     <form method="POST" action="remove_from_waiting_list.php">
                                         <input type="hidden" name="waiting_id" value="<?php echo $waiting['waiting_id']; ?>">

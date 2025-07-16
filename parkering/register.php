@@ -1,6 +1,6 @@
 <?php
 session_start();
-require '../db.php';
+include_once '../../db.php'; // Adjust the path as needed
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];

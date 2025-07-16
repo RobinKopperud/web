@@ -1,6 +1,6 @@
 <?php
 session_start();
-require '../db.php';
+include_once '../../db.php'; // Adjust the path as needed
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: login.php");

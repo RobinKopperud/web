@@ -1,6 +1,6 @@
 <?php
 session_start();
-require '../db.php'; // Adjusted path
+include_once '../../db.php'; // Adjust the path as needed
 ?>
 <!DOCTYPE html>
 <html lang="nb">

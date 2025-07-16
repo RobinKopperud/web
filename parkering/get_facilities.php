@@ -5,7 +5,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 header('Content-Type: application/json');
-require '../db.php'; // Adjusted path: one directory up from /Web/parkering/
+include_once '../../db.php'; // Adjust the path as needed
 
 $result = $conn->query("SELECT facility_id, name, type, lat, lng FROM facilities");
 if ($result === false) {

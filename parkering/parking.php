@@ -1,6 +1,6 @@
 <?php
 session_start();
-require '../../db.php';
+require '../db.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -9,18 +9,18 @@ if (!isset($_SESSION['user_id'])) {
 
 $facility_id = isset($_GET['facility_id']) ? (int)$_GET['facility_id'] : 0;
 
-try {
-    $stmt = $conn->prepare("SELECT spot_id, spot_number, spot_type, price, is_available 
-        FROM parking_spots WHERE facility_id = ?");
-    $stmt->execute([$facility_id]);
-    $spots = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    $facility_stmt = $conn->prepare("SELECT name FROM facilities WHERE facility_id = ?");
-    $facility_stmt->execute([$facility_id]);
-    $facility = $facility_stmt->fetch(PDO::FETCH_ASSOC);
-} catch(PDOException $e) {
-    die("Feil: " . $e->getMessage());
+$result = $conn->query("SELECT spot_id, spot_number, spot_type, price, is_available 
+    FROM parking_spots WHERE facility_id = $facility_id");
+if ($result === false) {
+    die("Query failed: " . $conn->error);
 }
+$spots = [];
+while ($row = $result->fetch_assoc()) {
+    $spots[] = $row;
+}
+
+$facility_result = $conn->query("SELECT name FROM facilities WHERE facility_id = $facility_id");
+$facility = $facility_result->fetch_assoc();
 ?>
 <!DOCTYPE html>
 <html lang="nb">
@@ -102,9 +102,8 @@ try {
                         <?php if ($_SESSION['role'] === 'admin'): ?>
                             <td>
                                 <?php
-                                $contract_stmt = $conn->prepare("SELECT contract_file FROM contracts WHERE spot_id = ?");
-                                $contract_stmt->execute([$spot['spot_id']]);
-                                $contract = $contract_stmt->fetch(PDO::FETCH_ASSOC);
+                                $contract_result = $conn->query("SELECT contract_file FROM contracts WHERE spot_id = " . (int)$spot['spot_id']);
+                                $contract = $contract_result->fetch_assoc();
                                 if ($contract && $contract['contract_file']): ?>
                                     <a href="uploads/<?php echo htmlspecialchars($contract['contract_file']); ?>" download>Last ned</a>
                                 <?php endif; ?>
@@ -117,3 +116,4 @@ try {
     </div>
 </body>
 </html>
+<?php $conn->close(); ?>

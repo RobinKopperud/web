@@ -1,6 +1,6 @@
 <?php
 session_start();
-require '../../db.php';
+require '../db.php'; // Adjusted path
 ?>
 <!DOCTYPE html>
 <html lang="nb">
@@ -44,12 +44,11 @@ require '../../db.php';
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Initialiser Leaflet-kart
-        var map = L.map('map').setView([59.897, 10.810], 15); // Sentrer mellom anleggene
+        var map = L.map('map').setView([59.897, 10.810], 15);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
 
-        // Hent anlegg fra PHP
         fetch('get_facilities.php')
             .then(response => {
                 if (!response.ok) {

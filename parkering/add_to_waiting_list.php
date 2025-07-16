@@ -20,6 +20,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $spot_id = isset($_POST['spot_id']) ? $conn->real_escape_string($_POST['spot_id']) : null;
     $spot_type = isset($_POST['spot_type']) ? $conn->real_escape_string($_POST['spot_type']) : null;
 
+    // If spot_id is provided, fetch the corresponding facility_id
+    if ($spot_id && !$facility_id) {
+        $spot_result = $conn->query("SELECT facility_id FROM parking_spots WHERE spot_id = '$spot_id'");
+        if ($spot_result && $spot_result->num_rows > 0) {
+            $spot = $spot_result->fetch_assoc();
+            $facility_id = $spot['facility_id'];
+        } else {
+            header("Location: parking.php?error=Ugyldig plass-ID.");
+            exit;
+        }
+    }
+
     // Validate input
     if (!$facility_id && !$spot_id && !$spot_type) {
         header("Location: parking.php?error=Velg minst ett kriterium for ventelisten.");

@@ -59,7 +59,7 @@ $conn->close();
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-gray">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Borettslag Parkering</a>
+            <a class="navbar-brand" href="index.php">Borettslag Parkering</a>
             <div class="navbar-nav">
                 <a class="nav-link" href="index.php">Hjem</a>
                 <a class="nav-link" href="parking.php">Parkeringsplasser</a>

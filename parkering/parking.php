@@ -19,8 +19,29 @@ if ($facilities_result) {
     }
 }
 
+// Fetch waiting list counts for facility
+$facility_waiting_count = 0;
 if ($facility_id) {
-    $result = $conn->query("SELECT spot_id, spot_number, spot_type, price, is_available 
+    $facility_waiting_result = $conn->query("SELECT COUNT(*) as count FROM waiting_list WHERE facility_id = $facility_id AND spot_id IS NULL AND spot_type IS NULL");
+    if ($facility_waiting_result) {
+        $facility_waiting_count = $facility_waiting_result->fetch_assoc()['count'];
+    }
+}
+
+// Fetch waiting list counts for spot types
+$spot_type_counts = ['standard' => 0, 'ev_charger' => 0];
+if ($facility_id) {
+    $spot_type_result = $conn->query("SELECT spot_type, COUNT(*) as count FROM waiting_list WHERE facility_id = $facility_id AND spot_type IS NOT NULL GROUP BY spot_type");
+    if ($spot_type_result) {
+        while ($row = $spot_type_result->fetch_assoc()) {
+            $spot_type_counts[$row['spot_type']] = $row['count'];
+        }
+    }
+}
+
+if ($facility_id) {
+    $result = $conn->query("SELECT spot_id, spot_number, spot_type, price, is_available,
+        (SELECT COUNT(*) FROM waiting_list WHERE spot_id = parking_spots.spot_id) as waiting_count
         FROM parking_spots WHERE facility_id = $facility_id");
     if ($result) {
         while ($row = $result->fetch_assoc()) {
@@ -84,62 +105,69 @@ $conn->close();
 
         <?php if ($facility_id && $facility): ?>
             <h2>Plasser i <?php echo htmlspecialchars($facility['name']); ?></h2>
-            <form method="POST" action="add_to_waiting_list.php" class="mb-4">
-                <input type="hidden" name="facility_id" value="<?php echo $facility_id; ?>">
-                <button type="submit" class="btn btn-pink">Venteliste for hele anlegget</button>
-            </form>
-            <form method="POST" action="add_to_waiting_list.php" class="mb-4">
-                <input type="hidden" name="facility_id" value="<?php echo $facility_id; ?>">
-                <select name="spot_type" class="form-select d-inline-block w-auto" required>
-                    <option value="standard">Standard plass</option>
-                    <option value="ev_charger">Plass med el-lader</option>
-                </select>
-                <button type="submit" class="btn btn-pink">Venteliste for plasstype</button>
-            </form>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card border-pink">
+                        <div class="card-body">
+                            <h5 class="card-title">Venteliste for hele anlegget</h5>
+                            <p class="card-text">Bli med i ventelisten for <?php echo htmlspecialchars($facility['name']); ?> (<?php echo $facility_waiting_count; ?> på venteliste).</p>
+                            <form method="POST" action="add_to_waiting_list.php">
+                                <input type="hidden" name="facility_id" value="<?php echo $facility_id; ?>">
+                                <button type="submit" class="btn btn-pink">Sett deg på venteliste</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-pink">
+                        <div class="card-body">
+                            <h5 class="card-title">Venteliste for plassertype</h5>
+                            <p class="card-text">Velg en plassertype for <?php echo htmlspecialchars($facility['name']); ?>.</p>
+                            <form method="POST" action="add_to_waiting_list.php">
+                                <input type="hidden" name="facility_id" value="<?php echo $facility_id; ?>">
+                                <select name="spot_type" class="form-select mb-2" required>
+                                    <option value="standard">Standard plass (<?php echo $spot_type_counts['standard']; ?> på venteliste)</option>
+                                    <option value="ev_charger">Plass med el-lader (<?php echo $spot_type_counts['ev_charger']; ?> på venteliste)</option>
+                                </select>
+                                <button type="submit" class="btn btn-pink">Sett deg på venteliste</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <h2>Enkelte plasser</h2>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Plassnummer</th>
-                        <th>Type</th>
-                        <th>Pris</th>
-                        <th>Status</th>
-                        <th>Handling</th>
-                        <?php if ($_SESSION['role'] === 'admin'): ?>
-                            <th>Kontrakt</th>
-                        <?php endif; ?>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($spots as $spot): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($spot['spot_number']); ?></td>
-                            <td><?php echo $spot['spot_type'] === 'ev_charger' ? 'El-lader' : 'Standard'; ?></td>
-                            <td><?php echo number_format($spot['price'], 2); ?> NOK</td>
-                            <td><?php echo $spot['is_available'] ? 'Ledig' : 'Opptatt'; ?></td>
-                            <td>
+            <div class="row">
+                <?php foreach ($spots as $spot): ?>
+                    <div class="col-md-4 mb-3">
+                        <div class="card border-gray">
+                            <div class="card-body">
+                                <h5 class="card-title">Plass <?php echo htmlspecialchars($spot['spot_number']); ?></h5>
+                                <p class="card-text">
+                                    <strong>Type:</strong> <?php echo $spot['spot_type'] === 'ev_charger' ? 'El-lader' : 'Standard'; ?><br>
+                                    <strong>Pris:</strong> <?php echo number_format($spot['price'], 2); ?> NOK<br>
+                                    <strong>Status:</strong> <?php echo $spot['is_available'] ? 'Ledig' : 'Opptatt'; ?><br>
+                                    <strong>Venteliste:</strong> <?php echo $spot['waiting_count']; ?> på venteliste
+                                </p>
                                 <?php if ($spot['is_available']): ?>
                                     <form method="POST" action="add_to_waiting_list.php">
                                         <input type="hidden" name="spot_id" value="<?php echo $spot['spot_id']; ?>">
-                                        <button type="submit" class="btn btn-pink">Sett på venteliste</button>
+                                        <button type="submit" class="btn btn-pink">Sett deg på venteliste</button>
                                     </form>
                                 <?php endif; ?>
-                            </td>
-                            <?php if ($_SESSION['role'] === 'admin'): ?>
-                                <td>
+                                <?php if ($_SESSION['role'] === 'admin'): ?>
                                     <?php
                                     $contract_result = $conn->query("SELECT contract_file FROM contracts WHERE spot_id = " . (int)$spot['spot_id']);
                                     $contract = $contract_result ? $contract_result->fetch_assoc() : null;
                                     if ($contract && $contract['contract_file']): ?>
-                                        <a href="Uploads/<?php echo htmlspecialchars($contract['contract_file']); ?>" download>Last ned</a>
+                                        <a href="Uploads/<?php echo htmlspecialchars($contract['contract_file']); ?>" download class="btn btn-outline-pink mt-2">Last ned kontrakt</a>
                                     <?php endif; ?>
-                                </td>
-                            <?php endif; ?>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
         <?php endif; ?>
     </div>
 </body>

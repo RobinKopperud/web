@@ -1,20 +1,51 @@
 <?php
+// Start session
 session_start();
+
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 include_once '../../db.php'; // Adjust the path as needed
 
+if (isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit;
+}
+
+$error = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];
     $email = $_POST['email'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $password = $_POST['password'];
 
-    try {
-        $stmt = $conn->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, 'user')");
-        $stmt->execute([$username, $email, $password]);
-        header("Location: login.php?success=Registrering vellykket");
-    } catch(PDOException $e) {
-        $error = "Feil: " . $e->getMessage();
+    // Validate input
+    if (empty($username) || empty($email) || empty($password)) {
+        $error = "Alle felt må fylles ut.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "Ugyldig e-postadresse.";
+    } else {
+        // Check if username or email already exists
+        $username = $conn->real_escape_string($username);
+        $email = $conn->real_escape_string($email);
+        $result = $conn->query("SELECT user_id FROM users WHERE username = '$username' OR email = '$email'");
+        if ($result->num_rows > 0) {
+            $error = "Brukernavn eller e-post er allerede i bruk.";
+        } else {
+            // Hash password and insert user
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $query = "INSERT INTO users (username, email, password, role) VALUES ('$username', '$email', '$hashed_password', 'user')";
+            if ($conn->query($query) === true) {
+                header("Location: login.php?success=Registrering vellykket. Logg inn.");
+                exit;
+            } else {
+                $error = "Registrering feilet: " . $conn->error;
+            }
+        }
     }
 }
+$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="nb">
@@ -26,9 +57,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-gray">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Borettslag Parkering</a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="index.php">Hjem</a>
+                <a class="nav-link" href="parking.php">Parkeringsplasser</a>
+                <a class="nav-link" href="login.php">Logg inn</a>
+            </div>
+        </div>
+    </nav>
+
     <div class="container mt-4">
         <h1>Registrer deg</h1>
-        <?php if (isset($error)): ?>
+        <?php if ($error): ?>
             <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
         <form method="POST" class="needs-validation" novalidate>
@@ -46,6 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <button type="submit" class="btn btn-pink">Registrer</button>
         </form>
+        <p class="mt-3">Har du allerede en konto? <a href="login.php">Logg inn her</a>.</p>
     </div>
 </body>
 </html>

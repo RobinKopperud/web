@@ -1,5 +1,12 @@
 <?php
+// Start session
 session_start();
+
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 include_once '../../db.php'; // Adjust the path as needed
 
 if (isset($_SESSION['user_id'])) {
@@ -14,11 +21,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    try {
-        $stmt = $conn->prepare("SELECT user_id, password, role FROM users WHERE username = ?");
-        $stmt->execute([$username]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Prevent SQL injection by escaping input
+    $username = $conn->real_escape_string($username);
 
+    // Query the users table
+    $result = $conn->query("SELECT user_id, username, password, role FROM users WHERE username = '$username'");
+    if ($result === false) {
+        $error = "Database error: " . $conn->error;
+    } else {
+        $user = $result->fetch_assoc();
         if ($user && password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['role'] = $user['role'];
@@ -27,10 +38,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $error = "Feil brukernavn eller passord.";
         }
-    } catch(PDOException $e) {
-        $error = "Feil: " . $e->getMessage();
     }
 }
+$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="nb">

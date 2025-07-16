@@ -62,11 +62,30 @@ $conn->close();
     <title>Min side - Borettslag Parkering</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .table th, .table td {
+            font-size: 0.9rem;
+            padding: 0.5rem;
+        }
+        @media (max-width: 576px) {
+            .table th, .table td {
+                font-size: 0.8rem;
+                padding: 0.4rem;
+            }
+            .btn {
+                font-size: 0.8rem;
+                padding: 0.25rem 0.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-gray">
         <div class="container-fluid">
-            <a class="navbar-brand" href="index.php">Borettslag Parkering</a>
+            <a class="navbar-brand" href="#">Borettslag Parkering</a>
             <div class="navbar-nav">
                 <a class="nav-link" href="index.php">Hjem</a>
                 <a class="nav-link" href="parking.php">Parkeringsplasser</a>
@@ -88,63 +107,67 @@ $conn->close();
         <?php if (empty($contracts)): ?>
             <p>Du har ingen kontrakter.</p>
         <?php else: ?>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Plass</th>
-                        <th>Anlegg</th>
-                        <th>Kontraktfil</th>
-                        <th>Startdato</th>
-                        <th>Sluttdato</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($contracts as $contract): ?>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
                         <tr>
-                            <td><?php echo htmlspecialchars($contract['spot_number']); ?></td>
-                            <td><?php echo htmlspecialchars($contract['name']); ?></td>
-                            <td><a href="Uploads/<?php echo htmlspecialchars($contract['contract_file']); ?>" download>Last ned</a></td>
-                            <td><?php echo htmlspecialchars($contract['start_date']); ?></td>
-                            <td><?php echo htmlspecialchars($contract['end_date']); ?></td>
+                            <th>Plass</th>
+                            <th>Anlegg</th>
+                            <th>Kontraktfil</th>
+                            <th>Startdato</th>
+                            <th>Sluttdato</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($contracts as $contract): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($contract['spot_number']); ?></td>
+                                <td><?php echo htmlspecialchars($contract['name']); ?></td>
+                                <td><a href="Uploads/<?php echo htmlspecialchars($contract['contract_file']); ?>" download>Last ned</a></td>
+                                <td><?php echo htmlspecialchars($contract['start_date']); ?></td>
+                                <td><?php echo htmlspecialchars($contract['end_date']); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         <?php endif; ?>
 
         <h2>Min venteliste</h2>
         <?php if (empty($waiting_list)): ?>
             <p>Du er ikke på noen venteliste.</p>
         <?php else: ?>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Posisjon</th>
-                        <th>Anlegg</th>
-                        <th>Plass</th>
-                        <th>Plassertype</th>
-                        <th>Påmeldt</th>
-                        <th>Handling</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($waiting_list as $waiting): ?>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
                         <tr>
-                            <td><?php echo htmlspecialchars($waiting['position']); ?></td>
-                            <td><?php echo htmlspecialchars($waiting['facility_name'] ?: 'Ikke spesifisert'); ?></td>
-                            <td><?php echo htmlspecialchars($waiting['spot_number'] ?: 'Ikke spesifisert'); ?></td>
-                            <td><?php echo htmlspecialchars($waiting['spot_type'] ?: 'Ikke spesifisert'); ?></td>
-                            <td><?php echo htmlspecialchars($waiting['created_at']); ?></td>
-                            <td>
-                                <form method="POST" action="remove_from_waiting_list.php">
-                                    <input type="hidden" name="waiting_id" value="<?php echo $waiting['waiting_id']; ?>">
-                                    <button type="submit" class="btn btn-pink">Gå av ventelisten</button>
-                                </form>
-                            </td>
+                            <th>Posisjon</th>
+                            <th>Anlegg</th>
+                            <th>Plass</th>
+                            <th>Plassertype</th>
+                            <th>Påmeldt</th>
+                            <th>Handling</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($waiting_list as $waiting): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($waiting['position']); ?></td>
+                                <td><?php echo htmlspecialchars($waiting['facility_name'] ?: 'Ikke spesifisert'); ?></td>
+                                <td><?php echo htmlspecialchars($waiting['spot_number'] ?: 'Ikke spesifisert'); ?></td>
+                                <td><?php echo htmlspecialchars($waiting['spot_type'] ?: 'Ikke spesifisert'); ?></td>
+                                <td><?php echo htmlspecialchars($waiting['created_at']); ?></td>
+                                <td>
+                                    <form method="POST" action="remove_from_waiting_list.php">
+                                        <input type="hidden" name="waiting_id" value="<?php echo $waiting['waiting_id']; ?>">
+                                        <button type="submit" class="btn btn-pink">Gå av ventelisten</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         <?php endif; ?>
     </div>
 </body>

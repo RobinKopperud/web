@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Validate input
     if (!$facility_id && !$spot_id && !$spot_type) {
-        header("Location: parking.php?error=Velg minst ett kriterium for ventelisten.");
+        header("Location: parking.php" . ($facility_id ? "?facility_id=$facility_id" : "") . "&error=Velg minst ett kriterium for ventelisten.");
         exit;
     }
 
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = $conn->query($query);
 
     if ($result->num_rows > 0) {
-        header("Location: parking.php?error=Du er allerede på ventelisten for denne kombinasjonen.");
+        header("Location: parking.php" . ($facility_id ? "?facility_id=$facility_id" : "") . "&error=Du er allerede på ventelisten for denne kombinasjonen.");
         exit;
     }
 
@@ -55,9 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               VALUES ('$user_id', " . ($facility_id ? "'$facility_id'" : "NULL") . ", " . 
               ($spot_id ? "'$spot_id'" : "NULL") . ", " . ($spot_type ? "'$spot_type'" : "NULL") . ")";
     if ($conn->query($query)) {
-        header("Location: parking.php?success=Du er lagt til i ventelisten.");
+        header("Location: parking.php" . ($facility_id ? "?facility_id=$facility_id" : "") . "&success=Du er lagt til i ventelisten.");
     } else {
-        header("Location: parking.php?error=Feil ved registrering i venteliste: " . $conn->error);
+        header("Location: parking.php" . ($facility_id ? "?facility_id=$facility_id" : "") . "&error=Feil ved registrering i venteliste: " . $conn->error);
     }
     exit;
 }

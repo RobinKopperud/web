@@ -46,7 +46,7 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
   <div>👋 Hei, <?= htmlspecialchars($user['navn']) ?> (<?= $user['rolle'] ?>)</div>
   <div>
     <?php if ($user['rolle'] === 'admin'): ?>
-      <a href="admin.php">Adminpanel</a> |
+      <a href="admin/admin.php">Adminpanel</a> |
     <?php endif; ?>
     <a href="logout.php">Logg ut</a>
   </div>

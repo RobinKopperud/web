@@ -16,12 +16,13 @@ $borettslag_id = $_SESSION['borettslag_id'];
 
 // Hent oppføring for brukeren
 $stmt = $conn->prepare("
-    SELECT v.id, v.anlegg_id, v.`ønsker_lader`, v.registrert, a.navn AS anlegg_navn
+    SELECT v.id, v.anlegg_id, v.onsker_lader, v.registrert, a.navn AS anlegg_navn
     FROM venteliste v
     LEFT JOIN anlegg a ON v.anlegg_id = a.id
     WHERE v.user_id = ? AND v.borettslag_id = ?
     LIMIT 1
 ");
+
 $stmt->bind_param("ii", $user_id, $borettslag_id);
 $stmt->execute();
 $oppføring = $stmt->get_result()->fetch_assoc();
@@ -52,7 +53,7 @@ $oppføring = $stmt->get_result()->fetch_assoc();
         <div class="facility-card">
           <h3>📋 Status</h3>
           <p><strong>Anlegg:</strong> <?= $oppføring['anlegg_navn'] ?? 'Første ledige' ?></p>
-          <p><strong>Ønsker lader:</strong> <?= $oppføring['ønsker_lader'] ? '⚡ Ja' : 'Nei' ?></p>
+          <p><strong>Ønsker lader:</strong> <?= $oppføring['onsker_lader'] ? '⚡ Ja' : 'Nei' ?></p>
           <p><strong>Registrert:</strong> <?= $oppføring['registrert'] ?></p>
 
           <?php

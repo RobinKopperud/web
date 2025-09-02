@@ -20,7 +20,7 @@ if ($user['rolle'] !== 'admin') {
 
 // Hent venteliste med bruker og anlegg
 $stmt = $conn->prepare("
-    SELECT v.id, v.user_id, v.anlegg_id, v.ønsker_lader, v.registrert,
+    SELECT v.id, v.user_id, v.anlegg_id, v.onsker_lader, v.registrert,
            u.navn, u.epost, a.navn AS anlegg_navn
     FROM venteliste v
     JOIN users u ON v.user_id = u.id
@@ -39,7 +39,7 @@ function sjekk_ledig($conn, $v, $borettslag_id) {
         $sql = "SELECT COUNT(*) AS antall 
                 FROM plasser 
                 WHERE anlegg_id = ? AND status = 'ledig'";
-        if ($v['ønsker_lader']) {
+        if ($v['onsker_lader']) {
             $sql .= " AND har_lader = 1";
         }
         $stmt = $conn->prepare($sql);
@@ -50,7 +50,7 @@ function sjekk_ledig($conn, $v, $borettslag_id) {
                 FROM plasser p
                 JOIN anlegg a ON p.anlegg_id = a.id
                 WHERE a.borettslag_id = ? AND p.status = 'ledig'";
-        if ($v['ønsker_lader']) {
+        if ($v['onsker_lader']) {
             $sql .= " AND p.har_lader = 1";
         }
         $stmt = $conn->prepare($sql);
@@ -89,7 +89,7 @@ ob_start();
                 FROM plasser p
                 JOIN anlegg a ON p.anlegg_id = a.id
                 WHERE p.anlegg_id = ? AND p.status = 'ledig' " . 
-                ($v['ønsker_lader'] ? "AND p.har_lader = 1" : "") . "
+                ($v['onsker_lader'] ? "AND p.har_lader = 1" : "") . "
                 LIMIT 1
             ");
             $stmt->bind_param("i", $v['anlegg_id']);
@@ -99,7 +99,7 @@ ob_start();
                 FROM plasser p
                 JOIN anlegg a ON p.anlegg_id = a.id
                 WHERE a.borettslag_id = ? AND p.status = 'ledig' " . 
-                ($v['ønsker_lader'] ? "AND p.har_lader = 1" : "") . "
+                ($v['onsker_lader'] ? "AND p.har_lader = 1" : "") . "
                 LIMIT 1
             ");
             $stmt->bind_param("i", $user['borettslag_id']);
@@ -110,7 +110,7 @@ ob_start();
     <tr>
     <td><?= htmlspecialchars($v['navn']) ?></td>
     <td><?= htmlspecialchars($v['epost']) ?></td>
-    <td><?= $v['ønsker_lader'] ? '⚡ Ja' : 'Nei' ?></td>
+    <td><?= $v['onsker_lader'] ? '⚡ Ja' : 'Nei' ?></td>
     <td><?= $v['anlegg_navn'] ?? 'Første ledige' ?></td>
     <td><?= $v['registrert'] ?></td>
     <td style="color:<?= $ledig_plass ? 'green' : 'red' ?>;">

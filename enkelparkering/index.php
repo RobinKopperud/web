@@ -57,20 +57,29 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <div id="map"></div>
   </section>
   <aside class="sidebar">
-    <h2>Anlegg</h2>
-    <?php foreach ($anlegg as $a): ?>
-      <div class="facility-card">
-        <h3><?= htmlspecialchars($a['navn']) ?></h3>
-        <p>🚗 Totalt: <?= $a['total'] ?></p>
-        <p>✅ Ledige: <?= $a['ledige'] ?></p>
-        <p>🔴 Opptatt: <?= $a['opptatte'] ?></p>
-        <p>🟠 Reservert: <?= $a['reserverte'] ?></p>
-        <?php if ($a['har_ladere']): ?>
-          <p>⚡ Med lader: <?= $a['med_lader'] ?></p>
-        <?php endif; ?>
-      </div>
-    <?php endforeach; ?>
-  </aside>
+  <h2>Anlegg</h2>
+  <?php foreach ($anlegg as $a): ?>
+    <div class="facility-card" id="anlegg-<?= $a['id'] ?>">
+      <h3><?= htmlspecialchars($a['navn']) ?></h3>
+      <p>🚗 Totalt: <?= $a['total'] ?></p>
+      <p>✅ Ledige: <?= $a['ledige'] ?></p>
+      <p>🔴 Opptatt: <?= $a['opptatte'] ?></p>
+      <p>🟠 Reservert: <?= $a['reserverte'] ?></p>
+      <?php if ($a['har_ladere']): ?>
+        <p>⚡ Med lader: <?= $a['med_lader'] ?></p>
+      <?php endif; ?>
+
+      <!-- Venteliste-skjema -->
+      <form method="post" action="venteliste.php">
+        <input type="hidden" name="anlegg_id" value="<?= $a['id'] ?>">
+        <label>
+          <input type="checkbox" name="ønsker_lader" value="1"> Ønsker lader
+        </label><br>
+        <button type="submit">Meld meg på venteliste</button>
+      </form>
+    </div>
+  <?php endforeach; ?>
+</aside>
 </main>
 
 
@@ -90,6 +99,24 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         .bindPopup(a.navn + "<br>Ledige: " + a.ledige + "<br>Opptatt: " + a.opptatte);
     }
   });
+</script>
+<script>
+var anlegg = <?= json_encode($anlegg) ?>;
+
+anlegg.forEach(function(a) {
+  if (a.lat && a.lng) {
+    var marker = L.marker([a.lat, a.lng]).addTo(map).bindPopup(a.navn);
+
+    marker.on('click', function() {
+      var el = document.getElementById("anlegg-" + a.id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        el.classList.add("highlight");
+        setTimeout(() => el.classList.remove("highlight"), 2000);
+      }
+    });
+  }
+});
 </script>
 
 </body>

@@ -76,3 +76,8 @@ main {
   text-decoration: none;
   margin-left: 10px;
 }
+
+.highlight {
+  background-color: #ffeaa7;
+  transition: background-color 1s ease;
+}

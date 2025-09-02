@@ -18,8 +18,8 @@ if ($user['rolle'] !== 'admin') {
     die("Ingen tilgang.");
 }
 
-// Håndter skjema
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Håndter opprettelse
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create') {
     $navn = $_POST['navn'];
     $lat = $_POST['lat'];
     $lng = $_POST['lng'];
@@ -29,12 +29,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("sddii", $navn, $lat, $lng, $har_ladere, $user['borettslag_id']);
     $stmt->execute();
 }
+
+// Håndter sletting
+if (isset($_GET['delete'])) {
+    $id = (int)$_GET['delete'];
+    $stmt = $conn->prepare("DELETE FROM anlegg WHERE id = ? AND borettslag_id = ?");
+    $stmt->bind_param("ii", $id, $user['borettslag_id']);
+    $stmt->execute();
+}
+
+// Hent eksisterende anlegg
+$stmt = $conn->prepare("SELECT * FROM anlegg WHERE borettslag_id = ?");
+$stmt->bind_param("i", $user['borettslag_id']);
+$stmt->execute();
+$anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="no">
 <head>
   <meta charset="UTF-8">
-  <title>Adminpanel – EnkelParkering</title>
+  <title>Admin – Anlegg</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -44,12 +58,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     #map { width: 100%; height: 100%; }
     .sidebar { flex: 1; padding: 1rem; overflow-y: auto; background: #f9f9f9; border-left: 1px solid #ddd; }
     form input, form button { width: 100%; margin-bottom: 1rem; padding: 8px; }
+    .facility-card { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 10px; margin-bottom: 10px; }
+    .facility-card a { color: red; font-size: 0.9em; text-decoration: none; }
   </style>
 </head>
 <body>
   <header class="header">
-    <div>👋 Adminpanel</div>
-    <div><a href="index.php">Tilbake</a></div>
+    <div>⚙️ Adminpanel – Anlegg</div>
+    <div><a href="admin.php">Tilbake</a></div>
   </header>
 
   <main class="admin-container">
@@ -60,6 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <aside class="sidebar">
       <h2>Opprett nytt anlegg</h2>
       <form method="post">
+        <input type="hidden" name="action" value="create">
+
         <label>Navn:</label>
         <input type="text" name="navn" required>
 
@@ -73,6 +91,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <button type="submit">➕ Opprett anlegg</button>
       </form>
+
+      <h2>Eksisterende anlegg</h2>
+      <?php foreach ($anlegg as $a): ?>
+        <div class="facility-card">
+          <strong><?= htmlspecialchars($a['navn']) ?></strong><br>
+          📍 <?= $a['lat'] ?> , <?= $a['lng'] ?><br>
+          ⚡ <?= $a['har_ladere'] ? 'Har ladere' : 'Ingen ladere' ?><br>
+          <a href="?delete=<?= $a['id'] ?>" onclick="return confirm('Sikker på at du vil slette dette anlegget?')">Slett</a>
+        </div>
+      <?php endforeach; ?>
     </aside>
   </main>
 
@@ -93,6 +121,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       tempMarker = L.marker(e.latlng).addTo(map);
       document.getElementById('lat').value = e.latlng.lat.toFixed(6);
       document.getElementById('lng').value = e.latlng.lng.toFixed(6);
+    });
+
+    // Vis eksisterende anlegg som markører
+    var anlegg = <?= json_encode($anlegg) ?>;
+    anlegg.forEach(function(a) {
+      if (a.lat && a.lng) {
+        L.marker([a.lat, a.lng])
+          .addTo(map)
+          .bindPopup(a.navn);
+      }
     });
   </script>
 </body>

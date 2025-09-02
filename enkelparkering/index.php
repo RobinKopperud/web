@@ -111,7 +111,7 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 
   <script>
-  var map = L.map('map').setView([59.899, 10.809], 17);
+  var map = L.map('map').setView([59.8985, 10.8084], 17);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap'

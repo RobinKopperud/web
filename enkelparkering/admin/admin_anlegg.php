@@ -77,13 +77,16 @@ ob_start();
 
     <h2>Eksisterende anlegg</h2>
     <?php foreach ($anlegg as $a): ?>
-      <div class="facility-card">
-        <strong><?= htmlspecialchars($a['navn']) ?></strong><br>
-        📍 <?= $a['lat'] ?> , <?= $a['lng'] ?><br>
-        ⚡ <?= $a['har_ladere'] ? 'Har ladere' : 'Ingen ladere' ?><br>
-        <a href="?delete=<?= $a['id'] ?>" onclick="return confirm('Sikker på at du vil slette dette anlegget?')">Slett</a>
-      </div>
-    <?php endforeach; ?>
+  <div class="facility-card">
+    <strong><?= htmlspecialchars($a['navn']) ?></strong><br>
+    📍 <?= $a['lat'] ?> , <?= $a['lng'] ?><br>
+    ⚡ <?= $a['har_ladere'] ? 'Har ladere' : 'Ingen ladere' ?><br><br>
+
+    <a href="admin_plasser.php?anlegg_id=<?= $a['id'] ?>" class="btn">🔧 Administrer plasser</a><br>
+    <a href="?delete=<?= $a['id'] ?>" onclick="return confirm('Sikker på at du vil slette dette anlegget?')">🗑 Slett</a>
+  </div>
+<?php endforeach; ?>
+
   </aside>
 </div>
 

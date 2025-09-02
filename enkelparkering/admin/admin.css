@@ -122,6 +122,21 @@ body {
   font-size: 0.9em;
   text-decoration: none;
 }
+.facility-card a.btn {
+  display: inline-block;
+  margin-bottom: 5px;
+  padding: 6px 10px;
+  background: #40739e;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.facility-card a.btn:hover {
+  background: #273c75;
+}
+
 
 /* Forms */
 form input, form select, form button {

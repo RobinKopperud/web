@@ -77,7 +77,7 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         Ønsker lader
     </label>
     <button type="submit" <?= $er_på_venteliste ? 'disabled style="background:#ccc; cursor:not-allowed;"' : '' ?>>
-        ➕ Meld meg på venteliste
+        ➕ Meld meg på venteliste for første ledige plass i borettslaget
     </button>
     </form>
 
@@ -100,7 +100,7 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             Ønsker lader
         </label>
         <button type="submit" <?= $er_på_venteliste ? 'disabled style="background:#ccc; cursor:not-allowed;"' : '' ?>>
-            ➕ Meld meg på venteliste
+            ➕ Meld meg på venteliste for dette anlegget
         </button>
         </form>
     </div>

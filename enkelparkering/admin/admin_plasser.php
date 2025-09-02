@@ -18,13 +18,12 @@ if ($user['rolle'] !== 'admin') {
     die("Ingen tilgang.");
 }
 
-// Håndter ny plass
+// Håndter opprettelse av én plass
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
-    $anlegg_id = $_POST['anlegg_id'];
-    $nummer = $_POST['nummer'];
+    $anlegg_id = (int)$_POST['anlegg_id'];
+    $nummer = trim($_POST['nummer']);
     $har_lader = isset($_POST['har_lader']) ? 1 : 0;
 
-    // Sjekk om plassnummer allerede finnes i dette anlegget
     $stmt = $conn->prepare("SELECT id FROM plasser WHERE anlegg_id = ? AND nummer = ?");
     $stmt->bind_param("is", $anlegg_id, $nummer);
     $stmt->execute();
@@ -40,6 +39,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
     }
 }
 
+// Håndter bulk-opprettelse
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'bulk_create') {
+    $anlegg_id = (int)$_POST['anlegg_id'];
+    $start = (int)$_POST['start'];
+    $count = (int)$_POST['count'];
+    $har_lader = isset($_POST['har_lader']) ? 1 : 0;
+
+    $opprettet = [];
+    $hoppet_over = [];
+
+    for ($i = 0; $i < $count; $i++) {
+        $nummer = (string)($start + $i);
+
+        $stmt = $conn->prepare("SELECT id FROM plasser WHERE anlegg_id = ? AND nummer = ?");
+        $stmt->bind_param("is", $anlegg_id, $nummer);
+        $stmt->execute();
+        $exists = $stmt->get_result()->num_rows > 0;
+
+        if ($exists) {
+            $hoppet_over[] = $nummer;
+        } else {
+            $stmt = $conn->prepare("INSERT INTO plasser (anlegg_id, nummer, har_lader) VALUES (?, ?, ?)");
+            $stmt->bind_param("isi", $anlegg_id, $nummer, $har_lader);
+            $stmt->execute();
+            $opprettet[] = $nummer;
+        }
+    }
+
+    echo "<div style='margin:10px 0; padding:10px; border:1px solid #ccc; background:#f9f9f9;'>";
+    if ($opprettet) {
+        echo "<p style='color:green;'>✅ Opprettet: " . implode(", ", $opprettet) . "</p>";
+    }
+    if ($hoppet_over) {
+        echo "<p style='color:orange;'>⚠️ Hoppet over (fantes fra før): " . implode(", ", $hoppet_over) . "</p>";
+    }
+    echo "</div>";
+}
 
 // Hent alle anlegg for dropdown
 $stmt = $conn->prepare("SELECT * FROM anlegg WHERE borettslag_id = ?");
@@ -108,6 +144,22 @@ ob_start();
     <label><input type="checkbox" name="har_lader"> Har lader</label><br><br>
 
     <button type="submit">➕ Opprett plass</button>
+  </form>
+
+  <h3>Legg til flere plasser</h3>
+  <form method="post">
+    <input type="hidden" name="action" value="bulk_create">
+    <input type="hidden" name="anlegg_id" value="<?= $valgt_anlegg_id ?>">
+
+    <label>Startnummer:</label>
+    <input type="number" name="start" value="1" required>
+
+    <label>Antall plasser:</label>
+    <input type="number" name="count" value="10" required>
+
+    <label><input type="checkbox" name="har_lader"> Har lader (alle)</label><br><br>
+
+    <button type="submit">➕ Opprett plasser</button>
   </form>
 <?php endif; ?>
 

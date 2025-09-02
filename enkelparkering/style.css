@@ -1,42 +1,20 @@
-/* enkelparkering/style.css */
-
-/* Main-seksjon med delt layout (vertikalt) */
-main {
+/* === Layout === */
+main,
+.dashboard {
   flex: 1;
   display: flex;
-  flex-direction: row;  /* side-ved-side */
-  height: calc(100vh - 60px); /* juster minus header/footer */
-}
-
-/* Kartcontainer (60%) */
-#map {
-  flex: 6;
-  width: 100%;
-  height: 100%;
-}
-
-/* Info-/kontrollseksjon (40%) */
-#controls {
-  flex: 4;
-  background: #fff;
-  padding: 20px;
-  border-left: 1px solid #ddd;
-  overflow-y: auto;
-}
-/* Layout container */
-.dashboard {
-  display: flex;
-  flex-direction: row;   /* side-ved-side */
+  flex-direction: row;
   height: calc(100vh - 60px); /* full høyde minus header */
 }
 
 /* Kartområde (60%) */
 .map-area {
   flex: 6;
-  padding: 0; /* fjern padding for full width */
+  padding: 0;
 }
 
 #map {
+  flex: 6;
   width: 100%;
   height: 100%;
   border: none;
@@ -52,7 +30,7 @@ main {
   overflow-y: auto;
 }
 
-/* Anleggskort */
+/* === Kort === */
 .facility-card {
   background: white;
   border: 1px solid #ddd;
@@ -61,27 +39,7 @@ main {
   margin-bottom: 1rem;
 }
 
-/* Header */
-.header {
-  background: #2c3e50;
-  color: white;
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.header a {
-  color: white;
-  text-decoration: none;
-  margin-left: 10px;
-}
-
-.highlight {
-  background-color: #ffeaa7;
-  transition: background-color 1s ease;
-}
-/* Venteliste-skjema i sidebar */
+/* Venteliste-skjema i kort */
 .facility-card form {
   margin-top: 12px;
   padding-top: 10px;
@@ -99,12 +57,13 @@ main {
 
 .facility-card input[type="checkbox"] {
   margin-right: 8px;
-  transform: scale(1.2); /* gjør den litt større */
+  transform: scale(1.2);
   cursor: pointer;
 }
 
 .facility-card button {
   display: inline-block;
+  width: 100%;
   padding: 8px 14px;
   background: #40739e;
   color: white;
@@ -117,4 +76,26 @@ main {
 
 .facility-card button:hover {
   background: #273c75;
+}
+
+/* === Header === */
+.header {
+  background: #2c3e50;
+  color: white;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header a {
+  color: white;
+  text-decoration: none;
+  margin-left: 10px;
+}
+
+/* Highlight (kart → sidebar) */
+.highlight {
+  background-color: #ffeaa7;
+  transition: background-color 1s ease;
 }

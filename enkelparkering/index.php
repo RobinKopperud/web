@@ -17,7 +17,7 @@ $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 
 // Hent anlegg + oppsummering fra plasser
-$sql = "SELECT a.id, a.navn, a.lat, a.lng,
+$sql = "SELECT a.id, a.navn, a.type, a.lat, a.lng,
         COUNT(p.id) as total,
         SUM(p.status = 'ledig') as ledige,
         SUM(p.status = 'opptatt') as opptatte,
@@ -61,25 +61,27 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
   <h2>Anlegg</h2>
   <?php foreach ($anlegg as $a): ?>
     <div class="facility-card" id="anlegg-<?= $a['id'] ?>">
-        <h3><?= htmlspecialchars($a['navn']) ?></h3>
-        <p>🚗 Totalt: <?= $a['total'] ?></p>
-        <p>✅ Ledige: <?= $a['ledige'] ?></p>
-        <p>🔴 Opptatt: <?= $a['opptatte'] ?></p>
-        <p>🟠 Reservert: <?= $a['reserverte'] ?></p>
-        <p>⚡ Med lader: <?= $a['med_lader'] ?></p>
-    </div>
+      <h3><?= htmlspecialchars($a['navn']) ?></h3>
+      <p>🏗 Type: <?= ucfirst($a['type']) ?></p>
+      <p>🚗 Totalt: <?= $a['total'] ?></p>
+      <p>✅ Ledige: <?= $a['ledige'] ?></p>
+      <p>🔴 Opptatt: <?= $a['opptatte'] ?></p>
+      <p>🟠 Reservert: <?= $a['reserverte'] ?></p>
+      <p>⚡ Med lader: <?= $a['med_lader'] ?></p>
 
       <!-- Venteliste-skjema -->
       <form method="post" action="venteliste.php">
         <input type="hidden" name="anlegg_id" value="<?= $a['id'] ?>">
         <label>
-          <input type="checkbox" name="ønsker_lader" value="1"> Ønsker lader
-        </label><br>
-        <button type="submit">Meld meg på venteliste</button>
+          <input type="checkbox" name="ønsker_lader" value="1">
+          Ønsker lader
+        </label>
+        <button type="submit">➕ Meld meg på venteliste</button>
       </form>
     </div>
   <?php endforeach; ?>
 </aside>
+
 </main>
 
 
@@ -97,6 +99,7 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
       let marker = L.marker([a.lat, a.lng]).addTo(map)
         .bindPopup(`
           <strong>${a.navn}</strong><br>
+          🏗 Type: ${a.type}<br>
           🚗 Totalt: ${a.total}<br>
           ✅ Ledige: ${a.ledige}<br>
           🔴 Opptatt: ${a.opptatte}<br>

@@ -19,16 +19,18 @@ if ($user['rolle'] !== 'admin') {
 }
 
 // Håndter opprettelse
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
     $navn = $_POST['navn'];
     $lat = $_POST['lat'];
     $lng = $_POST['lng'];
     $har_ladere = isset($_POST['har_ladere']) ? 1 : 0;
+    $type = $_POST['type'];
 
-    $stmt = $conn->prepare("INSERT INTO anlegg (navn, lat, lng, har_ladere, borettslag_id) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("sddii", $navn, $lat, $lng, $har_ladere, $user['borettslag_id']);
+    $stmt = $conn->prepare("INSERT INTO anlegg (navn, lat, lng, har_ladere, type, borettslag_id) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sddisi", $navn, $lat, $lng, $har_ladere, $type, $user['borettslag_id']);
     $stmt->execute();
 }
+
 
 // Håndter sletting
 if (isset($_GET['delete'])) {
@@ -70,6 +72,12 @@ ob_start();
       <label>Lengdegrad (lng):</label>
       <input type="text" name="lng" id="lng" readonly required>
 
+      <label>Type anlegg:</label>
+        <select name="type" required>
+            <option value="ute">Ute</option>
+            <option value="garasje">Garasje</option>
+        </select>
+
       <label><input type="checkbox" name="har_ladere"> Har ladere</label><br><br>
 
       <button type="submit">➕ Opprett anlegg</button>
@@ -78,13 +86,14 @@ ob_start();
     <h2>Eksisterende anlegg</h2>
     <?php foreach ($anlegg as $a): ?>
   <div class="facility-card">
-    <strong><?= htmlspecialchars($a['navn']) ?></strong><br>
-    📍 <?= $a['lat'] ?> , <?= $a['lng'] ?><br>
-    ⚡ <?= $a['har_ladere'] ? 'Har ladere' : 'Ingen ladere' ?><br><br>
+  <strong><?= htmlspecialchars($a['navn']) ?></strong><br>
+  📍 <?= $a['lat'] ?> , <?= $a['lng'] ?><br>
+  🏗 Type: <?= ucfirst($a['type']) ?><br>
+  ⚡ <?= $a['har_ladere'] ? 'Har ladere' : 'Ingen ladere' ?><br><br>
+  <a href="admin_plasser.php?anlegg_id=<?= $a['id'] ?>" class="btn">🔧 Administrer plasser</a><br>
+  <a href="?delete=<?= $a['id'] ?>" onclick="return confirm('Sikker på at du vil slette dette anlegget?')">🗑 Slett</a>
+</div>
 
-    <a href="admin_plasser.php?anlegg_id=<?= $a['id'] ?>" class="btn">🔧 Administrer plasser</a><br>
-    <a href="?delete=<?= $a['id'] ?>" onclick="return confirm('Sikker på at du vil slette dette anlegget?')">🗑 Slett</a>
-  </div>
 <?php endforeach; ?>
 
   </aside>

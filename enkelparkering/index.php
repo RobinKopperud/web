@@ -40,15 +40,6 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <style>
-    .dashboard { display: flex; height: calc(100vh - 80px); }
-    .map-area { flex: 3; padding: 1rem; }
-    #map { width: 100%; height: 100%; border-radius: 8px; border: 1px solid #ccc; }
-    .sidebar { flex: 2; padding: 1rem; background: #f9f9f9; border-left: 1px solid #ddd; overflow-y: auto; }
-    .facility-card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
-    .header { background: #2c3e50; color: white; padding: 1rem; display: flex; justify-content: space-between; }
-    .header a { color: white; text-decoration: none; }
-  </style>
 </head>
 <body>
   <header class="header">
@@ -84,20 +75,22 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 
   <script>
-    var map = L.map('map').setView([59.91, 10.75], 13); // Oslo sentrum
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap'
-    }).addTo(map);
+  var map = L.map('map').setView([59.91, 10.75], 13);
 
-    // Dummy markører for anlegg
-    var anleggMarkers = [
-      {navn: "Garasjeanlegg A", coords: [59.911, 10.75]},
-      {navn: "Utendørs felt B", coords: [59.915, 10.76]},
-      {navn: "Blokk 1 kjeller", coords: [59.909, 10.74]}
-    ];
-    anleggMarkers.forEach(a => {
-      L.marker(a.coords).addTo(map).bindPopup(a.navn);
-    });
-  </script>
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
+
+  var anlegg = <?= json_encode($anlegg) ?>;
+
+  anlegg.forEach(function(a) {
+    if (a.lat && a.lng) {
+      L.marker([a.lat, a.lng])
+        .addTo(map)
+        .bindPopup(a.navn + "<br>Ledige: " + a.ledige + "<br>Opptatt: " + a.opptatte);
+    }
+  });
+</script>
+
 </body>
 </html>

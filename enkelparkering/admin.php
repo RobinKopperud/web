@@ -2,44 +2,33 @@
 session_start();
 include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 
-// Sjekk innlogging
-if (!isset($_SESSION['user_id']) || $_SESSION['rolle'] !== 'admin') {
+// Sjekk admin
+if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
 }
 
-// Hent anlegg og plasser for borettslaget
-$borettslag_id = $_SESSION['borettslag_id'];
-
-$sql = "SELECT a.id AS anlegg_id, a.navn AS anlegg_navn,
-        p.id AS plass_id, p.nummer, p.status, p.har_lader,
-        u.navn AS beboer, p.kontrakt_nr, p.fra_dato, p.til_dato
-        FROM anlegg a
-        LEFT JOIN plasser p ON a.id = p.anlegg_id
-        LEFT JOIN users u ON p.beboer_id = u.id
-        WHERE a.borettslag_id = ?
-        ORDER BY a.id, p.nummer";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $borettslag_id);
+$user_id = $_SESSION['user_id'];
+$stmt = $conn->prepare("SELECT rolle, borettslag_id FROM users WHERE id = ?");
+$stmt->bind_param("i", $user_id);
 $stmt->execute();
-$result = $stmt->get_result();
+$user = $stmt->get_result()->fetch_assoc();
 
-$anlegg = [];
-while ($row = $result->fetch_assoc()) {
-    $anlegg[$row['anlegg_navn']][] = $row;
+if ($user['rolle'] !== 'admin') {
+    die("Ingen tilgang.");
 }
 
-// Hent venteliste
-$sql = "SELECT v.id, u.navn, u.epost, v.anlegg_id, v.ønsker_lader, v.registrert, a.navn AS anlegg_navn
-        FROM venteliste v
-        JOIN users u ON v.user_id = u.id
-        LEFT JOIN anlegg a ON v.anlegg_id = a.id
-        WHERE v.borettslag_id = ?
-        ORDER BY v.registrert ASC";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $borettslag_id);
-$stmt->execute();
-$venteliste = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+// Håndter skjema
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $navn = $_POST['navn'];
+    $lat = $_POST['lat'];
+    $lng = $_POST['lng'];
+    $har_ladere = isset($_POST['har_ladere']) ? 1 : 0;
+
+    $stmt = $conn->prepare("INSERT INTO anlegg (navn, lat, lng, har_ladere, borettslag_id) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("sddii", $navn, $lat, $lng, $har_ladere, $user['borettslag_id']);
+    $stmt->execute();
+}
 ?>
 <!DOCTYPE html>
 <html lang="no">
@@ -47,84 +36,64 @@ $venteliste = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
   <meta charset="UTF-8">
   <title>Adminpanel – EnkelParkering</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; background: #f5f7fa; padding: 1rem; }
-    h1, h2 { color: #2c3e50; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; }
-    th, td { padding: 0.5rem; border: 1px solid #ddd; text-align: left; }
-    th { background: #2c3e50; color: white; }
-    tr:nth-child(even) { background: #f9f9f9; }
-    .btn { padding: 0.4rem 0.8rem; border: none; border-radius: 4px; cursor: pointer; }
-    .btn-frigi { background: #e74c3c; color: white; }
-    .btn-tildel { background: #27ae60; color: white; }
+    .admin-container { display: flex; height: calc(100vh - 60px); }
+    .map-area { flex: 2; }
+    #map { width: 100%; height: 100%; }
+    .sidebar { flex: 1; padding: 1rem; overflow-y: auto; background: #f9f9f9; border-left: 1px solid #ddd; }
+    form input, form button { width: 100%; margin-bottom: 1rem; padding: 8px; }
   </style>
 </head>
 <body>
-  <h1>Adminpanel – <?= htmlspecialchars($_SESSION['rolle']) ?></h1>
-  <p><a href="index.php">⬅ Tilbake til oversikt</a> | <a href="logout.php">Logg ut</a></p>
+  <header class="header">
+    <div>👋 Adminpanel</div>
+    <div><a href="index.php">Tilbake</a></div>
+  </header>
 
-  <?php foreach ($anlegg as $anleggNavn => $plasser): ?>
-    <h2><?= htmlspecialchars($anleggNavn) ?></h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Plassnr</th>
-          <th>Status</th>
-          <th>Lader</th>
-          <th>Beboer</th>
-          <th>Kontrakt</th>
-          <th>Fra</th>
-          <th>Til</th>
-          <th>Handling</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php foreach ($plasser as $p): ?>
-          <tr>
-            <td><?= htmlspecialchars($p['nummer']) ?></td>
-            <td><?= htmlspecialchars($p['status']) ?></td>
-            <td><?= $p['har_lader'] ? "⚡" : "–" ?></td>
-            <td><?= $p['beboer'] ? htmlspecialchars($p['beboer']) : "-" ?></td>
-            <td><?= $p['kontrakt_nr'] ?: "-" ?></td>
-            <td><?= $p['fra_dato'] ?: "-" ?></td>
-            <td><?= $p['til_dato'] ?: "-" ?></td>
-            <td>
-              <?php if ($p['status'] === 'opptatt'): ?>
-                <button class="btn btn-frigi">Frigi</button>
-              <?php else: ?>
-                <button class="btn btn-tildel">Tildel</button>
-              <?php endif; ?>
-            </td>
-          </tr>
-        <?php endforeach; ?>
-      </tbody>
-    </table>
-  <?php endforeach; ?>
+  <main class="admin-container">
+    <section class="map-area">
+      <div id="map"></div>
+    </section>
 
-  <h2>Venteliste</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Navn</th>
-        <th>E-post</th>
-        <th>Anlegg</th>
-        <th>Ønsker lader</th>
-        <th>Registrert</th>
-        <th>Handling</th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php foreach ($venteliste as $v): ?>
-        <tr>
-          <td><?= htmlspecialchars($v['navn']) ?></td>
-          <td><?= htmlspecialchars($v['epost']) ?></td>
-          <td><?= $v['anlegg_navn'] ?: "Generell" ?></td>
-          <td><?= $v['ønsker_lader'] ? "Ja" : "Nei" ?></td>
-          <td><?= $v['registrert'] ?></td>
-          <td><button class="btn btn-tildel">Tildel plass</button></td>
-        </tr>
-      <?php endforeach; ?>
-    </tbody>
-  </table>
+    <aside class="sidebar">
+      <h2>Opprett nytt anlegg</h2>
+      <form method="post">
+        <label>Navn:</label>
+        <input type="text" name="navn" required>
+
+        <label>Breddegrad (lat):</label>
+        <input type="text" name="lat" id="lat" readonly required>
+
+        <label>Lengdegrad (lng):</label>
+        <input type="text" name="lng" id="lng" readonly required>
+
+        <label><input type="checkbox" name="har_ladere"> Har ladere</label><br><br>
+
+        <button type="submit">➕ Opprett anlegg</button>
+      </form>
+    </aside>
+  </main>
+
+  <script>
+    var map = L.map('map').setView([59.91, 10.75], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    var tempMarker;
+
+    // Klikk på kart → sett markør og oppdater input
+    map.on('click', function(e) {
+      if (tempMarker) {
+        map.removeLayer(tempMarker);
+      }
+      tempMarker = L.marker(e.latlng).addTo(map);
+      document.getElementById('lat').value = e.latlng.lat.toFixed(6);
+      document.getElementById('lng').value = e.latlng.lng.toFixed(6);
+    });
+  </script>
 </body>
 </html>

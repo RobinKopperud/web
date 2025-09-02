@@ -4,7 +4,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 
 // Sjekk admin
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: ../login.php");
     exit;
 }
 
@@ -43,95 +43,83 @@ $stmt = $conn->prepare("SELECT * FROM anlegg WHERE borettslag_id = ?");
 $stmt->bind_param("i", $user['borettslag_id']);
 $stmt->execute();
 $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+// --- Layout variabler ---
+$title = "Anlegg";
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="no">
-<head>
-  <meta charset="UTF-8">
-  <title>Admin – Anlegg</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <style>
-    .admin-container { display: flex; height: calc(100vh - 60px); }
-    .map-area { flex: 2; }
-    #map { width: 100%; height: 100%; }
-    .sidebar { flex: 1; padding: 1rem; overflow-y: auto; background: #f9f9f9; border-left: 1px solid #ddd; }
-    form input, form button { width: 100%; margin-bottom: 1rem; padding: 8px; }
-    .facility-card { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 10px; margin-bottom: 10px; }
-    .facility-card a { color: red; font-size: 0.9em; text-decoration: none; }
-  </style>
-</head>
-<body>
-  <header class="header">
-    <div>⚙️ Adminpanel – Anlegg</div>
-    <div><a href="admin.php">Tilbake</a></div>
-  </header>
 
-  <main class="admin-container">
-    <section class="map-area">
-      <div id="map"></div>
-    </section>
+<h1>Administrer anlegg</h1>
 
-    <aside class="sidebar">
-      <h2>Opprett nytt anlegg</h2>
-      <form method="post">
-        <input type="hidden" name="action" value="create">
+<div class="admin-container">
+  <section class="map-area">
+    <div id="map"></div>
+  </section>
 
-        <label>Navn:</label>
-        <input type="text" name="navn" required>
+  <aside class="sidebar">
+    <h2>Opprett nytt anlegg</h2>
+    <form method="post">
+      <input type="hidden" name="action" value="create">
 
-        <label>Breddegrad (lat):</label>
-        <input type="text" name="lat" id="lat" readonly required>
+      <label>Navn:</label>
+      <input type="text" name="navn" required>
 
-        <label>Lengdegrad (lng):</label>
-        <input type="text" name="lng" id="lng" readonly required>
+      <label>Breddegrad (lat):</label>
+      <input type="text" name="lat" id="lat" readonly required>
 
-        <label><input type="checkbox" name="har_ladere"> Har ladere</label><br><br>
+      <label>Lengdegrad (lng):</label>
+      <input type="text" name="lng" id="lng" readonly required>
 
-        <button type="submit">➕ Opprett anlegg</button>
-      </form>
+      <label><input type="checkbox" name="har_ladere"> Har ladere</label><br><br>
 
-      <h2>Eksisterende anlegg</h2>
-      <?php foreach ($anlegg as $a): ?>
-        <div class="facility-card">
-          <strong><?= htmlspecialchars($a['navn']) ?></strong><br>
-          📍 <?= $a['lat'] ?> , <?= $a['lng'] ?><br>
-          ⚡ <?= $a['har_ladere'] ? 'Har ladere' : 'Ingen ladere' ?><br>
-          <a href="?delete=<?= $a['id'] ?>" onclick="return confirm('Sikker på at du vil slette dette anlegget?')">Slett</a>
-        </div>
-      <?php endforeach; ?>
-    </aside>
-  </main>
+      <button type="submit">➕ Opprett anlegg</button>
+    </form>
 
-  <script>
-    var map = L.map('map').setView([59.91, 10.75], 13);
+    <h2>Eksisterende anlegg</h2>
+    <?php foreach ($anlegg as $a): ?>
+      <div class="facility-card">
+        <strong><?= htmlspecialchars($a['navn']) ?></strong><br>
+        📍 <?= $a['lat'] ?> , <?= $a['lng'] ?><br>
+        ⚡ <?= $a['har_ladere'] ? 'Har ladere' : 'Ingen ladere' ?><br>
+        <a href="?delete=<?= $a['id'] ?>" onclick="return confirm('Sikker på at du vil slette dette anlegget?')">Slett</a>
+      </div>
+    <?php endforeach; ?>
+  </aside>
+</div>
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap'
-    }).addTo(map);
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
-    var tempMarker;
+<script>
+  var map = L.map('map').setView([59.91, 10.75], 13);
 
-    // Klikk på kart → sett markør og oppdater input
-    map.on('click', function(e) {
-      if (tempMarker) {
-        map.removeLayer(tempMarker);
-      }
-      tempMarker = L.marker(e.latlng).addTo(map);
-      document.getElementById('lat').value = e.latlng.lat.toFixed(6);
-      document.getElementById('lng').value = e.latlng.lng.toFixed(6);
-    });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
 
-    // Vis eksisterende anlegg som markører
-    var anlegg = <?= json_encode($anlegg) ?>;
-    anlegg.forEach(function(a) {
-      if (a.lat && a.lng) {
-        L.marker([a.lat, a.lng])
-          .addTo(map)
-          .bindPopup(a.navn);
-      }
-    });
-  </script>
-</body>
-</html>
+  var tempMarker;
+
+  // Klikk på kart → sett markør og oppdater input
+  map.on('click', function(e) {
+    if (tempMarker) {
+      map.removeLayer(tempMarker);
+    }
+    tempMarker = L.marker(e.latlng).addTo(map);
+    document.getElementById('lat').value = e.latlng.lat.toFixed(6);
+    document.getElementById('lng').value = e.latlng.lng.toFixed(6);
+  });
+
+  // Vis eksisterende anlegg som markører
+  var anlegg = <?= json_encode($anlegg) ?>;
+  anlegg.forEach(function(a) {
+    if (a.lat && a.lng) {
+      L.marker([a.lat, a.lng])
+        .addTo(map)
+        .bindPopup(a.navn);
+    }
+  });
+</script>
+
+<?php
+$content = ob_get_clean();
+include "admin_layout.php";

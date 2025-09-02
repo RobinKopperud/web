@@ -36,7 +36,6 @@ if (isset($_POST['register'])) {
     $passord = password_hash(trim($_POST['passord']), PASSWORD_DEFAULT);
     $kode = trim($_POST['kode']); // borettslagskode
 
-    // Sjekk at borettslagskode finnes
     $sql = "SELECT id FROM borettslag WHERE kode = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $kode);
@@ -49,22 +48,78 @@ if (isset($_POST['register'])) {
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("isss", $borettslag['id'], $navn, $email, $passord);
         if ($stmt->execute()) {
-            $message = "Bruker opprettet. Logg inn nå.";
+            $message = "✅ Bruker opprettet. Logg inn nå.";
         } else {
             $message = "Feil: " . $conn->error;
         }
     } else {
-        $message = "Ugyldig kode fra borettslaget.";
+        $message = "❌ Ugyldig kode fra borettslaget.";
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="no">
 <head>
   <meta charset="UTF-8">
   <title>Logg inn – EnkelParkering</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .login-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      width: 320px;
+    }
+    .login-container h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #2c3e50;
+    }
+    form {
+      margin-bottom: 1.5rem;
+    }
+    form h2 {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      color: #2c3e50;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #40739e;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #273c75;
+    }
+    .message {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: red;
+    }
+  </style>
 </head>
 <body>
   <div class="login-container">

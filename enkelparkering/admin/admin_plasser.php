@@ -24,10 +24,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
     $nummer = $_POST['nummer'];
     $har_lader = isset($_POST['har_lader']) ? 1 : 0;
 
-    $stmt = $conn->prepare("INSERT INTO plasser (anlegg_id, nummer, har_lader) VALUES (?, ?, ?)");
-    $stmt->bind_param("isi", $anlegg_id, $nummer, $har_lader);
+    // Sjekk om plassnummer allerede finnes i dette anlegget
+    $stmt = $conn->prepare("SELECT id FROM plasser WHERE anlegg_id = ? AND nummer = ?");
+    $stmt->bind_param("is", $anlegg_id, $nummer);
     $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        echo "<p style='color:red;'>❌ Plassnummeret finnes allerede i dette anlegget.</p>";
+    } else {
+        $stmt = $conn->prepare("INSERT INTO plasser (anlegg_id, nummer, har_lader) VALUES (?, ?, ?)");
+        $stmt->bind_param("isi", $anlegg_id, $nummer, $har_lader);
+        $stmt->execute();
+        echo "<p style='color:green;'>✅ Plass opprettet!</p>";
+    }
 }
+
 
 // Hent alle anlegg for dropdown
 $stmt = $conn->prepare("SELECT * FROM anlegg WHERE borettslag_id = ?");

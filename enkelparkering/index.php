@@ -16,8 +16,8 @@ $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 
-// Hent anlegg + plasser
-$sql = "SELECT a.id, a.navn, a.har_ladere,
+// Hent anlegg + oppsummering fra plasser
+$sql = "SELECT a.id, a.navn, a.lat, a.lng,
         COUNT(p.id) as total,
         SUM(p.status = 'ledig') as ledige,
         SUM(p.status = 'opptatt') as opptatte,
@@ -31,6 +31,7 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user['borettslag_id']);
 $stmt->execute();
 $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
 ?>
 <!DOCTYPE html>
 <html lang="no">
@@ -60,14 +61,13 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
   <h2>Anlegg</h2>
   <?php foreach ($anlegg as $a): ?>
     <div class="facility-card" id="anlegg-<?= $a['id'] ?>">
-      <h3><?= htmlspecialchars($a['navn']) ?></h3>
-      <p>🚗 Totalt: <?= $a['total'] ?></p>
-      <p>✅ Ledige: <?= $a['ledige'] ?></p>
-      <p>🔴 Opptatt: <?= $a['opptatte'] ?></p>
-      <p>🟠 Reservert: <?= $a['reserverte'] ?></p>
-      <?php if ($a['har_ladere']): ?>
+        <h3><?= htmlspecialchars($a['navn']) ?></h3>
+        <p>🚗 Totalt: <?= $a['total'] ?></p>
+        <p>✅ Ledige: <?= $a['ledige'] ?></p>
+        <p>🔴 Opptatt: <?= $a['opptatte'] ?></p>
+        <p>🟠 Reservert: <?= $a['reserverte'] ?></p>
         <p>⚡ Med lader: <?= $a['med_lader'] ?></p>
-      <?php endif; ?>
+    </div>
 
       <!-- Venteliste-skjema -->
       <form method="post" action="venteliste.php">
@@ -94,30 +94,29 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
   anlegg.forEach(function(a) {
     if (a.lat && a.lng) {
-      L.marker([a.lat, a.lng])
-        .addTo(map)
-        .bindPopup(a.navn + "<br>Ledige: " + a.ledige + "<br>Opptatt: " + a.opptatte);
+      let marker = L.marker([a.lat, a.lng]).addTo(map)
+        .bindPopup(`
+          <strong>${a.navn}</strong><br>
+          🚗 Totalt: ${a.total}<br>
+          ✅ Ledige: ${a.ledige}<br>
+          🔴 Opptatt: ${a.opptatte}<br>
+          🟠 Reservert: ${a.reserverte}<br>
+          ⚡ Med lader: ${a.med_lader}
+        `);
+
+      // Klikk på markør → scroll sidebar
+      marker.on('click', function() {
+        var el = document.getElementById("anlegg-" + a.id);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          el.classList.add("highlight");
+          setTimeout(() => el.classList.remove("highlight"), 2000);
+        }
+      });
     }
   });
 </script>
-<script>
-var anlegg = <?= json_encode($anlegg) ?>;
 
-anlegg.forEach(function(a) {
-  if (a.lat && a.lng) {
-    var marker = L.marker([a.lat, a.lng]).addTo(map).bindPopup(a.navn);
-
-    marker.on('click', function() {
-      var el = document.getElementById("anlegg-" + a.id);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        el.classList.add("highlight");
-        setTimeout(() => el.classList.remove("highlight"), 2000);
-      }
-    });
-  }
-});
-</script>
 
 </body>
 </html>

@@ -51,36 +51,37 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
   </style>
 </head>
 <body>
-  <div class="header">
-    <div>👋 Hei, <?= htmlspecialchars($user['navn']) ?> (<?= $user['rolle'] ?>)</div>
-    <div>
-      <?php if ($user['rolle'] === 'admin'): ?>
-        <a href="admin.php">Adminpanel</a> |
-      <?php endif; ?>
-      <a href="logout.php">Logg ut</a>
-    </div>
+  <header class="header">
+  <div>👋 Hei, <?= htmlspecialchars($user['navn']) ?> (<?= $user['rolle'] ?>)</div>
+  <div>
+    <?php if ($user['rolle'] === 'admin'): ?>
+      <a href="admin.php">Adminpanel</a> |
+    <?php endif; ?>
+    <a href="logout.php">Logg ut</a>
   </div>
+</header>
 
-  <main class="dashboard">
-    <section class="map-area">
-      <div id="map"></div>
-    </section>
-    <aside class="sidebar">
-      <h2>Anlegg</h2>
-      <?php foreach ($anlegg as $a): ?>
-        <div class="facility-card">
-          <h3><?= htmlspecialchars($a['navn']) ?></h3>
-          <p>🚗 Totalt: <?= $a['total'] ?></p>
-          <p>✅ Ledige: <?= $a['ledige'] ?></p>
-          <p>🔴 Opptatt: <?= $a['opptatte'] ?></p>
-          <p>🟠 Reservert: <?= $a['reserverte'] ?></p>
-          <?php if ($a['har_ladere']): ?>
-            <p>⚡ Med lader: <?= $a['med_lader'] ?></p>
-          <?php endif; ?>
-        </div>
-      <?php endforeach; ?>
-    </aside>
-  </main>
+<main class="dashboard">
+  <section class="map-area">
+    <div id="map"></div>
+  </section>
+  <aside class="sidebar">
+    <h2>Anlegg</h2>
+    <?php foreach ($anlegg as $a): ?>
+      <div class="facility-card">
+        <h3><?= htmlspecialchars($a['navn']) ?></h3>
+        <p>🚗 Totalt: <?= $a['total'] ?></p>
+        <p>✅ Ledige: <?= $a['ledige'] ?></p>
+        <p>🔴 Opptatt: <?= $a['opptatte'] ?></p>
+        <p>🟠 Reservert: <?= $a['reserverte'] ?></p>
+        <?php if ($a['har_ladere']): ?>
+          <p>⚡ Med lader: <?= $a['med_lader'] ?></p>
+        <?php endif; ?>
+      </div>
+    <?php endforeach; ?>
+  </aside>
+</main>
+
 
   <script>
     var map = L.map('map').setView([59.91, 10.75], 13); // Oslo sentrum

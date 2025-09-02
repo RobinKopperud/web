@@ -21,7 +21,6 @@ $stmt = $conn->prepare("
 $stmt->bind_param("ii", $user_id, $borettslag_id);
 $stmt->execute();
 $oppføring = $stmt->get_result()->fetch_assoc();
-
 ?>
 <!DOCTYPE html>
 <html lang="no">
@@ -32,7 +31,7 @@ $oppføring = $stmt->get_result()->fetch_assoc();
 </head>
 <body>
   <header class="header">
-    <div>👋 Hei, du er innlogget</div>
+    <div>👋 Hei, <?= htmlspecialchars($_SESSION['user_id']) ?></div>
     <div>
       <a href="index.php">Hjem</a> |
       <a href="logout.php">Logg ut</a>
@@ -53,9 +52,8 @@ $oppføring = $stmt->get_result()->fetch_assoc();
           <p><strong>Registrert:</strong> <?= $oppføring['registrert'] ?></p>
 
           <?php
-          // Beregn plass i køen
+          // Beregn posisjon i kø
           if ($oppføring['anlegg_id']) {
-              // Spesifikt anlegg
               $stmt = $conn->prepare("
                   SELECT COUNT(*) AS foran
                   FROM venteliste
@@ -64,7 +62,6 @@ $oppføring = $stmt->get_result()->fetch_assoc();
               ");
               $stmt->bind_param("iis", $borettslag_id, $oppføring['anlegg_id'], $oppføring['registrert']);
           } else {
-              // Første ledige
               $stmt = $conn->prepare("
                   SELECT COUNT(*) AS foran
                   FROM venteliste
@@ -75,9 +72,9 @@ $oppføring = $stmt->get_result()->fetch_assoc();
           }
           $stmt->execute();
           $pos = $stmt->get_result()->fetch_assoc();
-          $posisjon = $pos['foran'] + 1; // brukeren selv
-          
-          // Tell totalt antall i samme kø
+          $posisjon = $pos['foran'] + 1;
+
+          // Tell totalt i samme kø
           if ($oppføring['anlegg_id']) {
               $stmt = $conn->prepare("SELECT COUNT(*) AS totalt FROM venteliste WHERE borettslag_id = ? AND anlegg_id = ?");
               $stmt->bind_param("ii", $borettslag_id, $oppføring['anlegg_id']);

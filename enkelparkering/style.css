@@ -94,8 +94,28 @@ main,
   margin-left: 10px;
 }
 
+.header a:hover {
+  text-decoration: underline;
+}
+
+
 /* Highlight (kart → sidebar) */
 .highlight {
   background-color: #ffeaa7;
   transition: background-color 1s ease;
+}
+/* Spesiell stil for global venteliste */
+.highlight-card {
+  border: 2px solid #40739e;
+  background: #eef5fb;
+}
+
+.highlight-card h3 {
+  margin-top: 0;
+  color: #2c3e50;
+}
+button[disabled] {
+  background: #ccc !important;
+  cursor: not-allowed;
+  opacity: 0.7;
 }

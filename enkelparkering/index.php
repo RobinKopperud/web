@@ -16,6 +16,14 @@ $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 
+// Sjekk om bruker står på ventelisten
+$stmt = $conn->prepare("SELECT id FROM venteliste WHERE user_id = ? AND borettslag_id = ?");
+$stmt->bind_param("ii", $user_id, $user['borettslag_id']);
+$stmt->execute();
+$venteliste_entry = $stmt->get_result()->fetch_assoc();
+$er_på_venteliste = !empty($venteliste_entry);
+
+
 // Hent anlegg + oppsummering fra plasser
 $sql = "SELECT a.id, a.navn, a.type, a.lat, a.lng,
         COUNT(p.id) as total,
@@ -46,12 +54,14 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
   <header class="header">
   <div>👋 Hei, <?= htmlspecialchars($user['navn']) ?> (<?= $user['rolle'] ?>)</div>
   <div>
+    <a href="min_venteliste.php">📋 Min venteliste</a>
     <?php if ($user['rolle'] === 'admin'): ?>
-      <a href="admin/admin.php">Adminpanel</a> |
+      | <a href="admin/admin.php">Adminpanel</a>
     <?php endif; ?>
-    <a href="logout.php">Logg ut</a>
+    | <a href="logout.php">Logg ut</a>
   </div>
 </header>
+
 
 <main class="dashboard">
   <section class="map-area">
@@ -59,6 +69,19 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
   </section>
   <aside class="sidebar">
   <h2>Anlegg</h2>
+  <!-- Global venteliste-boks -->
+    <form method="post" action="venteliste.php">
+    <input type="hidden" name="anlegg_id" value="">
+    <label>
+        <input type="checkbox" name="ønsker_lader" value="1" <?= $er_på_venteliste ? 'disabled' : '' ?>>
+        Ønsker lader
+    </label>
+    <button type="submit" <?= $er_på_venteliste ? 'disabled style="background:#ccc; cursor:not-allowed;"' : '' ?>>
+        ➕ Meld meg på venteliste
+    </button>
+    </form>
+
+    <!-- Liste over anlegg -->
   <?php foreach ($anlegg as $a): ?>
     <div class="facility-card" id="anlegg-<?= $a['id'] ?>">
       <h3><?= htmlspecialchars($a['navn']) ?></h3>
@@ -73,11 +96,13 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
       <form method="post" action="venteliste.php">
         <input type="hidden" name="anlegg_id" value="<?= $a['id'] ?>">
         <label>
-          <input type="checkbox" name="ønsker_lader" value="1">
-          Ønsker lader
+            <input type="checkbox" name="ønsker_lader" value="1" <?= $er_på_venteliste ? 'disabled' : '' ?>>
+            Ønsker lader
         </label>
-        <button type="submit">➕ Meld meg på venteliste</button>
-      </form>
+        <button type="submit" <?= $er_på_venteliste ? 'disabled style="background:#ccc; cursor:not-allowed;"' : '' ?>>
+            ➕ Meld meg på venteliste
+        </button>
+        </form>
     </div>
   <?php endforeach; ?>
 </aside>
@@ -113,13 +138,11 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         if (el) {
           el.scrollIntoView({ behavior: 'smooth', block: 'start' });
           el.classList.add("highlight");
-          setTimeout(() => el.classList.remove("highlight"), 2000);
+          setTimeout(() => el.classList.remove("highlight"), 4000);
         }
       });
     }
   });
 </script>
-
-
 </body>
 </html>

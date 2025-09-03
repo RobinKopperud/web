@@ -78,6 +78,15 @@ main,
   background: #273c75;
 }
 
+/* Meldinger */
+.message {
+  background: #eef5fb;
+  border: 1px solid #40739e;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+}
+
 /* === Header === */
 .header {
   background: #2c3e50;
@@ -118,4 +127,14 @@ button[disabled] {
   background: #ccc !important;
   cursor: not-allowed;
   opacity: 0.7;
+}
+
+/* Søkefelt */
+.search-box {
+  width: 100%;
+  padding: 8px 12px;
+  margin: 1rem 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.9rem;
 }

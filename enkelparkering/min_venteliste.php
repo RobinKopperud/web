@@ -10,6 +10,20 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $borettslag_id = $_SESSION['borettslag_id'];
 
+// Fjern bruker fra ventelisten
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST' &&
+    isset($_POST['action']) &&
+    $_POST['action'] === 'remove'
+) {
+    $stmt = $conn->prepare("DELETE FROM venteliste WHERE user_id = ? AND borettslag_id = ?");
+    $stmt->bind_param("ii", $user_id, $borettslag_id);
+    $stmt->execute();
+    $_SESSION['message'] = '✅ Du er fjernet fra ventelisten.';
+    header('Location: min_venteliste.php');
+    exit;
+}
+
 // Hent navn på innlogget bruker
 $stmt = $conn->prepare("SELECT navn FROM users WHERE id = ?");
 $stmt->bind_param("i", $user_id);
@@ -49,6 +63,11 @@ $oppføring = $stmt->get_result()->fetch_assoc();
   <main class="dashboard">
     <aside class="sidebar">
       <h2>Min venteliste</h2>
+
+      <?php if (isset($_SESSION['message'])): ?>
+        <p class="message"><?= htmlspecialchars($_SESSION['message']) ?></p>
+        <?php unset($_SESSION['message']); ?>
+      <?php endif; ?>
 
       <?php if (!$oppføring): ?>
         <p>Du står ikke på ventelisten i ditt borettslag.</p>
@@ -93,8 +112,13 @@ $oppføring = $stmt->get_result()->fetch_assoc();
           $stmt->execute();
           $totalt = $stmt->get_result()->fetch_assoc();
           ?>
-          
+
           <p><strong>Din posisjon:</strong> <?= $posisjon ?> av <?= $totalt['totalt'] ?></p>
+
+          <form method="post" onsubmit="return confirm('Er du sikker på at du vil melde deg av?');">
+            <input type="hidden" name="action" value="remove">
+            <button type="submit">🚫 Meld meg av ventelisten</button>
+          </form>
         </div>
       <?php endif; ?>
     </aside>

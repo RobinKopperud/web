@@ -80,6 +80,7 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         ➕ Meld meg på venteliste for første ledige plass i borettslaget
     </button>
     </form>
+    <input type="text" id="anleggSok" class="search-box" placeholder="Søk etter anlegg...">
 
     <!-- Liste over anlegg -->
   <?php foreach ($anlegg as $a): ?>
@@ -142,6 +143,15 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         }
       });
     }
+  });
+
+  // Filtrering av anlegg
+  document.getElementById('anleggSok').addEventListener('input', function () {
+    var q = this.value.toLowerCase();
+    document.querySelectorAll('.facility-card').forEach(function (card) {
+      var navn = card.querySelector('h3').textContent.toLowerCase();
+      card.style.display = navn.includes(q) ? '' : 'none';
+    });
   });
 </script>
 </body>

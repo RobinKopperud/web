@@ -1,8 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 session_start();
 include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 
@@ -13,6 +9,13 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 $borettslag_id = $_SESSION['borettslag_id'];
+
+// Hent navn på innlogget bruker
+$stmt = $conn->prepare("SELECT navn FROM users WHERE id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$user = $stmt->get_result()->fetch_assoc();
+$navn = $user['navn'] ?? 'Bruker';
 
 // Hent oppføring for brukeren
 $stmt = $conn->prepare("
@@ -36,7 +39,7 @@ $oppføring = $stmt->get_result()->fetch_assoc();
 </head>
 <body>
   <header class="header">
-    <div>👋 Hei, <?= htmlspecialchars($_SESSION['user_id']) ?></div>
+    <div>👋 Hei, <?= htmlspecialchars($navn) ?></div>
     <div>
       <a href="index.php">Hjem</a> |
       <a href="logout.php">Logg ut</a>
@@ -52,9 +55,9 @@ $oppføring = $stmt->get_result()->fetch_assoc();
       <?php else: ?>
         <div class="facility-card">
           <h3>📋 Status</h3>
-          <p><strong>Anlegg:</strong> <?= $oppføring['anlegg_navn'] ?? 'Første ledige' ?></p>
+          <p><strong>Anlegg:</strong> <?= htmlspecialchars($oppføring['anlegg_navn'] ?? 'Første ledige') ?></p>
           <p><strong>Ønsker lader:</strong> <?= $oppføring['onsker_lader'] ? '⚡ Ja' : 'Nei' ?></p>
-          <p><strong>Registrert:</strong> <?= $oppføring['registrert'] ?></p>
+          <p><strong>Registrert:</strong> <?= htmlspecialchars($oppføring['registrert']) ?></p>
 
           <?php
           // Beregn posisjon i kø

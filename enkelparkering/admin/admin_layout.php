@@ -44,6 +44,7 @@ if ($user['rolle'] !== 'admin') {
         <li><a href="admin_anlegg.php">🅿️ Anlegg</a></li>
         <li><a href="admin_plasser.php">📋 Plasser</a></li>
         <li><a href="admin_brukere.php">👥 Brukere</a></li>
+        <li><a href="admin_venteliste.php">⏳ Venteliste</a></li>
       </ul>
     </aside>
 

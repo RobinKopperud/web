@@ -61,6 +61,7 @@ if (isset($_POST['register'])) {
 <html lang="no">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Logg inn – EnkelParkering</title>
   <style>
     body {
@@ -71,13 +72,15 @@ if (isset($_POST['register'])) {
       justify-content: center;
       align-items: center;
       height: 100vh;
+      padding: 1rem;
     }
     .login-container {
       background: white;
       padding: 2rem;
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      width: 320px;
+      width: 90%;
+      max-width: 320px;
     }
     .login-container h1 {
       text-align: center;

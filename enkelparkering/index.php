@@ -45,6 +45,7 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 <html lang="no">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hjem – EnkelParkering</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />

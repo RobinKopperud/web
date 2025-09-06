@@ -158,3 +158,30 @@ form button {
 form button:hover {
   background: #192a56;
 }
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .dashboard {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .sidebar {
+    flex: none;
+    width: 100%;
+  }
+
+  .content {
+    flex: none;
+    width: 100%;
+  }
+
+  .admin-container {
+    flex-direction: column;
+  }
+
+  .admin-container .map-area {
+    flex: none;
+    height: 50vh;
+  }
+}

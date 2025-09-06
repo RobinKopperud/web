@@ -138,3 +138,29 @@ button[disabled] {
   border-radius: 6px;
   font-size: 0.9rem;
 }
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .dashboard {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .map-area {
+    flex: none;
+    height: 50vh;
+  }
+
+  .sidebar {
+    flex: none;
+    width: 90%;
+    margin: 0 auto;
+    border-left: none;
+    border-top: 1px solid #ddd;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

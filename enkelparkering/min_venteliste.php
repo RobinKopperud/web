@@ -49,7 +49,7 @@ $oppføring = $stmt->get_result()->fetch_assoc();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Min venteliste – EnkelParkering</title>
+  <title>Min venteliste – Plogveien Borettslag</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -57,6 +57,7 @@ $oppføring = $stmt->get_result()->fetch_assoc();
     <div>👋 Hei, <?= htmlspecialchars($navn) ?></div>
     <div>
       <a href="index.php">Hjem</a> |
+      <a href="min_side.php">Mine plasser</a> |
       <a href="logout.php">Logg ut</a>
     </div>
   </header>

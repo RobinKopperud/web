@@ -46,7 +46,7 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hjem – EnkelParkering</title>
+  <title>Hjem – Plogveien Borettslag</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -55,6 +55,7 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
   <header class="header">
   <div>👋 Hei, <?= htmlspecialchars($user['navn']) ?> (<?= $user['rolle'] ?>)</div>
   <div>
+    <a href="min_side.php">🚗 Mine plasser</a> |
     <a href="min_venteliste.php">📋 Min venteliste</a>
     <?php if ($user['rolle'] === 'admin'): ?>
       | <a href="admin/admin.php">Adminpanel</a>

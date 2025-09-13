@@ -27,14 +27,16 @@ if ($user['rolle'] !== 'admin') {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?= $title ?? 'Adminpanel' ?> – EnkelParkering</title>
   <link rel="stylesheet" href="admin.css">
+  <script src="../js.js" defer></script>
 </head>
 <body>
   <header class="header">
-    <div>⚙️ Adminpanel</div>
-    <div>
-      <a href="../index.php">Til forsiden</a>
+    <div class="logo">⚙️ Adminpanel</div>
+    <button class="menu-toggle" id="menuToggle">☰</button>
+    <nav class="nav">
+      <a href="../index.php">🏠 Hjem</a>
       <a href="../logout.php">Logg ut</a>
-    </div>
+    </nav>
   </header>
 
   <main class="dashboard">

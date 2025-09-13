@@ -35,9 +35,8 @@ main,
   background: #f9f9f9;
   border-left: 1px solid #ddd;
   overflow-y: auto;
+  overflow-x: hidden;
   box-sizing: border-box;
-  height: 90%;
-  max-width: 90%;
 }
 
 /* === Kort === */
@@ -93,6 +92,25 @@ main,
 
 .facility-card button:hover {
   background: #273c75;
+}
+
+.global-waitlist-button {
+  display: inline-block;
+  width: 100%;
+  padding: 10px 14px;
+  background: #e1b12c;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background 0.2s;
+  margin-bottom: 1rem;
+}
+
+.global-waitlist-button:hover {
+  background: #c79416;
 }
 
 /* Meldinger */

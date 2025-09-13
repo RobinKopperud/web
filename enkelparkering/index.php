@@ -50,22 +50,29 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="js.js" defer></script>
 </head>
 <body>
   <header class="header">
-  <div>👋 Hei, <?= htmlspecialchars($user['navn']) ?> (<?= $user['rolle'] ?>)</div>
-  <div>
-    <a href="min_side.php">🚗 Mine plasser</a> |
-    <a href="min_venteliste.php">📋 Min venteliste</a>
-    <?php if ($user['rolle'] === 'admin'): ?>
-      | <a href="admin/admin.php">Adminpanel</a>
-    <?php endif; ?>
-    | <a href="logout.php">Logg ut</a>
+    <div class="logo">👋 Hei, <?= htmlspecialchars($user['navn']) ?> (<?= $user['rolle'] ?>)</div>
+    <button class="menu-toggle" id="menuToggle">☰</button>
+    <nav class="nav">
+      <a href="index.php">🏠 Hjem</a>
+      <a href="min_side.php">🚗 Mine plasser</a>
+      <a href="min_venteliste.php">📋 Min venteliste</a>
+      <?php if ($user['rolle'] === 'admin'): ?>
+        <a href="admin/admin.php">Adminpanel</a>
+      <?php endif; ?>
+      <a href="logout.php">Logg ut</a>
+    </nav>
+  </header>
+
+  <div class="search-container">
+    <input type="text" id="anleggSok" class="search-box" placeholder="Søk etter anlegg...">
   </div>
-</header>
 
 
-<main class="dashboard">
+  <main class="dashboard">
   <section class="map-area">
     <div id="map"></div>
   </section>
@@ -79,10 +86,9 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         Ønsker lader
     </label>
     <button type="submit" class="global-waitlist-button" <?= $er_på_venteliste ? 'disabled' : '' ?>>
-        ➕ Meld meg på venteliste for første ledige plass i borettslaget
+        <?= $er_på_venteliste ? '✔️ Du er på venteliste' : '➕ Meld meg på venteliste for første ledige plass i borettslaget' ?>
     </button>
     </form>
-    <input type="text" id="anleggSok" class="search-box" placeholder="Søk etter anlegg...">
 
     <!-- Liste over anlegg -->
   <?php foreach ($anlegg as $a): ?>
@@ -103,7 +109,7 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             Ønsker lader
         </label>
         <button type="submit" <?= $er_på_venteliste ? 'disabled style="background:#ccc; cursor:not-allowed;"' : '' ?>>
-            ➕ Meld meg på venteliste for dette anlegget
+            <?= $er_på_venteliste ? '✔️ Du er på venteliste' : '➕ Meld meg på venteliste for dette anlegget' ?>
         </button>
         </form>
     </div>

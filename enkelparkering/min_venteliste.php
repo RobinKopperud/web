@@ -25,11 +25,12 @@ if (
 }
 
 // Hent navn på innlogget bruker
-$stmt = $conn->prepare("SELECT navn FROM users WHERE id = ?");
+$stmt = $conn->prepare("SELECT navn, rolle FROM users WHERE id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 $navn = $user['navn'] ?? 'Bruker';
+$rolle = $user['rolle'] ?? '';
 
 // Hent oppføring for brukeren
 $stmt = $conn->prepare("
@@ -51,15 +52,21 @@ $oppføring = $stmt->get_result()->fetch_assoc();
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Min venteliste – Plogveien Borettslag</title>
   <link rel="stylesheet" href="style.css">
+  <script src="js.js" defer></script>
 </head>
 <body>
   <header class="header">
-    <div>👋 Hei, <?= htmlspecialchars($navn) ?></div>
-    <div>
-      <a href="index.php">Hjem</a> |
-      <a href="min_side.php">Mine plasser</a> |
+    <div class="logo">👋 Hei, <?= htmlspecialchars($navn) ?><?= $rolle ? " (" . $rolle . ")" : '' ?></div>
+    <button class="menu-toggle" id="menuToggle">☰</button>
+    <nav class="nav">
+      <a href="index.php">🏠 Hjem</a>
+      <a href="min_side.php">🚗 Mine plasser</a>
+      <a href="min_venteliste.php">📋 Min venteliste</a>
+      <?php if ($rolle === 'admin'): ?>
+        <a href="admin/admin.php">Adminpanel</a>
+      <?php endif; ?>
       <a href="logout.php">Logg ut</a>
-    </div>
+    </nav>
   </header>
 
   <main class="dashboard">

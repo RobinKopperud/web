@@ -56,7 +56,7 @@ $oppføring = $stmt->get_result()->fetch_assoc();
 </head>
 <body>
   <header class="header">
-    <div class="logo">👋 Hei, <?= htmlspecialchars($navn) ?><?= $rolle ? " (" . $rolle . ")" : '' ?></div>
+    <div class="logo">👋 Hei, <?= htmlspecialchars($navn) ?><?= $rolle === 'admin' ? ' (admin)' : '' ?></div>
     <button class="menu-toggle" id="menuToggle">☰</button>
     <nav class="nav">
       <a href="index.php">🏠 Hjem</a>

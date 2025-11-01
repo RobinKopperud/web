@@ -53,8 +53,9 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
   <script src="js.js" defer></script>
 </head>
 <body>
+  <?php $rolle = $user['rolle'] ?? ''; ?>
   <header class="header">
-    <div class="logo">👋 Hei, <?= htmlspecialchars($user['navn']) ?> (<?= $user['rolle'] ?>)</div>
+    <div class="logo">👋 Hei, <?= htmlspecialchars($user['navn']) ?><?= $rolle === 'admin' ? ' (admin)' : '' ?></div>
     <button class="menu-toggle" id="menuToggle">☰</button>
     <nav class="nav">
       <a href="index.php">🏠 Hjem</a>
@@ -82,7 +83,7 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <form method="post" action="venteliste.php">
     <input type="hidden" name="anlegg_id" value="">
     <label>
-        <input type="checkbox" name="ønsker_lader" value="1" <?= $er_på_venteliste ? 'disabled' : '' ?>>
+        <input type="checkbox" name="onsker_lader" value="1" <?= $er_på_venteliste ? 'disabled' : '' ?>>
         Ønsker lader
     </label>
     <button type="submit" class="global-waitlist-button" <?= $er_på_venteliste ? 'disabled' : '' ?>>
@@ -105,7 +106,7 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
       <form method="post" action="venteliste.php">
         <input type="hidden" name="anlegg_id" value="<?= $a['id'] ?>">
         <label>
-            <input type="checkbox" name="ønsker_lader" value="1" <?= $er_på_venteliste ? 'disabled' : '' ?>>
+            <input type="checkbox" name="onsker_lader" value="1" <?= $er_på_venteliste ? 'disabled' : '' ?>>
             Ønsker lader
         </label>
         <button type="submit" <?= $er_på_venteliste ? 'disabled style="background:#ccc; cursor:not-allowed;"' : '' ?>>

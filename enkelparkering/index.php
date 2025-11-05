@@ -109,7 +109,7 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             <input type="checkbox" name="onsker_lader" value="1" <?= $er_på_venteliste ? 'disabled' : '' ?>>
             Ønsker lader
         </label>
-        <button type="submit" <?= $er_på_venteliste ? 'disabled style="background:#ccc; cursor:not-allowed;"' : '' ?>>
+        <button type="submit" <?= $er_på_venteliste ? 'disabled' : '' ?>>
             <?= $er_på_venteliste ? '✔️ Du er på venteliste' : '➕ Meld meg på venteliste for dette anlegget' ?>
         </button>
         </form>

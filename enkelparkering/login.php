@@ -56,6 +56,16 @@ if (isset($_POST['register'])) {
         $message = "❌ Ugyldig kode fra borettslaget.";
     }
 }
+
+// Hent alle borettslag
+$sql = "SELECT navn FROM borettslag ORDER BY navn ASC";
+$result = $conn->query($sql);
+$borettslag = [];
+if ($result) {
+    while($row = $result->fetch_assoc()) {
+        $borettslag[] = $row['navn'];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="no">
@@ -196,6 +206,29 @@ if (isset($_POST['register'])) {
       <input type="text" name="kode" placeholder="Kode fra borettslaget" required>
       <button type="submit" name="register">Registrer bruker</button>
     </form>
+
+    <div style="margin-top: 2rem; padding: 1rem;">
+        <h2 style="font-size: 0.95rem; color: #5a5a5a; text-transform: uppercase; letter-spacing: 0.08em;">
+            Tilknyttede borettslag
+        </h2>
+        <?php if (empty($borettslag)): ?>
+            <p style="color: var(--text-muted); text-align: center;">
+                Ingen borettslag registrert ennå.
+            </p>
+        <?php else: ?>
+            <ul style="list-style: none; padding: 0; margin: 0;">
+                <?php foreach($borettslag as $navn): ?>
+                    <li style="padding: 8px 12px; margin-bottom: 8px; 
+                               background: var(--surface);
+                               border-radius: 12px;
+                               box-shadow: inset 3px 3px 6px var(--shadow-dark),
+                                         inset -3px -3px 6px var(--shadow-light);">
+                        <?= htmlspecialchars($navn) ?>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
+    </div>
   </div>
 </body>
 </html>

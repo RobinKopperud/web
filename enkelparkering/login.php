@@ -64,63 +64,111 @@ if (isset($_POST['register'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Logg inn – EnkelParkering</title>
   <style>
+    :root {
+      --surface: #e0e0e0;
+      --shadow-dark: rgba(163, 177, 198, 0.65);
+      --shadow-light: rgba(255, 255, 255, 0.85);
+      --text-muted: #4f4f4f;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: var(--surface);
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      padding: 1rem;
+      padding: 1.5rem;
+      color: #3a3a3a;
     }
+
     .login-container {
-      background: white;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      width: 90%;
-      max-width: 320px;
+      background: var(--surface);
+      padding: 2.25rem 2rem;
+      border-radius: 26px;
+      box-shadow: 20px 20px 40px var(--shadow-dark),
+        -20px -20px 40px var(--shadow-light);
+      width: 100%;
+      max-width: 360px;
     }
+
     .login-container h1 {
       text-align: center;
-      margin-bottom: 1.5rem;
-      color: #2c3e50;
+      margin-bottom: 1.75rem;
+      color: #2c2c2c;
+      letter-spacing: 0.04em;
     }
+
     form {
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.75rem;
     }
+
     form h2 {
-      font-size: 1rem;
-      margin-bottom: 0.5rem;
-      color: #2c3e50;
+      font-size: 0.95rem;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #5a5a5a;
     }
+
     input {
       width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 0.9rem;
+      padding: 12px 18px;
+      margin-bottom: 12px;
+      border: none;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      background: var(--surface);
+      color: var(--text-muted);
+      box-shadow: inset 6px 6px 12px var(--shadow-dark),
+        inset -6px -6px 12px var(--shadow-light);
+      transition: box-shadow 0.2s ease;
     }
+
+    input:focus {
+      outline: none;
+      box-shadow: inset 4px 4px 8px var(--shadow-dark),
+        inset -4px -4px 8px var(--shadow-light);
+    }
+
     button {
       width: 100%;
-      padding: 10px;
-      background: #40739e;
-      color: white;
+      padding: 12px 18px;
+      background: var(--surface);
+      color: var(--text-muted);
       border: none;
-      border-radius: 6px;
+      border-radius: 20px;
       cursor: pointer;
       font-size: 0.95rem;
-      transition: background 0.2s;
+      font-weight: 600;
+      box-shadow: 8px 8px 16px var(--shadow-dark),
+        -8px -8px 16px var(--shadow-light);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
     }
+
     button:hover {
-      background: #273c75;
+      transform: translateY(-2px);
+      color: #2d2d2d;
+      box-shadow: 10px 10px 20px var(--shadow-dark),
+        -10px -10px 20px var(--shadow-light);
     }
+
+    button:active {
+      box-shadow: inset 5px 5px 10px var(--shadow-dark),
+        inset -5px -5px 10px var(--shadow-light);
+      color: #3a3a3a;
+    }
+
     .message {
       text-align: center;
-      margin-bottom: 1rem;
-      color: red;
+      margin-bottom: 1.25rem;
+      color: #b63b3b;
+      background: var(--surface);
+      padding: 0.75rem 1rem;
+      border-radius: 18px;
+      box-shadow: inset 5px 5px 10px var(--shadow-dark),
+        inset -5px -5px 10px var(--shadow-light);
     }
   </style>
 </head>

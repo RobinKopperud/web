@@ -2,9 +2,17 @@ html,
 body {
   margin: 0;
   font-family: "Segoe UI", Tahoma, sans-serif;
-  background: #f0f2f5;
-  color: #333;
+  background: #e0e0e0;
+  color: #3a3a3a;
   overflow-x: hidden;
+}
+
+:root {
+  --surface: #e0e0e0;
+  --shadow-dark: rgba(163, 177, 198, 0.65);
+  --shadow-light: rgba(255, 255, 255, 0.85);
+  --text-muted: #5b5b5b;
+  --interactive: #c5c5c5;
 }
 
 /* === Layout === */
@@ -14,12 +22,16 @@ main,
   display: flex;
   flex-direction: row;
   height: calc(100vh - 120px); /* full høyde minus header og søk */
+  gap: 1.5rem;
+  padding: 1.5rem;
+  box-sizing: border-box;
 }
 
 /* Kartområde (60%) */
 .map-area {
   flex: 6;
-  padding: 0;
+  padding: 1.5rem;
+  box-sizing: border-box;
 }
 
 #map {
@@ -27,41 +39,68 @@ main,
   width: 100%;
   height: 100%;
   border: none;
-  border-radius: 0;
+  border-radius: 24px;
+  box-shadow: 14px 14px 28px var(--shadow-dark),
+    -14px -14px 28px var(--shadow-light);
 }
 
 /* Sidebar (40%) */
 .sidebar {
   flex: 4;
-  padding: 1rem;
-  background: #f9f9f9;
-  border-left: 1px solid #ddd;
+  padding: 1.5rem;
+  background: var(--surface);
+  border-left: none;
   overflow-y: auto;
   overflow-x: hidden;
   box-sizing: border-box;
 }
 
+.sidebar h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4a4a4a;
+}
+
+.sidebar p {
+  color: var(--text-muted);
+}
+
 /* === Kort === */
 .facility-card {
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  background: var(--surface);
+  border-radius: 22px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 10px 10px 20px var(--shadow-dark),
+    -10px -10px 20px var(--shadow-light);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.facility-card h3 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  color: #313131;
+}
+
+.facility-card p {
+  margin: 0.35rem 0;
+  color: var(--text-muted);
 }
 
 .facility-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+  transform: translateY(-4px);
+  box-shadow: 12px 12px 24px var(--shadow-dark),
+    -12px -12px 24px var(--shadow-light);
 }
 
 /* Venteliste-skjema i kort */
 .facility-card form {
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid #eee;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .facility-card label {
@@ -74,71 +113,105 @@ main,
 }
 
 .facility-card input[type="checkbox"] {
-  margin-right: 8px;
+  margin-right: 10px;
   transform: scale(1.2);
   cursor: pointer;
+  accent-color: #bcbcbc;
 }
 
 .facility-card button {
   display: inline-block;
   width: 100%;
-  padding: 8px 14px;
-  background: #40739e;
-  color: white;
+  padding: 12px 18px;
+  background: var(--surface);
+  color: var(--text-muted);
   border: none;
-  border-radius: 6px;
+  border-radius: 18px;
   cursor: pointer;
-  font-size: 0.9rem;
-  transition: background 0.2s;
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: 6px 6px 12px var(--shadow-dark),
+    -6px -6px 12px var(--shadow-light);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
 }
 
 .facility-card button:hover {
-  background: #273c75;
+  transform: translateY(-1px);
+  color: #2f2f2f;
+  box-shadow: 8px 8px 16px var(--shadow-dark),
+    -8px -8px 16px var(--shadow-light);
+}
+
+.facility-card button:active {
+  box-shadow: inset 4px 4px 8px var(--shadow-dark),
+    inset -4px -4px 8px var(--shadow-light);
+  color: #3a3a3a;
 }
 
 .global-waitlist-button {
   display: inline-block;
   width: 100%;
-  padding: 10px 14px;
-  background: #e1b12c;
-  color: #fff;
+  padding: 14px 18px;
+  background: var(--surface);
+  color: var(--text-muted);
   border: none;
-  border-radius: 6px;
+  border-radius: 20px;
   cursor: pointer;
   font-size: 1rem;
-  font-weight: bold;
-  transition: background 0.2s;
-  margin-bottom: 1rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  box-shadow: 10px 10px 20px var(--shadow-dark),
+    -10px -10px 20px var(--shadow-light);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
 }
 
 .global-waitlist-button:hover {
-  background: #c79416;
+  transform: translateY(-2px);
+  color: #2c2c2c;
+  box-shadow: 12px 12px 24px var(--shadow-dark),
+    -12px -12px 24px var(--shadow-light);
+}
+
+.global-waitlist-button:active {
+  box-shadow: inset 6px 6px 12px var(--shadow-dark),
+    inset -6px -6px 12px var(--shadow-light);
+  color: #3a3a3a;
 }
 
 /* Meldinger */
 .message {
-  background: #eef5fb;
-  border: 1px solid #40739e;
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
-  margin-bottom: 1rem;
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1.25rem;
+  color: var(--text-muted);
+  box-shadow: inset 5px 5px 10px var(--shadow-dark),
+    inset -5px -5px 10px var(--shadow-light);
 }
 
 /* === Header === */
 .header {
-  background: linear-gradient(90deg, #1e3c72, #2a5298);
-  color: white;
-  padding: 1rem;
+  background: var(--surface);
+  color: #3a3a3a;
+  padding: 1.5rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 8px 8px 16px var(--shadow-dark),
+    -8px -8px 16px var(--shadow-light);
+}
+
+.logo {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
 }
 
 .menu-toggle {
   display: none;
   background: none;
   border: none;
-  color: white;
+  color: #3a3a3a;
   font-size: 1.5rem;
   cursor: pointer;
 }
@@ -149,51 +222,74 @@ main,
 }
 
 .header a {
-  color: white;
+  display: inline-flex;
+  align-items: center;
+  color: #3a3a3a;
   text-decoration: none;
-  margin-left: 10px;
+  margin-left: 0;
+  padding: 10px 16px;
+  border-radius: 16px;
+  box-shadow: 4px 4px 8px var(--shadow-dark),
+    -4px -4px 8px var(--shadow-light);
+  transition: box-shadow 0.2s ease, color 0.2s ease;
 }
 
 .header a:hover {
-  text-decoration: underline;
+  color: #1f1f1f;
+  box-shadow: 6px 6px 12px var(--shadow-dark),
+    -6px -6px 12px var(--shadow-light);
 }
 
 .search-container {
-  padding: 0 1rem;
-  background: #f9f9f9;
-  border-bottom: 1px solid #ddd;
+  padding: 0 1.5rem 1.5rem;
+  background: var(--surface);
 }
 
 
 /* Highlight (kart → sidebar) */
 .highlight {
-  background-color: #ffeaa7;
+  background-color: rgba(255, 255, 255, 0.35);
   transition: background-color 1s ease;
 }
 /* Spesiell stil for global venteliste */
 .highlight-card {
-  border: 2px solid #40739e;
-  background: #eef5fb;
+  border: none;
+  background: var(--surface);
+  box-shadow: inset 6px 6px 12px var(--shadow-dark),
+    inset -6px -6px 12px var(--shadow-light);
 }
 
 .highlight-card h3 {
   margin-top: 0;
-  color: #2c3e50;
+  color: #2c2c2c;
 }
 button[disabled] {
-  background: #ccc !important;
+  background: #d4d4d4 !important;
   cursor: not-allowed;
   opacity: 0.7;
+  box-shadow: inset 4px 4px 8px var(--shadow-dark),
+    inset -4px -4px 8px var(--shadow-light);
 }
 
 /* Søkefelt */
 .search-box {
   width: 100%;
-  padding: 8px 12px;
-  margin: 1rem 0;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  padding: 12px 18px;
+  margin: 1.5rem 0 0;
+  border: none;
+  border-radius: 18px;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  background: var(--surface);
+  box-shadow: inset 6px 6px 12px var(--shadow-dark),
+    inset -6px -6px 12px var(--shadow-light);
+  transition: box-shadow 0.2s ease;
+}
+
+.search-box:focus {
+  outline: none;
+  box-shadow: inset 4px 4px 8px var(--shadow-dark),
+    inset -4px -4px 8px var(--shadow-light);
 }
 
 /* === Responsive === */
@@ -201,11 +297,14 @@ button[disabled] {
   .dashboard {
     flex-direction: column;
     height: auto;
+    padding: 1rem;
+    gap: 1rem;
   }
 
   .map-area {
     flex: none;
     height: 50vh;
+    padding: 1rem;
   }
 
   .sidebar {
@@ -214,12 +313,14 @@ button[disabled] {
     max-width: 90%;
     margin: 0 auto;
     border-left: none;
-    border-top: 1px solid #ddd;
+    border-top: none;
+    padding: 1.25rem;
   }
 
   .header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 1rem;
   }
 
   .menu-toggle {
@@ -231,9 +332,14 @@ button[disabled] {
     flex-direction: column;
     width: 100%;
     margin-top: 0.5rem;
+    gap: 0.75rem;
   }
 
   .nav.open {
     display: flex;
+  }
+
+  .header a {
+    margin-left: 0;
   }
 }

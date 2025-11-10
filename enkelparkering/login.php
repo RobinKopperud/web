@@ -74,44 +74,113 @@ if ($result) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Logg inn – EnkelParkering</title>
   <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
     :root {
       --surface: #e0e0e0;
       --shadow-dark: rgba(163, 177, 198, 0.65);
       --shadow-light: rgba(255, 255, 255, 0.85);
       --text-muted: #4f4f4f;
+      --accent: #4c86e4;
     }
 
     body {
       margin: 0;
       font-family: "Segoe UI", Tahoma, sans-serif;
-      background: var(--surface);
+      background: radial-gradient(circle at top left, rgba(76, 134, 228, 0.18), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(255, 197, 125, 0.18), transparent 50%),
+        var(--surface);
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       padding: 1.5rem;
       color: #3a3a3a;
     }
 
     .login-container {
       background: var(--surface);
-      padding: 2.25rem 2rem;
+      padding: 2.5rem 2.25rem;
       border-radius: 26px;
       box-shadow: 20px 20px 40px var(--shadow-dark),
         -20px -20px 40px var(--shadow-light);
       width: 100%;
-      max-width: 360px;
+      max-width: 380px;
+      position: relative;
+      overflow: hidden;
     }
 
-    .login-container h1 {
-      text-align: center;
+    .login-container::before,
+    .login-container::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .login-container::before {
+      width: 260px;
+      height: 260px;
+      background: linear-gradient(135deg, rgba(76, 134, 228, 0.35), rgba(255, 255, 255, 0));
+      top: -140px;
+      right: -140px;
+    }
+
+    .login-container::after {
+      width: 180px;
+      height: 180px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(76, 134, 228, 0));
+      bottom: -90px;
+      left: -90px;
+    }
+
+    .brand {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
       margin-bottom: 1.75rem;
+      z-index: 1;
+    }
+
+    .brand-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(76, 134, 228, 0.28), rgba(76, 134, 228, 0.05));
+      box-shadow: inset 6px 6px 12px rgba(163, 177, 198, 0.35),
+        inset -6px -6px 12px rgba(255, 255, 255, 0.65);
+      color: #2d4f87;
+      font-weight: 700;
+      font-size: 1.4rem;
+      letter-spacing: 0.04em;
+    }
+
+    .brand h1 {
+      text-align: center;
+      margin: 0;
       color: #2c2c2c;
+      letter-spacing: 0.04em;
+    }
+
+    .brand p {
+      margin: 0;
+      color: #5c6a82;
+      font-size: 0.9rem;
       letter-spacing: 0.04em;
     }
 
     form {
       margin-bottom: 1.75rem;
+      position: relative;
+      z-index: 1;
     }
 
     form h2 {
@@ -179,12 +248,37 @@ if ($result) {
       border-radius: 18px;
       box-shadow: inset 5px 5px 10px var(--shadow-dark),
         inset -5px -5px 10px var(--shadow-light);
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (min-width: 768px) {
+      body {
+        padding: 2rem 3rem;
+      }
+
+      .login-container {
+        max-width: 420px;
+        padding: 3rem 2.75rem;
+      }
+    }
+
+    @media (min-width: 1100px) {
+      .login-container {
+        max-width: 460px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="login-container">
-    <h1>EnkelParkering</h1>
+    <div class="brand">
+      <div class="brand-icon">P</div>
+      <div>
+        <h1>EnkelParkering</h1>
+        <p>Parkering gjort enkelt – hver dag.</p>
+      </div>
+    </div>
     <?php if ($message): ?>
       <p class="message"><?= htmlspecialchars($message) ?></p>
     <?php endif; ?>

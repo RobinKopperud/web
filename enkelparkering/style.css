@@ -243,6 +243,9 @@ main,
 .search-container {
   padding: 0 1.5rem 1.5rem;
   background: var(--surface);
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 
@@ -284,6 +287,7 @@ button[disabled] {
   box-shadow: inset 6px 6px 12px var(--shadow-dark),
     inset -6px -6px 12px var(--shadow-light);
   transition: box-shadow 0.2s ease;
+  box-sizing: border-box;
 }
 
 .search-box:focus {

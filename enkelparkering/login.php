@@ -48,6 +48,14 @@ if (isset($_POST['register'])) {
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("isss", $borettslag['id'], $navn, $email, $passord);
         if ($stmt->execute()) {
+            $subject = "Velkommen til EnkelParkering";
+            $body = "Hei $navn,\n\nTakk for at du registrerte deg hos EnkelParkering. Du kan nå logge inn og administrere parkeringsplassene dine.\n\nVennlig hilsen\nEnkelParkering";
+            $headers = "From: noreply@robinkopperud.no\r\n" .
+                       "Reply-To: noreply@robinkopperud.no\r\n" .
+                       "X-Mailer: PHP/" . phpversion();
+
+            mail($email, $subject, $body, $headers);
+
             $message = "✅ Bruker opprettet. Logg inn nå.";
         } else {
             $message = "Feil: " . $conn->error;

@@ -20,7 +20,7 @@ $rolle = $user['rolle'] ?? '';
 
 // Hent parkeringsplasser tildelt brukeren
 $stmt = $conn->prepare("
-    SELECT p.nummer, p.status, p.har_lader, a.navn AS anlegg_navn
+    SELECT p.id, p.nummer, p.status, p.har_lader, a.navn AS anlegg_navn
     FROM plasser p
     JOIN anlegg a ON p.anlegg_id = a.id
     WHERE p.beboer_id = ? AND a.borettslag_id = ?
@@ -28,6 +28,14 @@ $stmt = $conn->prepare("
 $stmt->bind_param("ii", $user_id, $borettslag_id);
 $stmt->execute();
 $plasser = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+foreach ($plasser as &$plass) {
+    $stmt = $conn->prepare("SELECT status, filnavn, tilbudt_dato, signert_dato FROM kontrakter WHERE plass_id = ? AND user_id = ? ORDER BY id DESC LIMIT 1");
+    $stmt->bind_param("ii", $plass['id'], $user_id);
+    $stmt->execute();
+    $plass['kontrakt'] = $stmt->get_result()->fetch_assoc();
+}
+unset($plass);
 ?>
 <!DOCTYPE html>
 <html lang="no">
@@ -65,6 +73,17 @@ $plasser = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             <h3><?= htmlspecialchars($p['anlegg_navn']) ?> – Plass <?= htmlspecialchars($p['nummer']) ?></h3>
             <p><strong>Status:</strong> <?= htmlspecialchars($p['status']) ?></p>
             <p><strong>Lader:</strong> <?= $p['har_lader'] ? '⚡ Ja' : 'Nei' ?></p>
+            <?php if (!empty($p['kontrakt'])): ?>
+              <p><strong>Kontrakt:</strong> <?= htmlspecialchars($p['kontrakt']['status']) ?></p>
+              <?php if (!empty($p['kontrakt']['signert_dato'])): ?>
+                <p><strong>Signert:</strong> <?= htmlspecialchars($p['kontrakt']['signert_dato']) ?></p>
+              <?php endif; ?>
+              <?php if (!empty($p['kontrakt']['filnavn'])): ?>
+                <p><a href="kontrakter/<?= rawurlencode($p['kontrakt']['filnavn']) ?>" target="_blank">📄 Åpne kontrakt</a></p>
+              <?php endif; ?>
+            <?php else: ?>
+              <p><strong>Kontrakt:</strong> Ikke registrert</p>
+            <?php endif; ?>
           </div>
         <?php endforeach; ?>
       <?php endif; ?>

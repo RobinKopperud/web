@@ -29,8 +29,7 @@ $sql = "SELECT a.id, a.navn, a.type, a.lat, a.lng,
         COUNT(p.id) as total,
         SUM(p.status = 'ledig') as ledige,
         SUM(p.status = 'opptatt') as opptatte,
-        SUM(p.status = 'reservert') as reserverte,
-        SUM(p.har_lader = 1) as med_lader
+        SUM(p.status = 'ledig' AND p.har_lader = 1) as ledige_med_lader
         FROM anlegg a
         LEFT JOIN plasser p ON a.id = p.anlegg_id
         WHERE a.borettslag_id = ?
@@ -99,8 +98,7 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
       <p>🚗 Totalt: <?= $a['total'] ?></p>
       <p>✅ Ledige: <?= $a['ledige'] ?></p>
       <p>🔴 Opptatt: <?= $a['opptatte'] ?></p>
-      <p>🟠 Reservert: <?= $a['reserverte'] ?></p>
-      <p>⚡ Med lader: <?= $a['med_lader'] ?></p>
+      <p>⚡ Ledige med lader: <?= $a['ledige_med_lader'] ?></p>
 
       <!-- Venteliste-skjema -->
       <form method="post" action="venteliste.php">
@@ -138,8 +136,7 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
           🚗 Totalt: ${a.total}<br>
           ✅ Ledige: ${a.ledige}<br>
           🔴 Opptatt: ${a.opptatte}<br>
-          🟠 Reservert: ${a.reserverte}<br>
-          ⚡ Med lader: ${a.med_lader}
+          ⚡ Ledige med lader: ${a.ledige_med_lader}
         `);
 
       // Klikk på markør → scroll sidebar

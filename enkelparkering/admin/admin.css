@@ -195,6 +195,44 @@ form button:hover {
   background: #192a56;
 }
 
+.message {
+  background: #e1f5fe;
+  border: 1px solid #81d4fa;
+  color: #01579b;
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+}
+
+.venteliste-tabell {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.venteliste-tabell th,
+.venteliste-tabell td {
+  text-align: left;
+  vertical-align: top;
+}
+
+.venteliste-tabell input[type="file"] {
+  border: none;
+  padding: 0;
+  margin-top: 6px;
+}
+
+.handlinger {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inline-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 /* === Responsive === */
 @media (max-width: 768px) {
   .dashboard {

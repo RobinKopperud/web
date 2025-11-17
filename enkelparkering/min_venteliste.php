@@ -7,6 +7,23 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+$kontraktDir = __DIR__ . '/kontrakter';
+
+function slettKontraktFiler(mysqli $conn, int $venteliste_id, string $kontraktDir): void
+{
+    $stmt = $conn->prepare("SELECT filnavn FROM kontrakter WHERE venteliste_id = ? AND filnavn IS NOT NULL");
+    $stmt->bind_param("i", $venteliste_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    while ($rad = $result->fetch_assoc()) {
+        $fil = $kontraktDir . '/' . $rad['filnavn'];
+        if ($rad['filnavn'] && is_file($fil)) {
+            @unlink($fil);
+        }
+    }
+}
+
 $user_id = $_SESSION['user_id'];
 $borettslag_id = $_SESSION['borettslag_id'];
 
@@ -16,10 +33,21 @@ if (
     isset($_POST['action']) &&
     $_POST['action'] === 'remove'
 ) {
-    $stmt = $conn->prepare("DELETE FROM venteliste WHERE user_id = ? AND borettslag_id = ?");
+    $stmt = $conn->prepare("SELECT id FROM venteliste WHERE user_id = ? AND borettslag_id = ? LIMIT 1");
     $stmt->bind_param("ii", $user_id, $borettslag_id);
     $stmt->execute();
-    $_SESSION['message'] = '✅ Du er fjernet fra ventelisten.';
+    $venteliste = $stmt->get_result()->fetch_assoc();
+
+    if ($venteliste) {
+        slettKontraktFiler($conn, (int)$venteliste['id'], $kontraktDir);
+        $stmt = $conn->prepare("DELETE FROM venteliste WHERE id = ?");
+        $stmt->bind_param("i", $venteliste['id']);
+        $stmt->execute();
+        $_SESSION['message'] = '✅ Du er fjernet fra ventelisten.';
+    } else {
+        $_SESSION['message'] = 'Ingen ventelisteoppføring å fjerne.';
+    }
+
     header('Location: min_venteliste.php');
     exit;
 }
@@ -44,6 +72,14 @@ $stmt = $conn->prepare("
 $stmt->bind_param("ii", $user_id, $borettslag_id);
 $stmt->execute();
 $oppføring = $stmt->get_result()->fetch_assoc();
+
+$kontrakt = null;
+if ($oppføring) {
+    $stmt = $conn->prepare("SELECT * FROM kontrakter WHERE venteliste_id = ? ORDER BY id DESC LIMIT 1");
+    $stmt->bind_param("i", $oppføring['id']);
+    $stmt->execute();
+    $kontrakt = $stmt->get_result()->fetch_assoc();
+}
 ?>
 <!DOCTYPE html>
 <html lang="no">
@@ -123,6 +159,54 @@ $oppføring = $stmt->get_result()->fetch_assoc();
           ?>
 
           <p><strong>Din posisjon:</strong> <?= $posisjon ?> av <?= $totalt['totalt'] ?></p>
+
+          <div class="contract-section">
+            <h4>✉️ Tilbud og kontrakt</h4>
+            <?php if ($kontrakt): ?>
+              <?php
+              $statusTekster = [
+                'tilbud' => 'Tilbud sendt – vi venter på din godkjenning',
+                'signert' => 'Signert – avventer endelig bekreftelse fra admin',
+                'fullfort' => 'Ferdigstilt'
+              ];
+              $statusLabel = $statusTekster[$kontrakt['status']] ?? ucfirst($kontrakt['status']);
+              ?>
+              <p><strong>Status:</strong> <?= htmlspecialchars($statusLabel) ?></p>
+              <?php if (!empty($kontrakt['tilbudt_dato'])): ?>
+                <p><small>Tilbud sendt: <?= htmlspecialchars($kontrakt['tilbudt_dato']) ?></small></p>
+              <?php endif; ?>
+              <?php if (!empty($kontrakt['signert_dato'])): ?>
+                <p><small>Signert: <?= htmlspecialchars($kontrakt['signert_dato']) ?></small></p>
+              <?php endif; ?>
+
+              <?php if ($kontrakt['status'] === 'tilbud'): ?>
+                <p>Godkjenn tilbudet og last opp signert kontrakt for å bekrefte at du ønsker plassen.</p>
+                <form method="post" action="bruker_kontrakt_last_opp.php" enctype="multipart/form-data">
+                  <input type="hidden" name="kontrakt_id" value="<?= $kontrakt['id'] ?>">
+                  <label class="file-label">Velg signert kontrakt (PDF/JPG/PNG)
+                    <input type="file" name="signert_kontrakt" accept="application/pdf,image/*" required>
+                  </label>
+                  <label class="checkbox-label">
+                    <input type="checkbox" name="bekreft" value="1" required>
+                    Jeg godkjenner tilbudet og bekrefter at kontrakten er signert.
+                  </label>
+                  <button type="submit">📤 Last opp signert kontrakt</button>
+                </form>
+              <?php elseif ($kontrakt['status'] === 'signert'): ?>
+                <p>Vi har mottatt signert kontrakt. Du får beskjed så snart admin har godkjent tildelingen.</p>
+                <?php if (!empty($kontrakt['filnavn'])): ?>
+                  <p><a href="kontrakter/<?= rawurlencode($kontrakt['filnavn']) ?>" target="_blank">📄 Åpne kontrakt</a></p>
+                <?php endif; ?>
+              <?php else: ?>
+                <p>Kontrakten er ferdigstilt. Følg med i mine plasser for oppdatert status.</p>
+                <?php if (!empty($kontrakt['filnavn'])): ?>
+                  <p><a href="kontrakter/<?= rawurlencode($kontrakt['filnavn']) ?>" target="_blank">📄 Åpne kontrakt</a></p>
+                <?php endif; ?>
+              <?php endif; ?>
+            <?php else: ?>
+              <p>Ingen tilbud er sendt ennå. Du får beskjed så snart det er din tur.</p>
+            <?php endif; ?>
+          </div>
 
           <form method="post" onsubmit="return confirm('Er du sikker på at du vil melde deg av?');">
             <input type="hidden" name="action" value="remove">

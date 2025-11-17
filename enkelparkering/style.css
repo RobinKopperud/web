@@ -148,6 +148,54 @@ main,
   color: #3a3a3a;
 }
 
+.contract-section {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.contract-section h4 {
+  margin: 0 0 0.75rem;
+  color: #2c2c2c;
+}
+
+.contract-section form {
+  margin-top: 0.5rem;
+  padding-top: 0;
+  border-top: none;
+}
+
+.file-label {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.contract-section input[type="file"] {
+  margin-top: 0.35rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  margin: 0.75rem 0 1rem;
+}
+
+.checkbox-label input[type="checkbox"] {
+  margin-top: 0.2rem;
+}
+
+.contract-section a {
+  color: #0b74c9;
+  text-decoration: none;
+}
+
+.contract-section a:hover {
+  text-decoration: underline;
+}
+
 .global-waitlist-button {
   display: inline-block;
   width: 100%;
@@ -325,6 +373,17 @@ button[disabled] {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
+  }
+
+  .search-container {
+    padding: 0 1rem 1.5rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .search-box {
+    max-width: 480px;
+    margin: 1rem auto 0;
   }
 
   .menu-toggle {

@@ -1,6 +1,7 @@
 <?php
 session_start();
 include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
+require_once __DIR__ . '/../lib/PdfGenerator.php';
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../login.php');
@@ -43,7 +44,7 @@ if (!$venteliste_entry) {
 }
 
 // Finn plassinformasjon
-$stmt = $conn->prepare('SELECT p.*, a.navn AS anlegg_navn FROM plasser p JOIN anlegg a ON p.anlegg_id = a.id WHERE p.id = ?');
+$stmt = $conn->prepare('SELECT p.*, a.navn AS anlegg_navn, a.type AS anlegg_type FROM plasser p JOIN anlegg a ON p.anlegg_id = a.id WHERE p.id = ?');
 $stmt->bind_param('i', $plass_id);
 $stmt->execute();
 $plass = $stmt->get_result()->fetch_assoc();
@@ -71,15 +72,71 @@ $stmt->bind_param('iiii', $venteliste_entry['user_id'], $venteliste_id, $plass_i
 $stmt->execute();
 $kontrakt_id = $stmt->insert_id;
 
+$depositum = 0;
+$maanedspris = 0;
+if ($prisStmt = $conn->prepare('SELECT depositum, leiepris FROM plass_priser WHERE type = ? LIMIT 1')) {
+    $prisStmt->bind_param('s', $plass['anlegg_type']);
+    $prisStmt->execute();
+    $pris = $prisStmt->get_result()->fetch_assoc();
+    if ($pris) {
+        $depositum = (int)$pris['depositum'];
+        $maanedspris = (int)$pris['leiepris'];
+    }
+}
+
+$kontraktDir = __DIR__ . '/../kontrakter';
+if (!is_dir($kontraktDir)) {
+    mkdir($kontraktDir, 0777, true);
+}
+
+$pdfFilnavn = sprintf('tilbud_%d_%s.pdf', $kontrakt_id, date('Ymd_His'));
+$pdfPath = $kontraktDir . '/' . $pdfFilnavn;
+
+try {
+    PdfGenerator::createContractOffer($pdfPath, [
+        'name' => $venteliste_entry['navn'],
+        'facility' => $plass['anlegg_navn'],
+        'place' => $plass['nummer'],
+        'type' => $plass['anlegg_type'],
+        'deposit' => $depositum,
+        'monthly' => $maanedspris,
+        'date' => date('d.m.Y')
+    ]);
+    $pdfAttachment = chunk_split(base64_encode(file_get_contents($pdfPath)));
+} catch (Throwable $e) {
+    $pdfAttachment = null;
+}
+
 $subject = 'Tilbud om parkeringsplass – ' . $plass['anlegg_navn'];
-$body = "Hei {$venteliste_entry['navn']},\n\n" .
+$body = "Hei {$venteliste_entry['navn']},\r\n\r\n" .
     "Du har nå fått et tilbud om parkeringsplass {$plass['nummer']} på {$plass['anlegg_navn']}. " .
-    "Vennligst signer kontrakten du har mottatt fra borettslaget og send den tilbake ved å svare på denne e-posten.\n\n" .
-    "Så snart vi registrerer signert kontrakt vil du få endelig bekreftelse på tildeling.\n\n" .
-    "Med vennlig hilsen\n" .
+    "Vedlagt finner du standardkontrakten med generell informasjon om bruk av plassen, hærverk og betalingsbetingelser.\r\n\r\n" .
+    "Signer kontrakten og svar på denne e-posten med signert kopi for å bekrefte plassen.\r\n\r\n" .
+    "Med vennlig hilsen\r\n" .
     "{$admin['borettslag_id']} – Parkeringsansvarlig";
-$headers = "From: noreply@enkelparkering.test";
-$mail_ok = @mail($venteliste_entry['epost'], $subject, $body, $headers);
+
+if ($pdfAttachment) {
+    $boundary = '=_Part_' . md5((string)microtime(true));
+    $headers = "From: noreply@enkelparkering.test\r\n";
+    $headers .= "MIME-Version: 1.0\r\n";
+    $headers .= "Content-Type: multipart/mixed; boundary=\"{$boundary}\"";
+
+    $message = "--{$boundary}\r\n";
+    $message .= "Content-Type: text/plain; charset=\"utf-8\"\r\n";
+    $message .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
+    $message .= $body . "\r\n\r\n";
+    $message .= "--{$boundary}\r\n";
+    $message .= "Content-Type: application/pdf; name=\"kontraktstilbud.pdf\"\r\n";
+    $message .= "Content-Transfer-Encoding: base64\r\n";
+    $message .= "Content-Disposition: attachment; filename=\"kontraktstilbud.pdf\"\r\n\r\n";
+    $message .= $pdfAttachment . "\r\n";
+    $message .= "--{$boundary}--";
+
+    $mail_ok = @mail($venteliste_entry['epost'], $subject, $message, $headers);
+} else {
+    $headers = "From: noreply@enkelparkering.test";
+    $mail_ok = @mail($venteliste_entry['epost'], $subject, $body, $headers);
+}
 
 if ($mail_ok) {
     $_SESSION['admin_message'] = 'Tilbud er sendt til ' . $venteliste_entry['navn'] . '.';

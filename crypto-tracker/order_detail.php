@@ -65,10 +65,11 @@ foreach ($closures as $closure) {
             <div><strong>Status:</strong> <span class="badge <?php echo strtolower($order['status']); ?>"><?php echo h($order['status']); ?></span></div>
             <div><strong>Quantity:</strong> <?php echo formatDecimal($order['quantity']); ?></div>
             <div><strong>Remaining:</strong> <?php echo formatDecimal($order['remaining_quantity']); ?></div>
-            <div><strong>Entry price:</strong> <?php echo formatDecimal($order['entry_price']); ?></div>
-            <div><strong>Fee:</strong> <?php echo formatDecimal($order['fee']); ?></div>
-            <div><strong>Total cost basis:</strong> <?php echo formatDecimal(($order['quantity'] * $order['entry_price']) + $order['fee']); ?></div>
-            <div><strong>Realized profit:</strong> <?php echo $order['status'] === 'CLOSED' ? formatDecimal($order['realized_profit']) : '-'; ?></div>
+            <div><strong>Entry price:</strong> <?php echo formatDecimal($order['entry_price']); ?> <?php echo h($order['currency'] ?? 'USD'); ?></div>
+            <div><strong>Currency:</strong> <?php echo h($order['currency'] ?? 'USD'); ?></div>
+            <div><strong>Fee:</strong> <?php echo formatDecimal($order['fee']); ?> <?php echo h($order['currency'] ?? 'USD'); ?></div>
+            <div><strong>Total cost basis:</strong> <?php echo formatDecimal(($order['quantity'] * $order['entry_price']) + $order['fee']); ?> <?php echo h($order['currency'] ?? 'USD'); ?></div>
+            <div><strong>Realized profit:</strong> <?php echo $order['status'] === 'CLOSED' ? formatDecimal($order['realized_profit']) . ' ' . h($order['currency'] ?? 'USD') : '-'; ?></div>
             <div><strong>Created at:</strong> <?php echo h($order['created_at']); ?></div>
             <div><strong>Closed at:</strong> <?php echo h($order['closed_at']); ?></div>
         </div>
@@ -86,6 +87,7 @@ foreach ($closures as $closure) {
                         <th>ID</th>
                         <th>Close quantity</th>
                         <th>Close price</th>
+                        <th>Currency</th>
                         <th>Fee</th>
                         <th>Profit</th>
                         <th>Date</th>
@@ -97,6 +99,7 @@ foreach ($closures as $closure) {
                             <td>#<?php echo (int)$closure['id']; ?></td>
                             <td><?php echo formatDecimal($closure['close_quantity']); ?></td>
                             <td><?php echo formatDecimal($closure['close_price']); ?></td>
+                            <td><?php echo h($closure['currency'] ?? $order['currency']); ?></td>
                             <td><?php echo formatDecimal($closure['fee']); ?></td>
                             <td class="profit <?php echo $closure['profit'] >= 0 ? 'positive' : 'negative'; ?>"><?php echo formatDecimal($closure['profit']); ?></td>
                             <td><?php echo h($closure['created_at']); ?></td>
@@ -105,8 +108,9 @@ foreach ($closures as $closure) {
                     </tbody>
                     <tfoot>
                     <tr>
-                        <th colspan="4" class="text-right">Total realized profit</th>
-                        <th colspan="2" class="profit <?php echo $totalClosureProfit >= 0 ? 'positive' : 'negative'; ?>"><?php echo formatDecimal($totalClosureProfit); ?></th>
+                        <th colspan="5" class="text-right">Total realized profit</th>
+                        <th class="profit <?php echo $totalClosureProfit >= 0 ? 'positive' : 'negative'; ?>"><?php echo formatDecimal($totalClosureProfit); ?> <?php echo h($order['currency'] ?? 'USD'); ?></th>
+                        <th></th>
                     </tr>
                     </tfoot>
                 </table>

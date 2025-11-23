@@ -4,6 +4,14 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 
 date_default_timezone_set('UTC');
 
+function sanitize_currency(string $currency): string
+{
+    $allowed = ['USD', 'EUR', 'NOK', 'USDT', 'GBP'];
+    $cleaned = strtoupper(trim($currency));
+
+    return in_array($cleaned, $allowed, true) ? $cleaned : 'USD';
+}
+
 function redirect_with_flash(string $type, string $message, string $location = 'index.php')
 {
     $_SESSION['flash'] = [
@@ -25,6 +33,7 @@ if ($action === 'create_order') {
     $quantity = $_POST['quantity'] ?? '';
     $entryPrice = $_POST['entry_price'] ?? '';
     $fee = $_POST['fee'] ?? '0';
+    $currency = sanitize_currency($_POST['currency'] ?? 'USD');
 
     if ($asset === '' || !is_numeric($quantity) || !is_numeric($entryPrice) || $quantity <= 0 || $entryPrice < 0) {
         redirect_with_flash('error', 'Please provide a valid asset, quantity, and entry price.');
@@ -34,12 +43,12 @@ if ($action === 'create_order') {
     $entryPrice = (float)$entryPrice;
     $fee = is_numeric($fee) ? (float)$fee : 0;
 
-    $stmt = $conn->prepare("INSERT INTO orders (asset, side, quantity, entry_price, fee, status, remaining_quantity, created_at, realized_profit) VALUES (?, 'BUY', ?, ?, ?, 'OPEN', ?, NOW(), NULL)");
+    $stmt = $conn->prepare("INSERT INTO orders (asset, side, quantity, entry_price, fee, currency, status, remaining_quantity, created_at, realized_profit) VALUES (?, 'BUY', ?, ?, ?, ?, 'OPEN', ?, NOW(), NULL)");
     if (!$stmt) {
         redirect_with_flash('error', 'Could not prepare insert statement.');
     }
 
-    $stmt->bind_param('sdddd', $asset, $quantity, $entryPrice, $fee, $quantity);
+    $stmt->bind_param('sdddsd', $asset, $quantity, $entryPrice, $fee, $currency, $quantity);
     if ($stmt->execute()) {
         redirect_with_flash('success', 'Order added successfully.');
     }
@@ -85,13 +94,14 @@ if ($action === 'close_order') {
     $proceeds = ($closeQuantity * $closePrice) - $closeFee;
     $profit = $proceeds - $allocatedCost;
 
-    // Insert closure record
-    $insertClosure = $conn->prepare('INSERT INTO order_closures (order_id, close_quantity, close_price, fee, profit, created_at) VALUES (?, ?, ?, ?, ?, NOW())');
+    $orderCurrency = sanitize_currency($order['currency'] ?? 'USD');
+
+    $insertClosure = $conn->prepare('INSERT INTO order_closures (order_id, close_quantity, close_price, currency, fee, profit, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())');
     if (!$insertClosure) {
         redirect_with_flash('error', 'Could not prepare closure statement.');
     }
 
-    $insertClosure->bind_param('idddd', $orderId, $closeQuantity, $closePrice, $closeFee, $profit);
+    $insertClosure->bind_param('iddsdd', $orderId, $closeQuantity, $closePrice, $orderCurrency, $closeFee, $profit);
     if (!$insertClosure->execute()) {
         redirect_with_flash('error', 'Failed to record closure.');
     }

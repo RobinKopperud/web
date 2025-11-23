@@ -4,6 +4,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const quantityInput = document.getElementById('quantity');
     const entryPriceInput = document.getElementById('entry_price');
     const totalCostInput = document.getElementById('total_cost');
+    const closeModal = document.getElementById('closeModal');
+    const closeModalForm = document.getElementById('closeModalForm');
+    const closeOrderIdInput = document.getElementById('closeModalOrderId');
+    const closeQuantityInput = document.getElementById('close_quantity_modal');
+    const closePriceInput = document.getElementById('close_price_modal');
+    const closeFeeInput = document.getElementById('close_fee_modal');
+    const closeModalTitle = document.getElementById('closeModalTitle');
+    const closeModalAsset = document.getElementById('closeModalAsset');
+    const closeRemainingHelper = document.getElementById('closeRemainingHelper');
+    const closeCurrencyBadge = document.getElementById('closeCurrencyBadge');
+    const closeModalDismiss = document.getElementById('closeModalDismiss');
+    const closeModalCancel = document.getElementById('closeModalCancel');
 
     function formatNumber(value) {
         return Number.parseFloat(value).toFixed(8);
@@ -81,13 +93,58 @@ document.addEventListener('DOMContentLoaded', () => {
         element?.addEventListener('input', () => updateMissingOrderField(name));
     });
 
-    document.querySelectorAll('.toggle-close').forEach(button => {
+    function hideCloseModal() {
+        closeModal?.classList.remove('open');
+        document.body.classList.remove('modal-open');
+        if (closeModalForm) {
+            closeModalForm.reset();
+        }
+        closeModal?.setAttribute('aria-hidden', 'true');
+    }
+
+    function openCloseModal({ id, asset, remaining, currency }) {
+        if (!closeModal || !closeModalForm) return;
+
+        closeModal.classList.add('open');
+        document.body.classList.add('modal-open');
+        closeModal.setAttribute('aria-hidden', 'false');
+
+        closeOrderIdInput.value = id;
+        closeQuantityInput.value = remaining;
+        closeQuantityInput.max = remaining;
+        closePriceInput.value = '';
+        if (closeFeeInput) {
+            closeFeeInput.value = '';
+        }
+        closeModalTitle.textContent = `Order #${id}`;
+        closeModalAsset.textContent = asset;
+        closeRemainingHelper.textContent = `(Remaining: ${remaining})`;
+        closeCurrencyBadge.textContent = currency;
+        closeQuantityInput.focus();
+    }
+
+    document.querySelectorAll('.open-close-modal').forEach(button => {
         button.addEventListener('click', () => {
-            const targetId = button.dataset.target;
-            const form = document.getElementById(targetId);
-            if (form) {
-                form.style.display = form.style.display === 'block' ? 'none' : 'block';
-            }
+            const { orderId, asset, remaining, currency } = button.dataset;
+            openCloseModal({
+                id: orderId,
+                asset: asset || 'Order',
+                remaining: remaining || '0',
+                currency: currency || 'USD',
+            });
         });
+    });
+
+    closeModalDismiss?.addEventListener('click', hideCloseModal);
+    closeModalCancel?.addEventListener('click', hideCloseModal);
+    closeModal?.addEventListener('click', (event) => {
+        if (event.target === closeModal) {
+            hideCloseModal();
+        }
+    });
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && closeModal?.classList.contains('open')) {
+            hideCloseModal();
+        }
     });
 });

@@ -3,6 +3,7 @@ session_start();
 include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 
 date_default_timezone_set('UTC');
+$currencyOptions = ['USD', 'EUR', 'NOK', 'USDT', 'GBP'];
 
 // Fetch available assets for filter dropdown
 $assetOptions = [];
@@ -98,6 +99,15 @@ unset($_SESSION['flash']);
                 <input type="number" step="0.00000001" min="0" name="entry_price" id="entry_price" required>
             </div>
             <div class="form-control">
+                <label for="currency">Price currency</label>
+                <select name="currency" id="currency">
+                    <?php foreach ($currencyOptions as $currency): ?>
+                        <option value="<?php echo h($currency); ?>" <?php echo $currency === 'USD' ? 'selected' : ''; ?>><?php echo h($currency); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <p class="hint">Used for entry price and all closes on this order.</p>
+            </div>
+            <div class="form-control">
                 <label for="total_cost">Total cost (optional)</label>
                 <input type="number" step="0.00000001" min="0" name="total_cost" id="total_cost" placeholder="Auto-calculated">
                 <p class="hint">Fill any two of quantity, entry price, and total to auto-calculate the third.</p>
@@ -176,8 +186,18 @@ unset($_SESSION['flash']);
                         <td><span class="badge <?php echo strtolower($order['status']); ?>"><?php echo h($order['status']); ?></span></td>
                         <td><?php echo formatDecimal($order['quantity']); ?></td>
                         <td><?php echo formatDecimal($order['remaining_quantity']); ?></td>
-                        <td><?php echo formatDecimal($order['entry_price']); ?></td>
-                        <td><?php echo formatDecimal($totalCost); ?></td>
+                        <td>
+                            <div class="cell-stack">
+                                <span class="mono"><?php echo formatDecimal($order['entry_price']); ?></span>
+                                <span class="chip"><?php echo h($order['currency'] ?? 'USD'); ?></span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-stack">
+                                <span class="mono"><?php echo formatDecimal($totalCost); ?></span>
+                                <span class="chip"><?php echo h($order['currency'] ?? 'USD'); ?></span>
+                            </div>
+                        </td>
                         <td class="profit <?php echo $isClosed ? ($order['realized_profit'] >= 0 ? 'positive' : 'negative') : ''; ?>">
                             <?php echo $isClosed ? formatDecimal($order['realized_profit']) : '-'; ?>
                         </td>
@@ -186,26 +206,14 @@ unset($_SESSION['flash']);
                         <td class="actions">
                             <a class="btn ghost" href="order_detail.php?id=<?php echo (int)$order['id']; ?>">Details</a>
                             <?php if (!$isClosed): ?>
-                                <button class="btn secondary toggle-close" type="button" data-target="close-form-<?php echo (int)$order['id']; ?>">Close</button>
-                                <form id="close-form-<?php echo (int)$order['id']; ?>" class="close-form" method="POST" action="actions.php">
-                                    <input type="hidden" name="action" value="close_order">
-                                    <input type="hidden" name="order_id" value="<?php echo (int)$order['id']; ?>">
-                                    <div class="form-control">
-                                        <label>Close quantity</label>
-                                        <input type="number" step="0.00000001" min="0" max="<?php echo formatDecimal($order['remaining_quantity']); ?>" name="close_quantity" value="<?php echo formatDecimal($order['remaining_quantity']); ?>" required>
-                                    </div>
-                                    <div class="form-control">
-                                        <label>Close price per unit</label>
-                                        <input type="number" step="0.00000001" min="0" name="close_price" required>
-                                    </div>
-                                    <div class="form-control">
-                                        <label>Close fee (optional)</label>
-                                        <input type="number" step="0.00000001" min="0" name="close_fee" placeholder="0">
-                                    </div>
-                                    <div class="form-actions">
-                                        <button type="submit" class="btn danger">Confirm close</button>
-                                    </div>
-                                </form>
+                                <button class="btn secondary open-close-modal" type="button"
+                                        data-order-id="<?php echo (int)$order['id']; ?>"
+                                        data-asset="<?php echo h($order['asset']); ?>"
+                                        data-remaining="<?php echo formatDecimal($order['remaining_quantity']); ?>"
+                                        data-entry-price="<?php echo formatDecimal($order['entry_price']); ?>"
+                                        data-currency="<?php echo h($order['currency'] ?? 'USD'); ?>">
+                                    Close
+                                </button>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -214,6 +222,42 @@ unset($_SESSION['flash']);
             </table>
         </div>
     </section>
+
+    <div class="modal" id="closeModal" aria-hidden="true" role="dialog" aria-labelledby="closeModalTitle">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <p class="eyebrow" id="closeModalAsset">Close order</p>
+                    <h3 id="closeModalTitle">Order</h3>
+                </div>
+                <button type="button" class="icon-button" id="closeModalDismiss" aria-label="Close close order dialog">×</button>
+            </div>
+            <form method="POST" action="actions.php" id="closeModalForm" class="modal-form">
+                <input type="hidden" name="action" value="close_order">
+                <input type="hidden" name="order_id" id="closeModalOrderId">
+
+                <div class="form-control">
+                    <label for="close_quantity_modal">Close quantity <span class="hint" id="closeRemainingHelper"></span></label>
+                    <input type="number" step="0.00000001" min="0" name="close_quantity" id="close_quantity_modal" required>
+                </div>
+                <div class="form-control">
+                    <label for="close_price_modal">Close price per unit</label>
+                    <div class="input-with-addon">
+                        <input type="number" step="0.00000001" min="0" name="close_price" id="close_price_modal" required>
+                        <span class="input-addon" id="closeCurrencyBadge">USD</span>
+                    </div>
+                </div>
+                <div class="form-control">
+                    <label for="close_fee_modal">Close fee (optional)</label>
+                    <input type="number" step="0.00000001" min="0" name="close_fee" id="close_fee_modal" placeholder="0">
+                </div>
+                <div class="form-actions modal-actions">
+                    <button type="button" class="btn" id="closeModalCancel">Cancel</button>
+                    <button type="submit" class="btn danger">Confirm close</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 <script src="assets/app.js"></script>
 </body>

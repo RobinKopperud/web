@@ -98,6 +98,11 @@ unset($_SESSION['flash']);
                 <input type="number" step="0.00000001" min="0" name="entry_price" id="entry_price" required>
             </div>
             <div class="form-control">
+                <label for="total_cost">Total cost (optional)</label>
+                <input type="number" step="0.00000001" min="0" name="total_cost" id="total_cost" placeholder="Auto-calculated">
+                <p class="hint">Fill any two of quantity, entry price, and total to auto-calculate the third.</p>
+            </div>
+            <div class="form-control">
                 <label for="fee">Fee (optional)</label>
                 <input type="number" step="0.00000001" min="0" name="fee" id="fee" placeholder="0">
             </div>

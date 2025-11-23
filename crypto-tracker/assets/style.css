@@ -155,6 +155,10 @@ header h1 {
     overflow-x: auto;
 }
 
+.is-hidden {
+    display: none !important;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -307,8 +311,17 @@ tr:hover { background: rgba(255, 255, 255, 0.02); }
 .link { color: var(--accent); text-decoration: none; }
 .link:hover { text-decoration: underline; }
 
-@media (max-width: 700px) {
+@media (max-width: 760px) {
     .form-actions { justify-content: flex-start; }
-    .actions { flex-direction: column; }
     .price-row { flex-direction: column; align-items: flex-start; }
+
+    .table-wrapper { overflow: visible; }
+    table { border: 0; }
+    thead { display: none; }
+    tbody { display: flex; flex-direction: column; gap: 12px; }
+    tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 12px; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+    td { padding: 6px 0; border: none; }
+    td::before { content: attr(data-label); display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+    td.actions { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; gap: 8px; }
+    .cell-stack { flex-direction: column; align-items: flex-start; }
 }

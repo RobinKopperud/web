@@ -1,9 +1,42 @@
 document.addEventListener('DOMContentLoaded', () => {
     const priceInput = document.getElementById('currentPrice');
     const updateButton = document.getElementById('updatePrice');
+    const quantityInput = document.getElementById('quantity');
+    const entryPriceInput = document.getElementById('entry_price');
+    const totalCostInput = document.getElementById('total_cost');
 
     function formatNumber(value) {
         return Number.parseFloat(value).toFixed(8);
+    }
+
+    function parsePositiveNumber(value) {
+        const parsed = Number.parseFloat(value);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+    }
+
+    function updateMissingOrderField(changedField) {
+        if (!quantityInput || !entryPriceInput || !totalCostInput) return;
+
+        const quantity = parsePositiveNumber(quantityInput.value);
+        const entryPrice = parsePositiveNumber(entryPriceInput.value);
+        const totalCost = parsePositiveNumber(totalCostInput.value);
+
+        if (changedField !== 'quantity' && entryPrice !== null && totalCost !== null) {
+            const computedQuantity = totalCost / entryPrice;
+            quantityInput.value = Number.isFinite(computedQuantity) ? formatNumber(computedQuantity) : '';
+            return;
+        }
+
+        if (changedField !== 'entry_price' && quantity !== null && totalCost !== null) {
+            const computedEntry = totalCost / quantity;
+            entryPriceInput.value = Number.isFinite(computedEntry) ? formatNumber(computedEntry) : '';
+            return;
+        }
+
+        if (changedField !== 'total_cost' && quantity !== null && entryPrice !== null) {
+            const computedTotal = quantity * entryPrice;
+            totalCostInput.value = Number.isFinite(computedTotal) ? formatNumber(computedTotal) : '';
+        }
     }
 
     function updateUnrealized() {
@@ -39,6 +72,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    [
+        { element: quantityInput, name: 'quantity' },
+        { element: entryPriceInput, name: 'entry_price' },
+        { element: totalCostInput, name: 'total_cost' },
+    ].forEach(({ element, name }) => {
+        element?.addEventListener('input', () => updateMissingOrderField(name));
+    });
 
     document.querySelectorAll('.toggle-close').forEach(button => {
         button.addEventListener('click', () => {

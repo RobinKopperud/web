@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once __DIR__ . '/../db.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 
 date_default_timezone_set('UTC');
 

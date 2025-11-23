@@ -18,37 +18,7 @@ $assetFilter = isset($_GET['asset']) ? trim($_GET['asset']) : '';
 $statusFilter = isset($_GET['status']) ? $_GET['status'] : 'open';
 $statusFilter = in_array($statusFilter, ['open', 'all']) ? $statusFilter : 'open';
 
-// Build filtered order query
-$where = [];
-$params = [];
-$types = '';
-
-if ($assetFilter !== '') {
-    $where[] = 'asset = ?';
-    $types .= 's';
-    $params[] = $assetFilter;
-}
-
-if ($statusFilter === 'open') {
-    $where[] = "status = 'OPEN'";
-}
-
-$sql = 'SELECT * FROM orders';
-if (!empty($where)) {
-    $sql .= ' WHERE ' . implode(' AND ', $where);
-}
-$sql .= ' ORDER BY created_at DESC';
-
-$stmt = $conn->prepare($sql);
-if ($stmt === false) {
-    die('Failed to prepare statement: ' . $conn->error);
-}
-
-if (!empty($types)) {
-    $stmt->bind_param($types, ...$params);
-}
-$stmt->execute();
-$ordersResult = $stmt->get_result();
+$ordersResult = $conn->query('SELECT * FROM orders ORDER BY created_at DESC');
 
 function h($value)
 {
@@ -164,12 +134,9 @@ unset($_SESSION['flash']);
                     <th>Asset</th>
                     <th>Status</th>
                     <th>Quantity</th>
-                    <th>Remaining</th>
                     <th>Entry price</th>
                     <th>Total cost</th>
-                    <th>Realized P/L</th>
                     <th>Unrealized P/L</th>
-                    <th>Created</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
@@ -180,30 +147,25 @@ unset($_SESSION['flash']);
                     $isClosed = $order['status'] === 'CLOSED';
                     $rowClass = $isClosed ? 'status-closed' : 'status-open';
                     ?>
-                    <tr class="<?php echo $rowClass; ?>" data-entry-price="<?php echo formatDecimal($order['entry_price']); ?>" data-remaining="<?php echo formatDecimal($order['remaining_quantity']); ?>">
-                        <td><a href="order_detail.php?id=<?php echo (int)$order['id']; ?>">#<?php echo (int)$order['id']; ?></a></td>
-                        <td><?php echo h($order['asset']); ?></td>
-                        <td><span class="badge <?php echo strtolower($order['status']); ?>"><?php echo h($order['status']); ?></span></td>
-                        <td><?php echo formatDecimal($order['quantity']); ?></td>
-                        <td><?php echo formatDecimal($order['remaining_quantity']); ?></td>
-                        <td>
+                    <tr class="<?php echo $rowClass; ?>" data-entry-price="<?php echo formatDecimal($order['entry_price']); ?>" data-remaining="<?php echo formatDecimal($order['remaining_quantity']); ?>" data-asset="<?php echo h(strtolower($order['asset'])); ?>" data-status="<?php echo h(strtolower($order['status'])); ?>">
+                        <td data-label="ID"><a href="order_detail.php?id=<?php echo (int)$order['id']; ?>">#<?php echo (int)$order['id']; ?></a></td>
+                        <td data-label="Asset"><?php echo h($order['asset']); ?></td>
+                        <td data-label="Status"><span class="badge <?php echo strtolower($order['status']); ?>"><?php echo h($order['status']); ?></span></td>
+                        <td data-label="Quantity" class="mono"><?php echo formatDecimal($order['quantity']); ?></td>
+                        <td data-label="Entry price">
                             <div class="cell-stack">
                                 <span class="mono"><?php echo formatDecimal($order['entry_price']); ?></span>
                                 <span class="chip"><?php echo h($order['currency'] ?? 'USD'); ?></span>
                             </div>
                         </td>
-                        <td>
+                        <td data-label="Total cost">
                             <div class="cell-stack">
                                 <span class="mono"><?php echo formatDecimal($totalCost); ?></span>
                                 <span class="chip"><?php echo h($order['currency'] ?? 'USD'); ?></span>
                             </div>
                         </td>
-                        <td class="profit <?php echo $isClosed ? ($order['realized_profit'] >= 0 ? 'positive' : 'negative') : ''; ?>">
-                            <?php echo $isClosed ? formatDecimal($order['realized_profit']) : '-'; ?>
-                        </td>
-                        <td class="profit unrealized">-</td>
-                        <td><?php echo h($order['created_at']); ?></td>
-                        <td class="actions">
+                        <td data-label="Unrealized P/L" class="profit unrealized">-</td>
+                        <td data-label="Actions" class="actions">
                             <a class="btn ghost" href="order_detail.php?id=<?php echo (int)$order['id']; ?>">Details</a>
                             <?php if (!$isClosed): ?>
                                 <button class="btn secondary open-close-modal" type="button"

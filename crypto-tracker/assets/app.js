@@ -16,6 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeCurrencyBadge = document.getElementById('closeCurrencyBadge');
     const closeModalDismiss = document.getElementById('closeModalDismiss');
     const closeModalCancel = document.getElementById('closeModalCancel');
+    const filterForm = document.querySelector('.filters form');
+    const assetFilterSelect = document.getElementById('filter_asset');
+    const statusFilterRadios = document.querySelectorAll('input[name="status"]');
 
     function formatNumber(value) {
         return Number.parseFloat(value).toFixed(8);
@@ -76,6 +79,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function applyFilters() {
+        const assetValue = assetFilterSelect?.value.trim().toLowerCase() || '';
+        const statusValue = Array.from(statusFilterRadios).find(radio => radio.checked)?.value || 'open';
+
+        document.querySelectorAll('#ordersTable tbody tr').forEach(row => {
+            const matchesAsset = !assetValue || row.dataset.asset?.toLowerCase() === assetValue;
+            const matchesStatus = statusValue === 'all' || row.dataset.status === statusValue;
+            row.classList.toggle('is-hidden', !(matchesAsset && matchesStatus));
+        });
+    }
+
     if (updateButton) {
         updateButton.addEventListener('click', updateUnrealized);
         priceInput?.addEventListener('keyup', (event) => {
@@ -91,6 +105,15 @@ document.addEventListener('DOMContentLoaded', () => {
         { element: totalCostInput, name: 'total_cost' },
     ].forEach(({ element, name }) => {
         element?.addEventListener('input', () => updateMissingOrderField(name));
+    });
+
+    [assetFilterSelect, ...statusFilterRadios].forEach(element => {
+        element?.addEventListener('change', applyFilters);
+    });
+
+    filterForm?.addEventListener('submit', (event) => {
+        event.preventDefault();
+        applyFilters();
     });
 
     function hideCloseModal() {
@@ -147,4 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
             hideCloseModal();
         }
     });
+
+    applyFilters();
 });

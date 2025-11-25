@@ -34,10 +34,6 @@ if (empty($symbols)) {
     exit;
 }
 
-$querySymbols = implode(',', $symbols);
-$queryQuotes = implode(',', $quotes);
-$url = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms=' . urlencode($querySymbols) . '&tsyms=' . urlencode($queryQuotes);
-
 $context = stream_context_create([
     'http' => [
         'timeout' => 6,
@@ -46,20 +42,29 @@ $context = stream_context_create([
 ]);
 
 $prices = [];
-$response = @file_get_contents($url, false, $context);
-if ($response !== false) {
-    $json = json_decode($response, true);
-    if (is_array($json)) {
-        foreach ($symbols as $symbol) {
-            foreach ($quotes as $quote) {
-                if (isset($json[$symbol][$quote])) {
-                    if (!isset($prices[$symbol])) {
-                        $prices[$symbol] = [];
-                    }
-                    $prices[$symbol][$quote] = (float)$json[$symbol][$quote];
-                }
-            }
+
+foreach ($symbols as $symbol) {
+    foreach ($quotes as $quote) {
+        $pair = urlencode($symbol . '-' . $quote);
+        $url = 'https://api.coinbase.com/v2/prices/' . $pair . '/spot';
+
+        $response = @file_get_contents($url, false, $context);
+        if ($response === false) {
+            continue;
         }
+
+        $json = json_decode($response, true);
+        $amount = $json['data']['amount'] ?? null;
+
+        if (!is_numeric($amount)) {
+            continue;
+        }
+
+        if (!isset($prices[$symbol])) {
+            $prices[$symbol] = [];
+        }
+
+        $prices[$symbol][$quote] = (float)$amount;
     }
 }
 

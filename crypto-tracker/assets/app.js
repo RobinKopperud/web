@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const priceInput = document.getElementById('currentPrice');
     const updateButton = document.getElementById('updatePrice');
     const refreshButton = document.getElementById('refreshPrices');
-    const quoteCurrencySelect = document.getElementById('quoteCurrency');
     const livePulse = document.getElementById('livePulse');
     const quantityInput = document.getElementById('quantity');
     const entryPriceInput = document.getElementById('entry_price');
@@ -37,10 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     let livePrices = {};
-
-    function getSelectedQuoteCurrency() {
-        return quoteCurrencySelect?.value || 'USD';
-    }
 
     function findCurrencyForAsset(assetSymbol) {
         const rows = Array.from(document.querySelectorAll('#ordersTable tbody tr'));
@@ -111,13 +106,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const entryPrice = Number.parseFloat(row.dataset.entryPrice);
             const remaining = Number.parseFloat(row.dataset.remaining);
             const assetSymbol = row.dataset.assetSymbol;
-            const currency = row.dataset.currency || getSelectedQuoteCurrency();
+            const currency = row.dataset.currency || 'USD';
             const cell = row.querySelector('.unrealized');
 
-            const fallbackQuote = getSelectedQuoteCurrency();
-            const priceForCurrency = priceMap?.[assetSymbol]?.[currency];
-            const currentPrice = priceForCurrency ?? priceMap?.[assetSymbol]?.[fallbackQuote];
-            const priceCurrency = priceForCurrency !== undefined ? currency : fallbackQuote;
+            const currentPrice = priceMap?.[assetSymbol]?.[currency];
+            const priceCurrency = currency;
 
             if (Number.isFinite(currentPrice) && !Number.isNaN(entryPrice) && !Number.isNaN(remaining) && remaining > 0) {
                 const profit = remaining * (currentPrice - entryPrice);
@@ -174,9 +167,8 @@ document.addEventListener('DOMContentLoaded', () => {
             .map(row => row.dataset.currency)
             .filter(Boolean)));
 
-        const selectedQuote = getSelectedQuoteCurrency();
-        if (selectedQuote) {
-            quotes.push(selectedQuote);
+        if (!quotes.length) {
+            quotes.push('USD');
         }
 
         if (!symbols.length) {
@@ -219,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const assetCurrency = findCurrencyForAsset(selectedAsset) || getSelectedQuoteCurrency();
+        const assetCurrency = findCurrencyForAsset(selectedAsset) || 'USD';
         const overridePrices = {
             ...livePrices,
             [selectedAsset]: {
@@ -242,8 +234,6 @@ document.addEventListener('DOMContentLoaded', () => {
     [assetFilterSelect, ...statusFilterRadios].forEach(element => {
         element?.addEventListener('change', applyFilters);
     });
-
-    quoteCurrencySelect?.addEventListener('change', fetchLivePrices);
 
     filterForm?.addEventListener('submit', (event) => {
         event.preventDefault();

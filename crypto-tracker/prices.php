@@ -11,10 +11,11 @@ function sanitize_symbol_part(string $value): string
     return strtoupper(preg_replace('/[^A-Z0-9]/', '', $value));
 }
 
-function fetch_price_from_hosts(string $symbol, array $hosts, array $context): ?float
+function fetch_price_from_hosts(string $symbol, array $hosts, array $context, array &$requestLog): ?float
 {
     foreach ($hosts as $host) {
         $url = $host . '?symbol=' . urlencode($symbol);
+        $requestLog[] = $url;
         $response = @file_get_contents($url, false, stream_context_create($context));
 
         if ($response === false) {
@@ -93,6 +94,8 @@ $binanceHosts = [
     'https://data-api.binance.vision/api/v3/ticker/price',
 ];
 
+$binanceRequests = [];
+
 $httpOptions = [
     'http' => [
         'timeout' => 6,
@@ -104,7 +107,7 @@ $httpOptions = [
 $prices = [];
 
 foreach ($pairs as $symbol => [$asset, $currency]) {
-    $price = fetch_price_from_hosts($symbol, $binanceHosts, $httpOptions);
+    $price = fetch_price_from_hosts($symbol, $binanceHosts, $httpOptions, $binanceRequests);
 
     if ($price === null) {
         continue;
@@ -119,6 +122,7 @@ foreach ($pairs as $symbol => [$asset, $currency]) {
 
 echo json_encode([
     'prices' => $prices,
+    'binance_requests' => array_values(array_unique($binanceRequests)),
     'requested' => array_values(array_unique(array_map(function ($pair) {
         return $pair[0];
     }, array_values($pairs)))),

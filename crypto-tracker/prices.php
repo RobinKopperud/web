@@ -12,22 +12,27 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $assetsParam = $_GET['assets'] ?? '';
-$quotesParam = $_GET['quotes'] ?? '';
+$currenciesParam = $_GET['currencies'] ?? ($_GET['quotes'] ?? '');
 
 $symbols = array_filter(array_unique(array_map(function ($symbol) {
     return strtoupper(trim($symbol));
 }, explode(',', $assetsParam))));
 
-$quotes = array_filter(array_unique(array_map(function ($quote) {
-    return strtoupper(trim($quote));
-}, explode(',', $quotesParam))));
+$currencies = array_filter(array_unique(array_map(function ($currency) {
+    return strtoupper(trim($currency));
+}, explode(',', $currenciesParam))));
+
+// Restrict currencies to those Binance commonly supports to avoid repeated feed errors
+$allowedCurrencies = ['USD', 'USDT', 'BUSD', 'EUR', 'GBP'];
+$currencies = array_values(array_intersect($currencies, $allowedCurrencies));
+
+// Always include at least USD as a base so we have a reliable feed to work with
+if (!in_array('USD', $currencies, true)) {
+    array_unshift($currencies, 'USD');
+}
 
 $symbols = array_slice($symbols, 0, 15);
-$quotes = array_slice($quotes, 0, 10);
-
-if (empty($quotes)) {
-    $quotes = ['USD'];
-}
+$currencies = array_slice($currencies, 0, 10);
 
 if (empty($symbols)) {
     echo json_encode(['prices' => []]);
@@ -49,8 +54,8 @@ $binanceHosts = [
 ];
 
 foreach ($symbols as $symbol) {
-    foreach ($quotes as $quote) {
-        $ticker = urlencode(strtoupper($symbol . $quote));
+    foreach ($currencies as $currency) {
+        $ticker = urlencode(strtoupper($symbol . $currency));
         $amount = null;
 
         foreach ($binanceHosts as $host) {
@@ -85,7 +90,7 @@ foreach ($symbols as $symbol) {
             $prices[$symbol] = [];
         }
 
-        $prices[$symbol][$quote] = $amount;
+        $prices[$symbol][$currency] = $amount;
     }
 }
 

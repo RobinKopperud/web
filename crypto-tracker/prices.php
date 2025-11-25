@@ -38,30 +38,46 @@ $context = stream_context_create([
     'http' => [
         'timeout' => 6,
         'ignore_errors' => true,
+        'user_agent' => 'CryptoTracker/1.0',
     ],
 ]);
 
 $prices = [];
+$binanceHosts = [
+    'https://api.binance.com/api/v3/ticker/price?symbol=',
+    'https://data-api.binance.vision/api/v3/ticker/price?symbol=',
+];
 
 foreach ($symbols as $symbol) {
     foreach ($quotes as $quote) {
         $ticker = urlencode(strtoupper($symbol . $quote));
-        $url = 'https://api.binance.com/api/v3/ticker/price?symbol=' . $ticker;
+        $amount = null;
 
-        $response = @file_get_contents($url, false, $context);
-        if ($response === false) {
-            continue;
+        foreach ($binanceHosts as $host) {
+            $url = $host . $ticker;
+            $response = @file_get_contents($url, false, $context);
+
+            if ($response === false) {
+                continue;
+            }
+
+            $json = json_decode($response, true);
+
+            if (!is_array($json) || isset($json['code'])) {
+                continue;
+            }
+
+            $price = $json['price'] ?? null;
+
+            if (!is_numeric($price)) {
+                continue;
+            }
+
+            $amount = (float)$price;
+            break;
         }
 
-        $json = json_decode($response, true);
-
-        if (!is_array($json) || isset($json['code'])) {
-            continue;
-        }
-
-        $amount = $json['price'] ?? null;
-
-        if (!is_numeric($amount)) {
+        if ($amount === null) {
             continue;
         }
 
@@ -69,7 +85,7 @@ foreach ($symbols as $symbol) {
             $prices[$symbol] = [];
         }
 
-        $prices[$symbol][$quote] = (float)$amount;
+        $prices[$symbol][$quote] = $amount;
     }
 }
 

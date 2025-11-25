@@ -62,6 +62,16 @@ foreach ($closures as $closure) {
         <p class="subtitle"><a href="index.php" class="link">← Back to list</a></p>
     </header>
 
+    <section class="card danger">
+        <h2>Delete order</h2>
+        <p>If this order was created by mistake, you can delete it. All closure history for the order will also be removed.</p>
+        <form method="POST" action="actions.php" onsubmit="return confirm('Delete this order and its history? This cannot be undone.');">
+            <input type="hidden" name="action" value="delete_order">
+            <input type="hidden" name="order_id" value="<?php echo (int)$order['id']; ?>">
+            <button type="submit" class="btn danger">Delete order</button>
+        </form>
+    </section>
+
     <section class="card">
         <h2>Order summary</h2>
         <div class="detail-grid">

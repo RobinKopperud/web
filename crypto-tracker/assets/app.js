@@ -75,8 +75,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function convertAmount(amount, fromCurrency, toCurrency) {
         if (!Number.isFinite(amount)) return null;
-        const from = fromCurrency || fxBase;
-        const to = toCurrency || fxBase;
+        const base = (fxBase || 'USD').toUpperCase();
+        const from = (fromCurrency || base).toUpperCase();
+        const to = (toCurrency || base).toUpperCase();
 
         if (from === to) return amount;
 
@@ -160,13 +161,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data?.rates) {
-                fxRates = { ...data.rates };
+                fxRates = Object.fromEntries(
+                    Object.entries(data.rates)
+                        .map(([code, rate]) => [code.toUpperCase(), rate])
+                );
                 fxRates.USDT = fxRates.USD ?? 1;
-                fxBase = data.base || 'USD';
+                fxBase = (data.base || 'USD').toUpperCase();
             }
         } catch (error) {
             console.error('Currency feed failed', error);
-            fxRates = { [selectedDisplayCurrency]: 1, USD: 1 };
+            const fallback = (selectedDisplayCurrency || 'USD').toUpperCase();
+            fxRates = { [fallback]: 1, USD: 1 };
             fxBase = 'USD';
         }
     }
@@ -281,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .filter(Boolean)));
 
         const currencies = Array.from(new Set(rows
-            .map(row => row.dataset.currency)
+            .map(row => row.dataset.currency?.toUpperCase())
             .filter(Boolean)));
 
         const allowedCurrencies = ['USD', 'USDT', 'EUR', 'GBP'];

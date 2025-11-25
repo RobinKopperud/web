@@ -259,6 +259,14 @@ if ($profit30Stmt) {
                 <input type="number" step="0.00000001" id="currentPrice" placeholder="Override price for selected asset">
                 <button type="button" class="btn" id="updatePrice">Apply override</button>
                 <button type="button" class="btn secondary" id="refreshPrices">Refresh now</button>
+                <div class="input-inline">
+                    <label for="quoteCurrency">Quote currency</label>
+                    <select id="quoteCurrency">
+                        <?php foreach ($currencyOptions as $currency): ?>
+                            <option value="<?php echo h($currency); ?>"><?php echo h($currency); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
                 <p class="hint">Prices auto-refresh every 60 seconds. Manual override applies to the filtered asset only.</p>
             </div>
             <div class="live-pill" id="livePulse">Live</div>

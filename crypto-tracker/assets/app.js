@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const priceInput = document.getElementById('currentPrice');
     const updateButton = document.getElementById('updatePrice');
     const refreshButton = document.getElementById('refreshPrices');
+    const quoteCurrencySelect = document.getElementById('quoteCurrency');
     const livePulse = document.getElementById('livePulse');
     const quantityInput = document.getElementById('quantity');
     const entryPriceInput = document.getElementById('entry_price');
@@ -36,6 +37,16 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     let livePrices = {};
+
+    function getSelectedQuoteCurrency() {
+        return quoteCurrencySelect?.value || 'USD';
+    }
+
+    function findCurrencyForAsset(assetSymbol) {
+        const rows = Array.from(document.querySelectorAll('#ordersTable tbody tr'));
+        const match = rows.find(row => row.dataset.assetSymbol === assetSymbol);
+        return match?.dataset.currency || null;
+    }
 
     function formatNumber(value) {
         return Number.parseFloat(value).toFixed(8);
@@ -100,10 +111,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const entryPrice = Number.parseFloat(row.dataset.entryPrice);
             const remaining = Number.parseFloat(row.dataset.remaining);
             const assetSymbol = row.dataset.assetSymbol;
-            const currency = row.dataset.currency;
+            const currency = row.dataset.currency || getSelectedQuoteCurrency();
             const cell = row.querySelector('.unrealized');
 
-            const currentPrice = priceMap?.[assetSymbol];
+            const fallbackQuote = getSelectedQuoteCurrency();
+            const priceForCurrency = priceMap?.[assetSymbol]?.[currency];
+            const currentPrice = priceForCurrency ?? priceMap?.[assetSymbol]?.[fallbackQuote];
+            const priceCurrency = priceForCurrency !== undefined ? currency : fallbackQuote;
 
             if (Number.isFinite(currentPrice) && !Number.isNaN(entryPrice) && !Number.isNaN(remaining) && remaining > 0) {
                 const profit = remaining * (currentPrice - entryPrice);
@@ -111,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 openMarketValue += remaining * currentPrice;
 
                 if (cell) {
-                    cell.textContent = `${formatNumber(profit)} ${currency}`;
+                    cell.textContent = `${formatNumber(profit)} ${priceCurrency}`;
                     cell.classList.remove('positive', 'negative');
                     if (profit > 0) {
                         cell.classList.add('positive');
@@ -156,6 +170,15 @@ document.addEventListener('DOMContentLoaded', () => {
             .map(row => row.dataset.assetSymbol)
             .filter(Boolean)));
 
+        const quotes = Array.from(new Set(rows
+            .map(row => row.dataset.currency)
+            .filter(Boolean)));
+
+        const selectedQuote = getSelectedQuoteCurrency();
+        if (selectedQuote) {
+            quotes.push(selectedQuote);
+        }
+
         if (!symbols.length) {
             setLiveStatus('No open assets to price.');
             return;
@@ -166,13 +189,17 @@ document.addEventListener('DOMContentLoaded', () => {
         refreshButton?.setAttribute('disabled', 'disabled');
 
         try {
-            const response = await fetch(`prices.php?assets=${symbols.join(',')}`);
+            const params = new URLSearchParams({
+                assets: symbols.join(','),
+                quotes: quotes.join(','),
+            });
+            const response = await fetch(`prices.php?${params.toString()}`);
             if (!response.ok) {
                 throw new Error(`Feed error (${response.status})`);
             }
             const data = await response.json();
             livePrices = data.prices || {};
-            setLiveStatus('Live prices refreshed.');
+            setLiveStatus(`Live prices refreshed (${quotes.join('/')}).`);
             updateUnrealized(livePrices);
         } catch (error) {
             setLiveStatus('Could not load live prices.', true);
@@ -192,8 +219,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const overridePrices = { ...livePrices, [selectedAsset]: manualPrice };
-        setLiveStatus(`Manual override applied to ${selectedAsset}.`);
+        const assetCurrency = findCurrencyForAsset(selectedAsset) || getSelectedQuoteCurrency();
+        const overridePrices = {
+            ...livePrices,
+            [selectedAsset]: {
+                ...(livePrices[selectedAsset] || {}),
+                [assetCurrency]: manualPrice,
+            },
+        };
+        setLiveStatus(`Manual override applied to ${selectedAsset}/${assetCurrency}.`);
         updateUnrealized(overridePrices);
     }
 
@@ -208,6 +242,8 @@ document.addEventListener('DOMContentLoaded', () => {
     [assetFilterSelect, ...statusFilterRadios].forEach(element => {
         element?.addEventListener('change', applyFilters);
     });
+
+    quoteCurrencySelect?.addEventListener('change', fetchLivePrices);
 
     filterForm?.addEventListener('submit', (event) => {
         event.preventDefault();

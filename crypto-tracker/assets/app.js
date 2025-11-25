@@ -55,8 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function setApiDebugMessage(type, queryString) {
-        apiDebugMessages[type] = `${new Date().toLocaleTimeString()} – GET ${queryString}`;
+    function setApiDebugMessage(type, message) {
+        apiDebugMessages[type] = `${new Date().toLocaleTimeString()} – ${message}`;
         renderApiDebug();
     }
 
@@ -236,13 +236,16 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const queryString = params.toString();
             const path = queryString ? `prices.php?${queryString}` : 'prices.php';
-            setApiDebugMessage('prices', path);
+            setApiDebugMessage('prices', `GET ${path}`);
             const response = await fetch(path);
             if (!response.ok) {
                 throw new Error(`Feed error (${response.status})`);
             }
             const data = await response.json();
             livePrices = data.prices || {};
+            const binanceRequests = (data.binance_requests || []).map(url => `GET ${url}`);
+            const binanceDisplay = binanceRequests.length ? binanceRequests.join(' · ') : 'Ingen Binance-spørringer registrert.';
+            setApiDebugMessage('prices', `GET ${path} | Binance: ${binanceDisplay}`);
             if (!Object.keys(livePrices).length) {
                 setLiveStatus('No live prices returned. Asset might not be available on Binance.', true);
             } else {

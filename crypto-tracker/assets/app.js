@@ -136,15 +136,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const entryPrice = Number.parseFloat(card.dataset.entryPrice);
             const remaining = Number.parseFloat(card.dataset.remaining);
             const assetSymbol = card.dataset.assetSymbol;
-            const currency = card.dataset.currency || 'USD';
+            const currency = (card.dataset.currency || 'USD').trim().toUpperCase();
             const profitEl = card.querySelector('.unrealized');
             const liveEl = card.querySelector('.order-live-price');
+            const liveCurrencyChip = card.querySelector('.order-card__live .chip');
 
-            const { price: feedPrice } = resolveLivePrice(assetSymbol, currency, priceMap);
+            const { price: feedPrice, currency: feedCurrency } = resolveLivePrice(assetSymbol, currency, priceMap);
             const currentPrice = Number.isFinite(feedPrice) ? feedPrice : null;
+            const displayCurrency = (feedCurrency || currency || '').toUpperCase();
 
             if (liveEl) {
-                liveEl.textContent = Number.isFinite(currentPrice) ? formatWithCurrency(currentPrice, currency) : '-';
+                liveEl.textContent = Number.isFinite(currentPrice) ? formatWithCurrency(currentPrice, displayCurrency) : '-';
+            }
+            if (liveCurrencyChip && displayCurrency) {
+                liveCurrencyChip.textContent = displayCurrency;
             }
 
             if (remaining <= 0 && profitEl) {
@@ -157,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const profitNative = remaining * (currentPrice - entryPrice);
 
                 if (profitEl) {
-                    profitEl.textContent = formatWithCurrency(profitNative, currency);
+                    profitEl.textContent = formatWithCurrency(profitNative, displayCurrency);
                     profitEl.classList.remove('positive', 'negative');
                     if (profitNative > 0) {
                         profitEl.classList.add('positive');

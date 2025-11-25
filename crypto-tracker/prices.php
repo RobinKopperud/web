@@ -16,6 +16,20 @@ $pairsParam = $_GET['pairs'] ?? '';
 $pairs = array_filter(array_map(function ($pair) {
     $parts = preg_split('/[-:]/', $pair);
     [$asset, $currency] = array_pad($parts, 2, '');
+
+    if ($currency === '') {
+        // Allow already-concatenated symbols like BTCUSDT
+        $asset = preg_replace('/[^A-Z0-9]/', '', strtoupper(trim($asset)));
+        $quotes = ['USDT', 'USDC', 'BUSD', 'FDUSD', 'TUSD', 'DAI', 'EUR', 'USD', 'GBP', 'AUD', 'CAD'];
+        foreach ($quotes as $quote) {
+            if (str_ends_with($asset, $quote)) {
+                $currency = $quote;
+                $asset = substr($asset, 0, -strlen($quote));
+                break;
+            }
+        }
+    }
+
     $asset = preg_replace('/[^A-Z0-9]/', '', strtoupper(trim($asset)));
     $currency = preg_replace('/[^A-Z0-9]/', '', strtoupper(trim($currency)));
     if ($asset === '' || $currency === '') {
@@ -40,48 +54,63 @@ $context = stream_context_create([
 ]);
 
 $prices = [];
+
+// Build the list of Binance symbols in the accepted array format
+$symbols = [];
+foreach ($pairs as [$asset, $currency]) {
+    $symbols[] = $asset . $currency;
+}
+
+if (empty($symbols)) {
+    echo json_encode(['prices' => []]);
+    exit;
+}
+
+$symbols = array_values(array_unique($symbols));
+
 $binanceHosts = [
-    'https://api.binance.com/api/v3/ticker/price?symbol=',
-    'https://data-api.binance.vision/api/v3/ticker/price?symbol=',
+    'https://api.binance.com/api/v3/ticker/price',
+    'https://data-api.binance.vision/api/v3/ticker/price',
 ];
 
-foreach ($pairs as [$symbol, $currency]) {
-    $ticker = urlencode(strtoupper($symbol . $currency));
-    $amount = null;
+$symbolLookup = [];
+foreach ($pairs as [$asset, $currency]) {
+    $symbolLookup[$asset . $currency] = [$asset, $currency];
+}
 
-    foreach ($binanceHosts as $host) {
-        $url = $host . $ticker;
-        $response = @file_get_contents($url, false, $context);
+foreach ($binanceHosts as $host) {
+    $url = $host . '?symbols=' . urlencode(json_encode($symbols));
+    $response = @file_get_contents($url, false, $context);
 
-        if ($response === false) {
-            continue;
-        }
-
-        $json = json_decode($response, true);
-
-        if (!is_array($json) || isset($json['code'])) {
-            continue;
-        }
-
-        $price = $json['price'] ?? null;
-
-        if (!is_numeric($price)) {
-            continue;
-        }
-
-        $amount = (float)$price;
-        break;
-    }
-
-    if ($amount === null) {
+    if ($response === false) {
         continue;
     }
 
-    if (!isset($prices[$symbol])) {
-        $prices[$symbol] = [];
+    $json = json_decode($response, true);
+
+    if (!is_array($json) || isset($json['code'])) {
+        continue;
     }
 
-    $prices[$symbol][$currency] = $amount;
+    foreach ($json as $entry) {
+        $symbolKey = $entry['symbol'] ?? '';
+        $price = $entry['price'] ?? null;
+
+        if (!isset($symbolLookup[$symbolKey]) || !is_numeric($price)) {
+            continue;
+        }
+
+        [$asset, $currency] = $symbolLookup[$symbolKey];
+        if (!isset($prices[$asset])) {
+            $prices[$asset] = [];
+        }
+
+        $prices[$asset][$currency] = (float)$price;
+    }
+
+    if (!empty($prices)) {
+        break;
+    }
 }
 
 echo json_encode([

@@ -280,19 +280,19 @@ document.addEventListener('DOMContentLoaded', () => {
             .map(row => row.dataset.assetSymbol)
             .filter(Boolean)));
 
-        const quotes = Array.from(new Set(rows
+        const currencies = Array.from(new Set(rows
             .map(row => row.dataset.currency)
             .filter(Boolean)));
 
-        const allowedQuotes = ['USD', 'USDT', 'EUR', 'GBP'];
-        const feedQuotes = quotes.filter(q => allowedQuotes.includes(q));
+        const allowedCurrencies = ['USD', 'USDT', 'EUR', 'GBP'];
+        const feedCurrencies = currencies.filter(q => allowedCurrencies.includes(q));
 
-        if (!feedQuotes.includes('USD')) {
-            feedQuotes.unshift('USD');
+        if (!feedCurrencies.includes('USD')) {
+            feedCurrencies.unshift('USD');
         }
 
-        if (!feedQuotes.length) {
-            feedQuotes.push('USD');
+        if (!feedCurrencies.length) {
+            feedCurrencies.push('USD');
         }
 
         if (!symbols.length) {
@@ -307,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const params = new URLSearchParams({
                 assets: symbols.join(','),
-                quotes: feedQuotes.join(','),
+                currencies: feedCurrencies.join(','),
             });
             const response = await fetch(`prices.php?${params.toString()}`);
             if (!response.ok) {
@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!Object.keys(livePrices).length) {
                 setLiveStatus('No live prices returned. Asset might not be available on Binance.', true);
             } else {
-                setLiveStatus(`Live prices refreshed (${feedQuotes.join('/')}).`);
+                setLiveStatus(`Live prices refreshed (${feedCurrencies.join('/')}).`);
             }
             updateUnrealized(livePrices);
         } catch (error) {

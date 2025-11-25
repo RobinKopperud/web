@@ -3,119 +3,123 @@ session_start();
 include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 require_once __DIR__ . '/auth.php';
 
+ensure_logged_in();
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
+function sanitize_symbol_part(string $value): string
+{
+    return strtoupper(preg_replace('/[^A-Z0-9]/', '', $value));
 }
 
-$pairsParam = $_GET['pairs'] ?? '';
+function fetch_price_from_hosts(string $symbol, array $hosts, array $context): ?float
+{
+    foreach ($hosts as $host) {
+        $url = $host . '?symbol=' . urlencode($symbol);
+        $response = @file_get_contents($url, false, stream_context_create($context));
 
-$pairs = array_filter(array_map(function ($pair) {
-    $parts = preg_split('/[-:]/', $pair);
-    [$asset, $currency] = array_pad($parts, 2, '');
+        if ($response === false) {
+            continue;
+        }
 
-    if ($currency === '') {
-        // Allow already-concatenated symbols like BTCUSDT
-        $asset = preg_replace('/[^A-Z0-9]/', '', strtoupper(trim($asset)));
-        $quotes = ['USDT', 'USDC', 'BUSD', 'FDUSD', 'TUSD', 'DAI', 'EUR', 'USD', 'GBP', 'AUD', 'CAD'];
-        foreach ($quotes as $quote) {
-            if (str_ends_with($asset, $quote)) {
-                $currency = $quote;
-                $asset = substr($asset, 0, -strlen($quote));
-                break;
-            }
+        $json = json_decode($response, true);
+        if (!is_array($json) || isset($json['code'])) {
+            continue;
+        }
+
+        $price = $json['price'] ?? null;
+        if (is_numeric($price)) {
+            return (float)$price;
         }
     }
 
-    $asset = preg_replace('/[^A-Z0-9]/', '', strtoupper(trim($asset)));
-    $currency = preg_replace('/[^A-Z0-9]/', '', strtoupper(trim($currency)));
+    return null;
+}
+
+$userId = (int)($_SESSION['user_id'] ?? 0);
+$assetFilter = sanitize_symbol_part($_GET['asset'] ?? '');
+$statusFilter = ($_GET['status'] ?? 'open') === 'all' ? null : 'OPEN';
+
+$query = "SELECT DISTINCT UPPER(asset) AS asset, UPPER(currency) AS currency FROM orders WHERE user_id = ?";
+$types = 'i';
+
+if ($assetFilter !== '') {
+    $query .= " AND UPPER(asset) = ?";
+    $types .= 's';
+}
+
+if ($statusFilter === 'OPEN') {
+    $query .= " AND status = 'OPEN'";
+}
+
+$stmt = $conn->prepare($query);
+
+if (!$stmt) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Could not load orders']);
+    exit;
+}
+
+if ($assetFilter !== '') {
+    $stmt->bind_param($types, $userId, $assetFilter);
+} else {
+    $stmt->bind_param($types, $userId);
+}
+
+$stmt->execute();
+$result = $stmt->get_result();
+
+if (!$result) {
+    echo json_encode(['prices' => []]);
+    exit;
+}
+
+$pairs = [];
+while ($row = $result->fetch_assoc()) {
+    $asset = sanitize_symbol_part($row['asset'] ?? '');
+    $currency = sanitize_symbol_part($row['currency'] ?? '');
     if ($asset === '' || $currency === '') {
-        return null;
+        continue;
     }
-    return [$asset, $currency];
-}, explode(',', $pairsParam)));
+    $pairs[$asset . $currency] = [$asset, $currency];
+}
 
 if (empty($pairs)) {
     echo json_encode(['prices' => []]);
     exit;
 }
 
-$pairs = array_slice($pairs, 0, 30);
-
-$context = stream_context_create([
-    'http' => [
-        'timeout' => 6,
-        'ignore_errors' => true,
-        'user_agent' => 'CryptoTracker/1.0',
-    ],
-]);
-
-$prices = [];
-
-// Build the list of Binance symbols in the accepted array format
-$symbols = [];
-foreach ($pairs as [$asset, $currency]) {
-    $symbols[] = $asset . $currency;
-}
-
-if (empty($symbols)) {
-    echo json_encode(['prices' => []]);
-    exit;
-}
-
-$symbols = array_values(array_unique($symbols));
-
 $binanceHosts = [
     'https://api.binance.com/api/v3/ticker/price',
     'https://data-api.binance.vision/api/v3/ticker/price',
 ];
 
-$symbolLookup = [];
-foreach ($pairs as [$asset, $currency]) {
-    $symbolLookup[$asset . $currency] = [$asset, $currency];
-}
+$httpOptions = [
+    'http' => [
+        'timeout' => 6,
+        'ignore_errors' => true,
+        'user_agent' => 'CryptoTracker/1.0',
+    ],
+];
 
-foreach ($binanceHosts as $host) {
-    $url = $host . '?symbols=' . urlencode(json_encode($symbols));
-    $response = @file_get_contents($url, false, $context);
+$prices = [];
 
-    if ($response === false) {
+foreach ($pairs as $symbol => [$asset, $currency]) {
+    $price = fetch_price_from_hosts($symbol, $binanceHosts, $httpOptions);
+
+    if ($price === null) {
         continue;
     }
 
-    $json = json_decode($response, true);
-
-    if (!is_array($json) || isset($json['code'])) {
-        continue;
+    if (!isset($prices[$asset])) {
+        $prices[$asset] = [];
     }
 
-    foreach ($json as $entry) {
-        $symbolKey = $entry['symbol'] ?? '';
-        $price = $entry['price'] ?? null;
-
-        if (!isset($symbolLookup[$symbolKey]) || !is_numeric($price)) {
-            continue;
-        }
-
-        [$asset, $currency] = $symbolLookup[$symbolKey];
-        if (!isset($prices[$asset])) {
-            $prices[$asset] = [];
-        }
-
-        $prices[$asset][$currency] = (float)$price;
-    }
-
-    if (!empty($prices)) {
-        break;
-    }
+    $prices[$asset][$currency] = $price;
 }
 
 echo json_encode([
     'prices' => $prices,
-    'requested' => array_unique(array_map(function ($pair) {
+    'requested' => array_values(array_unique(array_map(function ($pair) {
         return $pair[0];
-    }, $pairs)),
+    }, array_values($pairs)))),
 ]);

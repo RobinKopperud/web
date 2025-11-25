@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const summaryCard = document.getElementById('portfolioSummary');
     const unrealizedTotalEl = document.getElementById('unrealizedValue');
     const realizedEl = document.getElementById('realizedValue');
-    const portfolioValueEl = document.getElementById('portfolioValue');
     const roiEl = document.getElementById('roiValue');
     const totalInvestedEl = document.getElementById('totalInvestedValue');
     const liveStatusEl = document.getElementById('liveStatus');
@@ -39,18 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     let livePrices = {};
-    let fxRates = { USD: 1 };
-    let fxBase = 'USD';
     const selectedDisplayCurrency = (summaryCard?.dataset.realizedCurrency || 'USD').toUpperCase();
-
-    const staticPairs = new Set((ordersTable?.dataset.pairs || '')
-        .split(',')
-        .map(pair => pair.trim().toUpperCase())
-        .filter(pair => /^[A-Z0-9]+-[A-Z0-9]+$/.test(pair)));
 
     const apiDebugMessages = {
         prices: 'Ingen spørring utført ennå.',
-        rates: 'Ingen spørring utført ennå.',
     };
 
     function renderApiDebug() {
@@ -59,8 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         Object.entries(apiDebugMessages).forEach(([type, message]) => {
             const item = document.createElement('li');
-            const label = type === 'prices' ? 'Live-priser' : 'Valutakurser';
-            item.innerHTML = `<span class="debug-label">${label}:</span> <code>${message}</code>`;
+            item.innerHTML = `<span class="debug-label">Live-priser:</span> <code>${message}</code>`;
             apiDebugList.appendChild(item);
         });
     }
@@ -92,38 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
             liveStatusEl.textContent = text;
             liveStatusEl.classList.toggle('error', isError);
         }
-    }
-
-    function collectCurrencies() {
-        const rows = Array.from(document.querySelectorAll('#ordersTable tbody tr'));
-        const currencies = new Set(rows.map(row => (row.dataset.currency || 'USD').toUpperCase()));
-        currencies.add((selectedDisplayCurrency || 'USD').toUpperCase());
-        currencies.add((baseTotals.realizedCurrency || 'USD').toUpperCase());
-        return Array.from(currencies);
-    }
-
-    function convertAmount(amount, fromCurrency, toCurrency) {
-        if (!Number.isFinite(amount)) return null;
-        const base = (fxBase || 'USD').toUpperCase();
-        const from = (fromCurrency || base).toUpperCase();
-        const to = (toCurrency || base).toUpperCase();
-
-        if (from === to) return amount;
-
-        const fromRate = fxRates[from];
-        const toRate = fxRates[to];
-
-        if (from === fxBase) {
-            if (toRate) return amount * toRate;
-            return null;
-        }
-
-        if (!fromRate) return null;
-
-        const baseAmount = amount / fromRate;
-        if (to === fxBase) return baseAmount;
-        if (!toRate) return null;
-        return baseAmount * toRate;
     }
 
     function formatWithCurrency(amount, currency) {
@@ -168,37 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function fetchFxRates() {
-        const currencies = collectCurrencies()
-            .filter(code => /^[A-Z]{3}$/.test(code));
-        const params = new URLSearchParams({
-            base: 'USD',
-            symbols: currencies.join(','),
-        });
-
-        setApiDebugMessage('rates', `rates.php?${params.toString()}`);
-
-        try {
-            const response = await fetch(`rates.php?${params.toString()}`);
-            if (!response.ok) throw new Error(`FX error (${response.status})`);
-            const data = await response.json();
-
-            if (data?.rates) {
-                fxRates = Object.fromEntries(
-                    Object.entries(data.rates)
-                        .map(([code, rate]) => [code.toUpperCase(), rate])
-                );
-                fxRates.USDT = fxRates.USD ?? 1;
-                fxBase = (data.base || 'USD').toUpperCase();
-            }
-        } catch (error) {
-            console.error('Currency feed failed', error);
-            const fallback = (selectedDisplayCurrency || 'USD').toUpperCase();
-            fxRates = { [fallback]: 1, USD: 1 };
-            fxBase = 'USD';
-        }
-    }
-
     function applyFilters() {
         const assetValue = assetFilterSelect?.value.trim().toLowerCase() || '';
         const statusValue = Array.from(statusFilterRadios).find(radio => radio.checked)?.value || 'open';
@@ -215,7 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateUnrealized(priceMap = livePrices) {
         const rows = document.querySelectorAll('#ordersTable tbody tr');
         let unrealizedTotal = 0;
-        let openMarketValue = 0;
         let investedTotal = 0;
         let openCostTotal = 0;
 
@@ -231,23 +157,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const cell = row.querySelector('.unrealized');
             const liveCell = row.querySelector('.live-price');
 
-            investedTotal += convertAmount(totalCost, currency, selectedDisplayCurrency) || 0;
-            openCostTotal += convertAmount(openCost, currency, selectedDisplayCurrency) || 0;
+            investedTotal += Number.isFinite(totalCost) ? totalCost : 0;
+            openCostTotal += Number.isFinite(openCost) ? openCost : 0;
 
             const { price: feedPrice, currency: feedCurrency } = resolveLivePrice(assetSymbol, currency, priceMap);
-            const currentPrice = convertAmount(feedPrice, feedCurrency, currency);
+            const currentPrice = Number.isFinite(feedPrice) ? feedPrice : null;
 
             if (Number.isFinite(currentPrice) && !Number.isNaN(entryPrice) && !Number.isNaN(remaining) && remaining > 0) {
                 const profitNative = remaining * (currentPrice - entryPrice);
-                const profitDisplay = convertAmount(profitNative, currency, selectedDisplayCurrency);
-                const marketValueDisplay = convertAmount(remaining * currentPrice, currency, selectedDisplayCurrency);
-
-                if (Number.isFinite(profitDisplay)) {
-                    unrealizedTotal += profitDisplay;
-                }
-                if (Number.isFinite(marketValueDisplay)) {
-                    openMarketValue += marketValueDisplay;
-                }
+                unrealizedTotal += profitNative;
 
                 if (cell) {
                     cell.textContent = formatWithCurrency(profitNative, currency);
@@ -277,15 +195,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        const realizedDisplay = convertAmount(baseTotals.realized, baseTotals.realizedCurrency, selectedDisplayCurrency) ?? baseTotals.realized;
-        const portfolioValue = openMarketValue + (Number.isFinite(realizedDisplay) ? realizedDisplay : 0);
+        const realizedDisplay = Number.isFinite(baseTotals.realized) ? baseTotals.realized : 0;
         if (unrealizedTotalEl) {
             unrealizedTotalEl.textContent = formatWithCurrency(unrealizedTotal, selectedDisplayCurrency);
             unrealizedTotalEl.classList.toggle('positive', unrealizedTotal > 0);
             unrealizedTotalEl.classList.toggle('negative', unrealizedTotal < 0);
-        }
-        if (portfolioValueEl) {
-            portfolioValueEl.textContent = formatWithCurrency(portfolioValue, selectedDisplayCurrency);
         }
         if (roiEl) {
             const denominator = investedTotal > 0 ? investedTotal : openCostTotal;
@@ -302,25 +216,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function collectAssetPairs() {
-        const pairs = new Set(staticPairs);
-
-        document.querySelectorAll('#ordersTable tbody tr').forEach(row => {
-            const asset = (row.dataset.assetSymbol || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-            const currency = (row.dataset.currency || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-            if (!asset || !currency) return;
-            pairs.add(`${asset}-${currency}`);
-        });
-
-        return Array.from(pairs);
-    }
-
     async function fetchLivePrices() {
-        const pairs = collectAssetPairs();
+        const statusValue = Array.from(statusFilterRadios).find(radio => radio.checked)?.value || 'open';
+        const params = new URLSearchParams();
+        const selectedAsset = assetFilterSelect?.value.trim();
 
-        if (!pairs.length) {
-            setLiveStatus('No open assets to price.');
-            return;
+        if (selectedAsset) {
+            params.set('asset', selectedAsset);
+        }
+
+        if (statusValue) {
+            params.set('status', statusValue);
         }
 
         setLiveStatus('Updating from price feed…');
@@ -328,11 +234,10 @@ document.addEventListener('DOMContentLoaded', () => {
         refreshButton?.setAttribute('disabled', 'disabled');
 
         try {
-            const params = new URLSearchParams({
-                pairs: pairs.join(','),
-            });
-            setApiDebugMessage('prices', `prices.php?${params.toString()}`);
-            const response = await fetch(`prices.php?${params.toString()}`);
+            const queryString = params.toString();
+            const path = queryString ? `prices.php?${queryString}` : 'prices.php';
+            setApiDebugMessage('prices', path);
+            const response = await fetch(path);
             if (!response.ok) {
                 throw new Error(`Feed error (${response.status})`);
             }
@@ -384,12 +289,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     [assetFilterSelect, ...statusFilterRadios].forEach(element => {
-        element?.addEventListener('change', applyFilters);
+        element?.addEventListener('change', () => {
+            applyFilters();
+            fetchLivePrices();
+        });
     });
 
     filterForm?.addEventListener('submit', (event) => {
         event.preventDefault();
         applyFilters();
+        fetchLivePrices();
     });
 
     if (updateButton) {
@@ -458,12 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    async function bootstrapPrices() {
-        await fetchFxRates();
-        applyFilters();
-        await fetchLivePrices();
-    }
-
-    bootstrapPrices();
+    applyFilters();
+    fetchLivePrices();
     setInterval(fetchLivePrices, 60000);
 });

@@ -78,17 +78,6 @@ if ($allOrdersStmt) {
     $allOrders = $allOrdersStmt->get_result()->fetch_all(MYSQLI_ASSOC);
 }
 
-$pairSet = [];
-foreach ($allOrders as $order) {
-    $assetSymbol = strtoupper(preg_replace('/[^A-Z0-9]/', '', $order['asset'] ?? ''));
-    $currencySymbol = strtoupper(preg_replace('/[^A-Z0-9]/', '', $order['currency'] ?? ''));
-
-    if ($assetSymbol !== '' && $currencySymbol !== '') {
-        $pairSet["{$assetSymbol}-{$currencySymbol}"] = true;
-    }
-}
-$uniquePairs = array_keys($pairSet);
-
 $portfolioTotals = [
     'totalInvested' => 0.0,
     'openCostBasis' => 0.0,
@@ -115,18 +104,6 @@ if ($realizedStmt) {
         $realizedProfit = (float)$row['realized'];
     }
 }
-
-$last30dProfit = 0.0;
-$profit30Stmt = $conn->prepare('SELECT COALESCE(SUM(oc.profit), 0) AS profit_30d FROM order_closures oc JOIN orders o ON oc.order_id = o.id WHERE o.user_id = ? AND oc.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)');
-if ($profit30Stmt) {
-    $profit30Stmt->bind_param('i', $userId);
-    $profit30Stmt->execute();
-    $profit30Result = $profit30Stmt->get_result();
-    if ($profit30Result) {
-        $row = $profit30Result->fetch_assoc();
-        $last30dProfit = (float)$row['profit_30d'];
-    }
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -142,7 +119,6 @@ if ($profit30Stmt) {
         <div class="debug-title">API debug</div>
         <ul class="debug-list" id="apiDebugList">
             <li><span class="debug-label">Live-priser:</span> <code>Ingen spørring utført ennå.</code></li>
-            <li><span class="debug-label">Valutakurser:</span> <code>Ingen spørring utført ennå.</code></li>
         </ul>
     </section>
     <header>
@@ -190,19 +166,9 @@ if ($profit30Stmt) {
                 <p class="hint" id="liveStatus">Waiting for price feed…</p>
             </div>
             <div class="stat">
-                <p class="eyebrow">Portfolio value</p>
-                <h3 class="mono" id="portfolioValue">-</h3>
-                <p class="hint">Marked to market for open positions.</p>
-            </div>
-            <div class="stat">
                 <p class="eyebrow">Lifetime ROI</p>
                 <h3 class="mono" id="roiValue">-</h3>
                 <p class="hint">(Realized + unrealized) / total invested.</p>
-            </div>
-            <div class="stat">
-                <p class="eyebrow">Last 30 days</p>
-                <h3 class="mono"><?php echo formatDecimal($last30dProfit); ?> USD</h3>
-                <p class="hint">Realized P/L in the past 30 days.</p>
             </div>
         </div>
     </section>
@@ -284,7 +250,7 @@ if ($profit30Stmt) {
         </div>
 
         <div class="table-wrapper">
-            <table id="ordersTable" data-pairs="<?php echo h(implode(',', $uniquePairs)); ?>">
+            <table id="ordersTable">
                 <thead>
                 <tr>
                     <th>ID</th>

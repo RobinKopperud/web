@@ -45,8 +45,8 @@ $prices = [];
 
 foreach ($symbols as $symbol) {
     foreach ($quotes as $quote) {
-        $pair = urlencode($symbol . '-' . $quote);
-        $url = 'https://api.coinbase.com/v2/prices/' . $pair . '/spot';
+        $ticker = urlencode(strtoupper($symbol . $quote));
+        $url = 'https://api.binance.com/api/v3/ticker/price?symbol=' . $ticker;
 
         $response = @file_get_contents($url, false, $context);
         if ($response === false) {
@@ -54,7 +54,12 @@ foreach ($symbols as $symbol) {
         }
 
         $json = json_decode($response, true);
-        $amount = $json['data']['amount'] ?? null;
+
+        if (!is_array($json) || isset($json['code'])) {
+            continue;
+        }
+
+        $amount = $json['price'] ?? null;
 
         if (!is_numeric($amount)) {
             continue;

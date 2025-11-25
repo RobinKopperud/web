@@ -78,6 +78,17 @@ if ($allOrdersStmt) {
     $allOrders = $allOrdersStmt->get_result()->fetch_all(MYSQLI_ASSOC);
 }
 
+$pairSet = [];
+foreach ($allOrders as $order) {
+    $assetSymbol = strtoupper(preg_replace('/[^A-Z0-9]/', '', $order['asset'] ?? ''));
+    $currencySymbol = strtoupper(preg_replace('/[^A-Z0-9]/', '', $order['currency'] ?? ''));
+
+    if ($assetSymbol !== '' && $currencySymbol !== '') {
+        $pairSet["{$assetSymbol}-{$currencySymbol}"] = true;
+    }
+}
+$uniquePairs = array_keys($pairSet);
+
 $portfolioTotals = [
     'totalInvested' => 0.0,
     'openCostBasis' => 0.0,
@@ -273,7 +284,7 @@ if ($profit30Stmt) {
         </div>
 
         <div class="table-wrapper">
-            <table id="ordersTable">
+            <table id="ordersTable" data-pairs="<?php echo h(implode(',', $uniquePairs)); ?>">
                 <thead>
                 <tr>
                     <th>ID</th>

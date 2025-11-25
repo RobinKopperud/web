@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalInvestedEl = document.getElementById('totalInvestedValue');
     const liveStatusEl = document.getElementById('liveStatus');
     const apiDebugList = document.getElementById('apiDebugList');
+    const ordersTable = document.getElementById('ordersTable');
 
     const baseTotals = {
         invested: Number.parseFloat(summaryCard?.dataset.totalInvested || '0') || 0,
@@ -41,6 +42,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let fxRates = { USD: 1 };
     let fxBase = 'USD';
     const selectedDisplayCurrency = (summaryCard?.dataset.realizedCurrency || 'USD').toUpperCase();
+
+    const staticPairs = new Set((ordersTable?.dataset.pairs || '')
+        .split(',')
+        .map(pair => pair.trim().toUpperCase())
+        .filter(pair => /^[A-Z0-9]+-[A-Z0-9]+$/.test(pair)));
 
     const apiDebugMessages = {
         prices: 'Ingen spørring utført ennå.',
@@ -296,16 +302,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function collectAssetPairs() {
+        const pairs = new Set(staticPairs);
+
+        document.querySelectorAll('#ordersTable tbody tr').forEach(row => {
+            const asset = (row.dataset.assetSymbol || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+            const currency = (row.dataset.currency || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+            if (!asset || !currency) return;
+            pairs.add(`${asset}-${currency}`);
+        });
+
+        return Array.from(pairs);
+    }
+
     async function fetchLivePrices() {
-        const rows = Array.from(document.querySelectorAll('#ordersTable tbody tr'));
-        const pairs = Array.from(new Set(rows
-            .map(row => {
-                const asset = (row.dataset.assetSymbol || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-                const currency = (row.dataset.currency || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-                if (!asset || !currency) return null;
-                return `${asset}-${currency}`;
-            })
-            .filter(Boolean)));
+        const pairs = collectAssetPairs();
 
         if (!pairs.length) {
             setLiveStatus('No open assets to price.');

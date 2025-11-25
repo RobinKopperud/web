@@ -1,6 +1,7 @@
 -- SQL schema for manual crypto order tracker
 CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
     asset VARCHAR(20) NOT NULL,
     side ENUM('BUY','SELL') NOT NULL DEFAULT 'BUY',
     quantity DECIMAL(18,8) NOT NULL,
@@ -11,7 +12,8 @@ CREATE TABLE IF NOT EXISTS orders (
     remaining_quantity DECIMAL(18,8) NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     closed_at DATETIME NULL,
-    realized_profit DECIMAL(18,8) NULL
+    realized_profit DECIMAL(18,8) NULL,
+    CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS order_closures (

@@ -1,6 +1,10 @@
 <?php
 session_start();
 include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
+require_once __DIR__ . '/auth.php';
+
+ensure_logged_in();
+$userId = (int)($_SESSION['user_id'] ?? 0);
 
 date_default_timezone_set('UTC');
 
@@ -43,12 +47,12 @@ if ($action === 'create_order') {
     $entryPrice = (float)$entryPrice;
     $fee = is_numeric($fee) ? (float)$fee : 0;
 
-    $stmt = $conn->prepare("INSERT INTO orders (asset, side, quantity, entry_price, fee, currency, status, remaining_quantity, created_at, realized_profit) VALUES (?, 'BUY', ?, ?, ?, ?, 'OPEN', ?, NOW(), NULL)");
+    $stmt = $conn->prepare("INSERT INTO orders (user_id, asset, side, quantity, entry_price, fee, currency, status, remaining_quantity, created_at, realized_profit) VALUES (?, ?, 'BUY', ?, ?, ?, ?, 'OPEN', ?, NOW(), NULL)");
     if (!$stmt) {
         redirect_with_flash('error', 'Could not prepare insert statement.');
     }
 
-    $stmt->bind_param('sdddsd', $asset, $quantity, $entryPrice, $fee, $currency, $quantity);
+    $stmt->bind_param('isdddsd', $userId, $asset, $quantity, $entryPrice, $fee, $currency, $quantity);
     if ($stmt->execute()) {
         redirect_with_flash('success', 'Order added successfully.');
     }
@@ -71,8 +75,8 @@ if ($action === 'close_order') {
     $closeFee = is_numeric($closeFee) ? (float)$closeFee : 0;
 
     // Fetch order to close
-    $fetch = $conn->prepare('SELECT * FROM orders WHERE id = ?');
-    $fetch->bind_param('i', $orderId);
+    $fetch = $conn->prepare('SELECT * FROM orders WHERE id = ? AND user_id = ?');
+    $fetch->bind_param('ii', $orderId, $userId);
     $fetch->execute();
     $orderResult = $fetch->get_result();
     $order = $orderResult->fetch_assoc();

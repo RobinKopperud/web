@@ -1,6 +1,10 @@
 <?php
 session_start();
 include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
+require_once __DIR__ . '/auth.php';
+
+ensure_logged_in();
+$userId = (int)($_SESSION['user_id'] ?? 0);
 
 date_default_timezone_set('UTC');
 
@@ -20,8 +24,8 @@ if ($orderId <= 0) {
     exit;
 }
 
-$orderStmt = $conn->prepare('SELECT * FROM orders WHERE id = ?');
-$orderStmt->bind_param('i', $orderId);
+$orderStmt = $conn->prepare('SELECT * FROM orders WHERE id = ? AND user_id = ?');
+$orderStmt->bind_param('ii', $orderId, $userId);
 $orderStmt->execute();
 $orderResult = $orderStmt->get_result();
 $order = $orderResult->fetch_assoc();

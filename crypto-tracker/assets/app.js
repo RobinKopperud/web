@@ -26,6 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const apiDebugMessages = {
         prices: 'Ingen spørring utført ennå.',
+        resolution: 'Ingen oppdatering ennå.',
+    };
+
+    const apiDebugLabels = {
+        prices: 'Live-priser',
+        resolution: 'Pris-resolusjon',
     };
 
     function renderApiDebug() {
@@ -34,7 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         Object.entries(apiDebugMessages).forEach(([type, message]) => {
             const item = document.createElement('li');
-            item.innerHTML = `<span class="debug-label">Live-priser:</span> <code>${message}</code>`;
+            const label = apiDebugLabels[type] || type;
+            item.innerHTML = `<span class="debug-label">${label}:</span> <code>${message}</code>`;
             apiDebugList.appendChild(item);
         });
     }
@@ -64,18 +71,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const available = priceMap?.[assetSymbol];
 
         if (available?.[preferredCurrency]) {
-            return { price: available[preferredCurrency], currency: preferredCurrency };
+            return { price: available[preferredCurrency], currency: preferredCurrency, source: 'direkte match (pris-matrise)' };
         }
 
         const flatSymbol = `${assetSymbol}${preferredCurrency}`;
         if (symbolMap?.[flatSymbol]) {
-            return { price: symbolMap[flatSymbol], currency: preferredCurrency };
+            return { price: symbolMap[flatSymbol], currency: preferredCurrency, source: 'direkte match (symbolkart)' };
         }
 
         if (available) {
             const [firstQuote] = Object.keys(available);
             if (firstQuote) {
-                return { price: available[firstQuote], currency: firstQuote };
+                return { price: available[firstQuote], currency: firstQuote, source: 'fallback (første notert valuta)' };
             }
         }
 
@@ -83,10 +90,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (fallback) {
             const [symbol, price] = fallback;
             const quote = symbol.replace(assetSymbol, '') || null;
-            return { price, currency: quote };
+            return { price, currency: quote, source: 'fallback (symbolkart)' };
         }
 
-        return { price: null, currency: null };
+        return { price: null, currency: null, source: 'ingen pris tilgjengelig' };
     }
 
     function updateMissingOrderField(changedField) {
@@ -129,6 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateOrderCards(priceMap = livePrices) {
         const cards = document.querySelectorAll('.order-card');
+        const resolutionLogs = [];
 
         cards.forEach(card => {
             if (card.classList.contains('is-hidden')) return;
@@ -141,9 +149,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const liveEl = card.querySelector('.order-live-price');
             const liveCurrencyChip = card.querySelector('.order-card__live .chip');
 
-            const { price: feedPrice, currency: feedCurrency } = resolveLivePrice(assetSymbol, currency, priceMap);
+            const { price: feedPrice, currency: feedCurrency, source: resolutionSource } = resolveLivePrice(assetSymbol, currency, priceMap);
             const currentPrice = Number.isFinite(feedPrice) ? feedPrice : null;
             const displayCurrency = (feedCurrency || currency || '').toUpperCase();
+
+            if (!Number.isFinite(currentPrice)) {
+                resolutionLogs.push(`${assetSymbol}/${currency}: ingen pris (${resolutionSource})`);
+                console.debug('[live-price] Ingen pris tilgjengelig', {
+                    assetSymbol,
+                    requestedCurrency: currency,
+                    resolutionSource,
+                    priceMapSnapshot: priceMap?.[assetSymbol],
+                    symbolMapHit: symbolPrices?.[`${assetSymbol}${currency}`],
+                });
+            } else {
+                resolutionLogs.push(`${assetSymbol}/${displayCurrency}: ${formatNumber(currentPrice)} (${resolutionSource})`);
+            }
 
             if (liveEl) {
                 liveEl.textContent = Number.isFinite(currentPrice) ? formatWithCurrency(currentPrice, displayCurrency) : '-';
@@ -175,6 +196,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 profitEl.classList.remove('positive', 'negative');
             }
         });
+
+        if (resolutionLogs.length) {
+            setApiDebugMessage('resolution', resolutionLogs.join(' · '));
+        }
     }
 
     async function fetchLivePrices() {

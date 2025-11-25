@@ -84,41 +84,6 @@ if ($ordersStmt) {
     $ordersResult = false;
 }
 
-// Fetch all user orders for portfolio calculations
-$allOrdersStmt = $conn->prepare('SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC');
-$allOrders = [];
-if ($allOrdersStmt) {
-    $allOrdersStmt->bind_param('i', $userId);
-    $allOrdersStmt->execute();
-    $allOrders = $allOrdersStmt->get_result()->fetch_all(MYSQLI_ASSOC);
-}
-
-$portfolioTotals = [
-    'totalInvested' => 0.0,
-    'openCostBasis' => 0.0,
-];
-
-foreach ($allOrders as $order) {
-    $totalCost = ($order['quantity'] * $order['entry_price']) + $order['fee'];
-    $portfolioTotals['totalInvested'] += $totalCost;
-
-    if ($order['remaining_quantity'] > 0) {
-        $allocation = ($order['remaining_quantity'] / $order['quantity']);
-        $portfolioTotals['openCostBasis'] += $totalCost * $allocation;
-    }
-}
-
-$realizedProfit = 0.0;
-$realizedStmt = $conn->prepare('SELECT COALESCE(SUM(oc.profit), 0) AS realized FROM order_closures oc JOIN orders o ON oc.order_id = o.id WHERE o.user_id = ?');
-if ($realizedStmt) {
-    $realizedStmt->bind_param('i', $userId);
-    $realizedStmt->execute();
-    $realizedResult = $realizedStmt->get_result();
-    if ($realizedResult) {
-        $row = $realizedResult->fetch_assoc();
-        $realizedProfit = (float)$row['realized'];
-    }
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -148,45 +113,6 @@ if ($realizedStmt) {
     <?php if ($flash): ?>
         <div class="alert <?php echo h($flash['type']); ?>"><?php echo h($flash['message']); ?></div>
     <?php endif; ?>
-
-    <section class="card portfolio" id="portfolioSummary"
-             data-total-invested="<?php echo formatDecimal($portfolioTotals['totalInvested']); ?>"
-             data-open-cost-basis="<?php echo formatDecimal($portfolioTotals['openCostBasis']); ?>"
-             data-realized="<?php echo formatDecimal($realizedProfit); ?>"
-             data-realized-currency="USD">
-        <div class="portfolio-header">
-            <div>
-                <p class="eyebrow">Portfolio overview</p>
-                <h2>Live P/L and ROI</h2>
-            </div>
-            <div class="report-actions">
-                <a class="btn secondary" href="report.php?format=csv">Download CSV</a>
-                <a class="btn" href="report.php?format=pdf">Download PDF</a>
-            </div>
-        </div>
-        <div class="summary-grid">
-            <div class="stat">
-                <p class="eyebrow">Total invested</p>
-                <h3 class="mono" id="totalInvestedValue"><?php echo formatDecimal($portfolioTotals['totalInvested']); ?> USD</h3>
-                <p class="hint">All historical cost basis (fees included).</p>
-            </div>
-            <div class="stat">
-                <p class="eyebrow">Realized P/L</p>
-                <h3 class="mono" id="realizedValue"><?php echo formatDecimal($realizedProfit); ?> USD</h3>
-                <p class="hint">Closed trades to date.</p>
-            </div>
-            <div class="stat">
-                <p class="eyebrow">Unrealized P/L (live)</p>
-                <h3 class="mono" id="unrealizedValue">-</h3>
-                <p class="hint" id="liveStatus">Waiting for price feed…</p>
-            </div>
-            <div class="stat">
-                <p class="eyebrow">Lifetime ROI</p>
-                <h3 class="mono" id="roiValue">-</h3>
-                <p class="hint">(Realized + unrealized) / total invested.</p>
-            </div>
-        </div>
-    </section>
 
     <section class="card">
         <h2>Add a new BUY order</h2>
@@ -256,81 +182,79 @@ if ($realizedStmt) {
     <section class="card">
         <div class="price-row">
             <div>
-                <label for="currentPrice">Live price feed</label>
-                <input type="number" step="0.00000001" id="currentPrice" placeholder="Override price for selected asset">
-                <button type="button" class="btn" id="updatePrice">Apply override</button>
-                <button type="button" class="btn secondary" id="refreshPrices">Refresh now</button>
-                <p class="hint">Prices auto-refresh every 60 seconds. Manual override applies to the filtered asset only.</p>
+                <h2>Orders with live prices</h2>
+                <p class="hint">Live-priser hentes fra Binance med symboler i formatet ASSETCURRENCY.</p>
             </div>
-            <div class="live-pill" id="livePulse">Live</div>
+            <div class="price-actions">
+                <button type="button" class="btn" id="refreshPrices">Refresh now</button>
+                <div class="live-pill" id="livePulse">Live</div>
+            </div>
         </div>
 
-        <div class="table-wrapper">
-            <table id="ordersTable">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Asset</th>
-                    <th>Status</th>
-                    <th>Quantity</th>
-                    <th>Entry price</th>
-                    <th>Live price</th>
-                    <th>Total cost</th>
-                    <th>Unrealized P/L</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php if ($ordersResult && $ordersResult->num_rows > 0): ?>
-                    <?php while ($order = $ordersResult->fetch_assoc()): ?>
-                        <?php
-                        $totalCost = ($order['quantity'] * $order['entry_price']) + $order['fee'];
-                        $isClosed = $order['status'] === 'CLOSED';
-                        $rowClass = $isClosed ? 'status-closed' : 'status-open';
-                        $assetSymbol = strtoupper($order['asset']);
-                        $remainingCostBasis = $isClosed ? 0 : $totalCost * ($order['remaining_quantity'] / $order['quantity']);
-                        ?>
-                        <tr class="<?php echo $rowClass; ?>" data-entry-price="<?php echo formatDecimal($order['entry_price']); ?>" data-remaining="<?php echo formatDecimal($order['remaining_quantity']); ?>" data-asset="<?php echo h(strtolower($order['asset'])); ?>" data-asset-symbol="<?php echo h($assetSymbol); ?>" data-status="<?php echo h(strtolower($order['status'])); ?>" data-open-cost="<?php echo formatDecimal($remainingCostBasis); ?>" data-total-cost="<?php echo formatDecimal($totalCost); ?>" data-currency="<?php echo h(strtoupper($order['currency'] ?? 'USD')); ?>">
-                            <td data-label="ID"><a href="order_detail.php?id=<?php echo (int)$order['id']; ?>">#<?php echo (int)$order['id']; ?></a></td>
-                            <td data-label="Asset"><?php echo h($order['asset']); ?></td>
-                            <td data-label="Status"><span class="badge <?php echo strtolower($order['status']); ?>"><?php echo h($order['status']); ?></span></td>
-                            <td data-label="Quantity" class="mono"><?php echo formatDecimal($order['quantity']); ?></td>
-                            <td data-label="Entry price">
-                                <div class="cell-stack">
-                                    <span class="mono"><?php echo formatDecimal($order['entry_price']); ?></span>
-                                    <span class="chip"><?php echo h(strtoupper($order['currency'] ?? 'USD')); ?></span>
-                                </div>
-                            </td>
-                            <td data-label="Live price" class="live-price">-</td>
-                            <td data-label="Total cost">
-                                <div class="cell-stack">
-                                    <span class="mono"><?php echo formatDecimal($totalCost); ?></span>
-                                    <span class="chip"><?php echo h(strtoupper($order['currency'] ?? 'USD')); ?></span>
-                                </div>
-                            </td>
-                            <td data-label="Unrealized P/L" class="profit unrealized">-</td>
-                            <td data-label="Actions" class="actions">
-                                <a class="btn ghost" href="order_detail.php?id=<?php echo (int)$order['id']; ?>">Details</a>
-                                <?php if (!$isClosed): ?>
-                                    <button class="btn secondary open-close-modal" type="button"
-                                            data-order-id="<?php echo (int)$order['id']; ?>"
-                                            data-asset="<?php echo h($order['asset']); ?>"
-                                            data-remaining="<?php echo formatDecimal($order['remaining_quantity']); ?>"
-                                            data-entry-price="<?php echo formatDecimal($order['entry_price']); ?>"
-                                            data-currency="<?php echo h(strtoupper($order['currency'] ?? 'USD')); ?>">
-                                        Close
-                                    </button>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="9" class="muted">No orders yet. Add your first BUY above.</td>
-                    </tr>
-                <?php endif; ?>
-                </tbody>
-            </table>
+        <div id="ordersTable" class="order-grid">
+            <?php if ($ordersResult && $ordersResult->num_rows > 0): ?>
+                <?php while ($order = $ordersResult->fetch_assoc()): ?>
+                    <?php
+                    $totalCost = ($order['quantity'] * $order['entry_price']) + $order['fee'];
+                    $isClosed = $order['status'] === 'CLOSED';
+                    $assetSymbol = strtoupper($order['asset']);
+                    ?>
+                    <article class="order-card <?php echo $isClosed ? 'status-closed' : 'status-open'; ?>"
+                             data-entry-price="<?php echo formatDecimal($order['entry_price']); ?>"
+                             data-remaining="<?php echo formatDecimal($order['remaining_quantity']); ?>"
+                             data-asset="<?php echo h(strtolower($order['asset'])); ?>"
+                             data-asset-symbol="<?php echo h($assetSymbol); ?>"
+                             data-status="<?php echo h(strtolower($order['status'])); ?>"
+                             data-total-cost="<?php echo formatDecimal($totalCost); ?>"
+                             data-currency="<?php echo h(strtoupper($order['currency'] ?? 'USD')); ?>">
+                        <header class="order-card__header">
+                            <div>
+                                <p class="eyebrow">Order #<?php echo (int)$order['id']; ?></p>
+                                <h3><?php echo h($order['asset']); ?></h3>
+                                <span class="badge <?php echo strtolower($order['status']); ?>"><?php echo h($order['status']); ?></span>
+                            </div>
+                            <div class="order-card__live">
+                                <p class="eyebrow">Live price</p>
+                                <div class="order-live-price">-</div>
+                                <p class="chip"><?php echo h(strtoupper($order['currency'] ?? 'USD')); ?></p>
+                            </div>
+                        </header>
+                        <div class="order-card__body">
+                            <div class="order-stat">
+                                <p class="eyebrow">Quantity</p>
+                                <p class="mono"><?php echo formatDecimal($order['quantity']); ?></p>
+                            </div>
+                            <div class="order-stat">
+                                <p class="eyebrow">Entry price</p>
+                                <p class="mono"><?php echo formatDecimal($order['entry_price']); ?> <?php echo h(strtoupper($order['currency'] ?? 'USD')); ?></p>
+                            </div>
+                            <div class="order-stat">
+                                <p class="eyebrow">Total cost</p>
+                                <p class="mono"><?php echo formatDecimal($totalCost); ?> <?php echo h(strtoupper($order['currency'] ?? 'USD')); ?></p>
+                            </div>
+                            <div class="order-stat">
+                                <p class="eyebrow">Unrealized P/L</p>
+                                <p class="mono profit unrealized">-</p>
+                            </div>
+                        </div>
+                        <div class="order-card__actions">
+                            <a class="btn ghost" href="order_detail.php?id=<?php echo (int)$order['id']; ?>">Details</a>
+                            <?php if (!$isClosed): ?>
+                                <button class="btn secondary open-close-modal" type="button"
+                                        data-order-id="<?php echo (int)$order['id']; ?>"
+                                        data-asset="<?php echo h($order['asset']); ?>"
+                                        data-remaining="<?php echo formatDecimal($order['remaining_quantity']); ?>"
+                                        data-entry-price="<?php echo formatDecimal($order['entry_price']); ?>"
+                                        data-currency="<?php echo h(strtoupper($order['currency'] ?? 'USD')); ?>">
+                                    Close
+                                </button>
+                            <?php endif; ?>
+                        </div>
+                    </article>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <p class="muted">No orders yet. Add your first BUY above.</p>
+            <?php endif; ?>
         </div>
     </section>
 

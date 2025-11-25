@@ -143,11 +143,20 @@ if ($profit30Stmt) {
     <section class="card portfolio" id="portfolioSummary"
              data-total-invested="<?php echo formatDecimal($portfolioTotals['totalInvested']); ?>"
              data-open-cost-basis="<?php echo formatDecimal($portfolioTotals['openCostBasis']); ?>"
-             data-realized="<?php echo formatDecimal($realizedProfit); ?>">
+             data-realized="<?php echo formatDecimal($realizedProfit); ?>"
+             data-realized-currency="USD">
         <div class="portfolio-header">
             <div>
                 <p class="eyebrow">Portfolio overview</p>
                 <h2>Live P/L and ROI</h2>
+            </div>
+            <div class="currency-switcher">
+                <label for="displayCurrency">Overview currency</label>
+                <select id="displayCurrency">
+                    <?php foreach ($currencyOptions as $currency): ?>
+                        <option value="<?php echo h($currency); ?>" <?php echo $currency === 'USD' ? 'selected' : ''; ?>><?php echo h($currency); ?></option>
+                    <?php endforeach; ?>
+                </select>
             </div>
             <div class="report-actions">
                 <a class="btn secondary" href="report.php?format=csv">Download CSV</a>
@@ -273,6 +282,7 @@ if ($profit30Stmt) {
                     <th>Status</th>
                     <th>Quantity</th>
                     <th>Entry price</th>
+                    <th>Live price</th>
                     <th>Total cost</th>
                     <th>Unrealized P/L</th>
                     <th>Actions</th>
@@ -288,7 +298,7 @@ if ($profit30Stmt) {
                         $assetSymbol = strtoupper($order['asset']);
                         $remainingCostBasis = $isClosed ? 0 : $totalCost * ($order['remaining_quantity'] / $order['quantity']);
                         ?>
-                        <tr class="<?php echo $rowClass; ?>" data-entry-price="<?php echo formatDecimal($order['entry_price']); ?>" data-remaining="<?php echo formatDecimal($order['remaining_quantity']); ?>" data-asset="<?php echo h(strtolower($order['asset'])); ?>" data-asset-symbol="<?php echo h($assetSymbol); ?>" data-status="<?php echo h(strtolower($order['status'])); ?>" data-open-cost="<?php echo formatDecimal($remainingCostBasis); ?>" data-currency="<?php echo h($order['currency'] ?? 'USD'); ?>">
+                        <tr class="<?php echo $rowClass; ?>" data-entry-price="<?php echo formatDecimal($order['entry_price']); ?>" data-remaining="<?php echo formatDecimal($order['remaining_quantity']); ?>" data-asset="<?php echo h(strtolower($order['asset'])); ?>" data-asset-symbol="<?php echo h($assetSymbol); ?>" data-status="<?php echo h(strtolower($order['status'])); ?>" data-open-cost="<?php echo formatDecimal($remainingCostBasis); ?>" data-total-cost="<?php echo formatDecimal($totalCost); ?>" data-currency="<?php echo h($order['currency'] ?? 'USD'); ?>">
                             <td data-label="ID"><a href="order_detail.php?id=<?php echo (int)$order['id']; ?>">#<?php echo (int)$order['id']; ?></a></td>
                             <td data-label="Asset"><?php echo h($order['asset']); ?></td>
                             <td data-label="Status"><span class="badge <?php echo strtolower($order['status']); ?>"><?php echo h($order['status']); ?></span></td>
@@ -299,6 +309,7 @@ if ($profit30Stmt) {
                                     <span class="chip"><?php echo h($order['currency'] ?? 'USD'); ?></span>
                                 </div>
                             </td>
+                            <td data-label="Live price" class="live-price">-</td>
                             <td data-label="Total cost">
                                 <div class="cell-stack">
                                     <span class="mono"><?php echo formatDecimal($totalCost); ?></span>
@@ -323,7 +334,7 @@ if ($profit30Stmt) {
                     <?php endwhile; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="8" class="muted">No orders yet. Add your first BUY above.</td>
+                        <td colspan="9" class="muted">No orders yet. Add your first BUY above.</td>
                     </tr>
                 <?php endif; ?>
                 </tbody>

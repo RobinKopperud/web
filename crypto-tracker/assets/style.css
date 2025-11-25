@@ -137,6 +137,17 @@ header h1 {
     flex-wrap: wrap;
 }
 
+.currency-switcher {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 180px;
+}
+
+.currency-switcher select {
+    width: 100%;
+}
+
 .btn {
     background: #1f2937;
     border: 1px solid var(--border);

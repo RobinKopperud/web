@@ -22,12 +22,17 @@ $quotes = array_filter(array_unique(array_map(function ($quote) {
     return strtoupper(trim($quote));
 }, explode(',', $quotesParam))));
 
+// Restrict quotes to those Binance commonly supports to avoid repeated feed errors
+$allowedQuotes = ['USD', 'USDT', 'BUSD', 'EUR', 'GBP'];
+$quotes = array_values(array_intersect($quotes, $allowedQuotes));
+
+// Always include at least USD as a base quote so we have a reliable feed to work with
+if (!in_array('USD', $quotes, true)) {
+    array_unshift($quotes, 'USD');
+}
+
 $symbols = array_slice($symbols, 0, 15);
 $quotes = array_slice($quotes, 0, 10);
-
-if (empty($quotes)) {
-    $quotes = ['USD'];
-}
 
 if (empty($symbols)) {
     echo json_encode(['prices' => []]);

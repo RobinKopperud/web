@@ -28,14 +28,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const roiEl = document.getElementById('roiValue');
     const totalInvestedEl = document.getElementById('totalInvestedValue');
     const liveStatusEl = document.getElementById('liveStatus');
+    const displayCurrencySelect = document.getElementById('displayCurrency');
 
     const baseTotals = {
         invested: Number.parseFloat(summaryCard?.dataset.totalInvested || '0') || 0,
         openCost: Number.parseFloat(summaryCard?.dataset.openCostBasis || '0') || 0,
         realized: Number.parseFloat(summaryCard?.dataset.realized || '0') || 0,
+        realizedCurrency: summaryCard?.dataset.realizedCurrency || 'USD',
     };
 
     let livePrices = {};
+    let fxRates = { USD: 1 };
+    let fxBase = 'USD';
+    let selectedDisplayCurrency = displayCurrencySelect?.value || 'USD';
 
     function findCurrencyForAsset(assetSymbol) {
         const rows = Array.from(document.querySelectorAll('#ordersTable tbody tr'));
@@ -57,6 +62,63 @@ document.addEventListener('DOMContentLoaded', () => {
             liveStatusEl.textContent = text;
             liveStatusEl.classList.toggle('error', isError);
         }
+    }
+
+    function collectCurrencies() {
+        const rows = Array.from(document.querySelectorAll('#ordersTable tbody tr'));
+        const currencies = new Set(rows.map(row => (row.dataset.currency || 'USD').toUpperCase()));
+        currencies.add((selectedDisplayCurrency || 'USD').toUpperCase());
+        currencies.add('USD');
+        currencies.add((baseTotals.realizedCurrency || 'USD').toUpperCase());
+        return Array.from(currencies);
+    }
+
+    function convertAmount(amount, fromCurrency, toCurrency) {
+        if (!Number.isFinite(amount)) return null;
+        const from = fromCurrency || fxBase;
+        const to = toCurrency || fxBase;
+
+        if (from === to) return amount;
+
+        const fromRate = fxRates[from];
+        const toRate = fxRates[to];
+
+        if (from === fxBase) {
+            if (toRate) return amount * toRate;
+            return null;
+        }
+
+        if (!fromRate) return null;
+
+        const baseAmount = amount / fromRate;
+        if (to === fxBase) return baseAmount;
+        if (!toRate) return null;
+        return baseAmount * toRate;
+    }
+
+    function formatWithCurrency(amount, currency) {
+        if (!Number.isFinite(amount)) return '-';
+        return `${formatNumber(amount)} ${currency}`;
+    }
+
+    function resolveLivePrice(assetSymbol, preferredCurrency = 'USD', priceMap = livePrices) {
+        const available = priceMap?.[assetSymbol];
+        if (!available) return { price: null, currency: null };
+
+        if (available[preferredCurrency]) {
+            return { price: available[preferredCurrency], currency: preferredCurrency };
+        }
+
+        if (available.USD) {
+            return { price: available.USD, currency: 'USD' };
+        }
+
+        if (available.USDT) {
+            return { price: available.USDT, currency: 'USDT' };
+        }
+
+        const [firstQuote] = Object.keys(available);
+        return { price: available[firstQuote], currency: firstQuote };
     }
 
     function updateMissingOrderField(changedField) {
@@ -84,6 +146,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    async function fetchFxRates() {
+        const currencies = collectCurrencies()
+            .filter(code => /^[A-Z]{3}$/.test(code));
+        const params = new URLSearchParams({
+            base: 'USD',
+            symbols: currencies.join(','),
+        });
+
+        try {
+            const response = await fetch(`rates.php?${params.toString()}`);
+            if (!response.ok) throw new Error(`FX error (${response.status})`);
+            const data = await response.json();
+
+            if (data?.rates) {
+                fxRates = { ...data.rates };
+                fxRates.USDT = fxRates.USD ?? 1;
+                fxBase = data.base || 'USD';
+            }
+        } catch (error) {
+            console.error('Currency feed failed', error);
+            fxRates = { [selectedDisplayCurrency]: 1, USD: 1 };
+            fxBase = 'USD';
+        }
+    }
+
     function applyFilters() {
         const assetValue = assetFilterSelect?.value.trim().toLowerCase() || '';
         const statusValue = Array.from(statusFilterRadios).find(radio => radio.checked)?.value || 'open';
@@ -101,28 +188,45 @@ document.addEventListener('DOMContentLoaded', () => {
         const rows = document.querySelectorAll('#ordersTable tbody tr');
         let unrealizedTotal = 0;
         let openMarketValue = 0;
+        let investedTotal = 0;
+        let openCostTotal = 0;
 
         rows.forEach(row => {
+            if (row.classList.contains('is-hidden')) return;
+
             const entryPrice = Number.parseFloat(row.dataset.entryPrice);
             const remaining = Number.parseFloat(row.dataset.remaining);
             const assetSymbol = row.dataset.assetSymbol;
             const currency = row.dataset.currency || 'USD';
+            const totalCost = Number.parseFloat(row.dataset.totalCost);
+            const openCost = Number.parseFloat(row.dataset.openCost);
             const cell = row.querySelector('.unrealized');
+            const liveCell = row.querySelector('.live-price');
 
-            const currentPrice = priceMap?.[assetSymbol]?.[currency];
-            const priceCurrency = currency;
+            investedTotal += convertAmount(totalCost, currency, selectedDisplayCurrency) || 0;
+            openCostTotal += convertAmount(openCost, currency, selectedDisplayCurrency) || 0;
+
+            const { price: feedPrice, currency: feedCurrency } = resolveLivePrice(assetSymbol, currency, priceMap);
+            const currentPrice = convertAmount(feedPrice, feedCurrency, currency);
 
             if (Number.isFinite(currentPrice) && !Number.isNaN(entryPrice) && !Number.isNaN(remaining) && remaining > 0) {
-                const profit = remaining * (currentPrice - entryPrice);
-                unrealizedTotal += profit;
-                openMarketValue += remaining * currentPrice;
+                const profitNative = remaining * (currentPrice - entryPrice);
+                const profitDisplay = convertAmount(profitNative, currency, selectedDisplayCurrency);
+                const marketValueDisplay = convertAmount(remaining * currentPrice, currency, selectedDisplayCurrency);
+
+                if (Number.isFinite(profitDisplay)) {
+                    unrealizedTotal += profitDisplay;
+                }
+                if (Number.isFinite(marketValueDisplay)) {
+                    openMarketValue += marketValueDisplay;
+                }
 
                 if (cell) {
-                    cell.textContent = `${formatNumber(profit)} ${priceCurrency}`;
+                    cell.textContent = formatWithCurrency(profitNative, currency);
                     cell.classList.remove('positive', 'negative');
-                    if (profit > 0) {
+                    if (profitNative > 0) {
                         cell.classList.add('positive');
-                    } else if (profit < 0) {
+                    } else if (profitNative < 0) {
                         cell.classList.add('negative');
                     }
                 }
@@ -131,29 +235,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 cell.classList.remove('positive', 'negative');
             }
 
+            if (liveCell) {
+                if (Number.isFinite(currentPrice)) {
+                    liveCell.textContent = formatWithCurrency(currentPrice, currency);
+                } else {
+                    liveCell.textContent = '-';
+                }
+            }
+
             if (remaining <= 0 && cell) {
                 cell.textContent = 'Closed';
+                cell.classList.remove('positive', 'negative');
             }
         });
 
-        const portfolioValue = openMarketValue + baseTotals.realized;
+        const realizedDisplay = convertAmount(baseTotals.realized, baseTotals.realizedCurrency, selectedDisplayCurrency) ?? baseTotals.realized;
+        const portfolioValue = openMarketValue + (Number.isFinite(realizedDisplay) ? realizedDisplay : 0);
         if (unrealizedTotalEl) {
-            unrealizedTotalEl.textContent = `${formatNumber(unrealizedTotal)} USD`;
+            unrealizedTotalEl.textContent = formatWithCurrency(unrealizedTotal, selectedDisplayCurrency);
             unrealizedTotalEl.classList.toggle('positive', unrealizedTotal > 0);
             unrealizedTotalEl.classList.toggle('negative', unrealizedTotal < 0);
         }
         if (portfolioValueEl) {
-            portfolioValueEl.textContent = `${formatNumber(portfolioValue)} USD`;
+            portfolioValueEl.textContent = formatWithCurrency(portfolioValue, selectedDisplayCurrency);
         }
         if (roiEl) {
-            const denominator = baseTotals.invested > 0 ? baseTotals.invested : baseTotals.openCost;
-            const roi = denominator > 0 ? ((baseTotals.realized + unrealizedTotal) / denominator) * 100 : 0;
+            const denominator = investedTotal > 0 ? investedTotal : openCostTotal;
+            const roi = denominator > 0 ? ((realizedDisplay + unrealizedTotal) / denominator) * 100 : 0;
             roiEl.textContent = `${roi.toFixed(2)}%`;
             roiEl.classList.toggle('positive', roi > 0);
             roiEl.classList.toggle('negative', roi < 0);
         }
         if (totalInvestedEl) {
-            totalInvestedEl.textContent = `${formatNumber(baseTotals.invested)} USD`;
+            totalInvestedEl.textContent = formatWithCurrency(investedTotal, selectedDisplayCurrency);
+        }
+        if (realizedEl) {
+            realizedEl.textContent = formatWithCurrency(realizedDisplay, selectedDisplayCurrency);
         }
     }
 
@@ -167,8 +284,15 @@ document.addEventListener('DOMContentLoaded', () => {
             .map(row => row.dataset.currency)
             .filter(Boolean)));
 
-        if (!quotes.length) {
-            quotes.push('USD');
+        const allowedQuotes = ['USD', 'USDT', 'EUR', 'GBP'];
+        const feedQuotes = quotes.filter(q => allowedQuotes.includes(q));
+
+        if (!feedQuotes.includes('USD')) {
+            feedQuotes.unshift('USD');
+        }
+
+        if (!feedQuotes.length) {
+            feedQuotes.push('USD');
         }
 
         if (!symbols.length) {
@@ -183,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const params = new URLSearchParams({
                 assets: symbols.join(','),
-                quotes: quotes.join(','),
+                quotes: feedQuotes.join(','),
             });
             const response = await fetch(`prices.php?${params.toString()}`);
             if (!response.ok) {
@@ -194,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!Object.keys(livePrices).length) {
                 setLiveStatus('No live prices returned. Asset might not be available on Binance.', true);
             } else {
-                setLiveStatus(`Live prices refreshed (${quotes.join('/')}).`);
+                setLiveStatus(`Live prices refreshed (${feedQuotes.join('/')}).`);
             }
             updateUnrealized(livePrices);
         } catch (error) {
@@ -224,6 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
         };
         setLiveStatus(`Manual override applied to ${selectedAsset}/${assetCurrency}.`);
+        livePrices = overridePrices;
         updateUnrealized(overridePrices);
     }
 
@@ -237,6 +362,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     [assetFilterSelect, ...statusFilterRadios].forEach(element => {
         element?.addEventListener('change', applyFilters);
+    });
+
+    displayCurrencySelect?.addEventListener('change', async () => {
+        selectedDisplayCurrency = displayCurrencySelect.value || 'USD';
+        await fetchFxRates();
+        updateUnrealized(livePrices);
     });
 
     filterForm?.addEventListener('submit', (event) => {
@@ -310,7 +441,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    applyFilters();
-    fetchLivePrices();
+    async function bootstrapPrices() {
+        await fetchFxRates();
+        applyFilters();
+        await fetchLivePrices();
+    }
+
+    bootstrapPrices();
     setInterval(fetchLivePrices, 60000);
 });

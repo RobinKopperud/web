@@ -150,14 +150,6 @@ if ($profit30Stmt) {
                 <p class="eyebrow">Portfolio overview</p>
                 <h2>Live P/L and ROI</h2>
             </div>
-            <div class="currency-switcher">
-                <label for="displayCurrency">Overview currency</label>
-                <select id="displayCurrency">
-                    <?php foreach ($currencyOptions as $currency): ?>
-                        <option value="<?php echo h($currency); ?>" <?php echo $currency === 'USD' ? 'selected' : ''; ?>><?php echo h($currency); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
             <div class="report-actions">
                 <a class="btn secondary" href="report.php?format=csv">Download CSV</a>
                 <a class="btn" href="report.php?format=pdf">Download PDF</a>

@@ -28,7 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const roiEl = document.getElementById('roiValue');
     const totalInvestedEl = document.getElementById('totalInvestedValue');
     const liveStatusEl = document.getElementById('liveStatus');
-    const displayCurrencySelect = document.getElementById('displayCurrency');
 
     const baseTotals = {
         invested: Number.parseFloat(summaryCard?.dataset.totalInvested || '0') || 0,
@@ -40,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let livePrices = {};
     let fxRates = { USD: 1 };
     let fxBase = 'USD';
-    let selectedDisplayCurrency = displayCurrencySelect?.value || 'USD';
+    const selectedDisplayCurrency = (summaryCard?.dataset.realizedCurrency || 'USD').toUpperCase();
 
     function findCurrencyForAsset(assetSymbol) {
         const rows = Array.from(document.querySelectorAll('#ordersTable tbody tr'));
@@ -68,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const rows = Array.from(document.querySelectorAll('#ordersTable tbody tr'));
         const currencies = new Set(rows.map(row => (row.dataset.currency || 'USD').toUpperCase()));
         currencies.add((selectedDisplayCurrency || 'USD').toUpperCase());
-        currencies.add('USD');
         currencies.add((baseTotals.realizedCurrency || 'USD').toUpperCase());
         return Array.from(currencies);
     }
@@ -108,14 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (available[preferredCurrency]) {
             return { price: available[preferredCurrency], currency: preferredCurrency };
-        }
-
-        if (available.USD) {
-            return { price: available.USD, currency: 'USD' };
-        }
-
-        if (available.USDT) {
-            return { price: available.USDT, currency: 'USDT' };
         }
 
         const [firstQuote] = Object.keys(available);
@@ -281,26 +271,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchLivePrices() {
         const rows = Array.from(document.querySelectorAll('#ordersTable tbody tr'));
-        const symbols = Array.from(new Set(rows
-            .map(row => row.dataset.assetSymbol)
+        const pairs = Array.from(new Set(rows
+            .map(row => {
+                const asset = (row.dataset.assetSymbol || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+                const currency = (row.dataset.currency || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+                if (!asset || !currency) return null;
+                return `${asset}-${currency}`;
+            })
             .filter(Boolean)));
 
-        const currencies = Array.from(new Set(rows
-            .map(row => row.dataset.currency?.toUpperCase())
-            .filter(Boolean)));
-
-        const allowedCurrencies = ['USD', 'USDT', 'EUR', 'GBP'];
-        const feedCurrencies = currencies.filter(q => allowedCurrencies.includes(q));
-
-        if (!feedCurrencies.includes('USD')) {
-            feedCurrencies.unshift('USD');
-        }
-
-        if (!feedCurrencies.length) {
-            feedCurrencies.push('USD');
-        }
-
-        if (!symbols.length) {
+        if (!pairs.length) {
             setLiveStatus('No open assets to price.');
             return;
         }
@@ -311,8 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const params = new URLSearchParams({
-                assets: symbols.join(','),
-                currencies: feedCurrencies.join(','),
+                pairs: pairs.join(','),
             });
             const response = await fetch(`prices.php?${params.toString()}`);
             if (!response.ok) {
@@ -323,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!Object.keys(livePrices).length) {
                 setLiveStatus('No live prices returned. Asset might not be available on Binance.', true);
             } else {
-                setLiveStatus(`Live prices refreshed (${feedCurrencies.join('/')}).`);
+                setLiveStatus('Live prices refreshed.');
             }
             updateUnrealized(livePrices);
         } catch (error) {
@@ -367,12 +346,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     [assetFilterSelect, ...statusFilterRadios].forEach(element => {
         element?.addEventListener('change', applyFilters);
-    });
-
-    displayCurrencySelect?.addEventListener('change', async () => {
-        selectedDisplayCurrency = displayCurrencySelect.value || 'USD';
-        await fetchFxRates();
-        updateUnrealized(livePrices);
     });
 
     filterForm?.addEventListener('submit', (event) => {

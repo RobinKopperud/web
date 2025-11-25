@@ -191,7 +191,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const data = await response.json();
             livePrices = data.prices || {};
-            setLiveStatus(`Live prices refreshed (${quotes.join('/')}).`);
+            if (!Object.keys(livePrices).length) {
+                setLiveStatus('No live prices returned. Asset might not be available on Binance.', true);
+            } else {
+                setLiveStatus(`Live prices refreshed (${quotes.join('/')}).`);
+            }
             updateUnrealized(livePrices);
         } catch (error) {
             setLiveStatus('Could not load live prices.', true);

@@ -141,4 +141,48 @@ if ($action === 'close_order') {
     redirect_with_flash('error', 'Failed to update order.');
 }
 
+if ($action === 'delete_order') {
+    $orderId = isset($_POST['order_id']) ? (int)$_POST['order_id'] : 0;
+
+    if ($orderId <= 0) {
+        redirect_with_flash('error', 'Invalid order ID.');
+    }
+
+    $fetch = $conn->prepare('SELECT id FROM orders WHERE id = ? AND user_id = ?');
+    if (!$fetch) {
+        redirect_with_flash('error', 'Unable to validate order.');
+    }
+    $fetch->bind_param('ii', $orderId, $userId);
+    $fetch->execute();
+    $orderResult = $fetch->get_result();
+
+    if (!$orderResult || !$orderResult->fetch_assoc()) {
+        redirect_with_flash('error', 'Order not found.');
+    }
+
+    $conn->begin_transaction();
+
+    $deleteClosures = $conn->prepare('DELETE oc FROM order_closures oc JOIN orders o ON oc.order_id = o.id WHERE oc.order_id = ? AND o.user_id = ?');
+    $deleteOrder = $conn->prepare('DELETE FROM orders WHERE id = ? AND user_id = ?');
+
+    if (!$deleteClosures || !$deleteOrder) {
+        $conn->rollback();
+        redirect_with_flash('error', 'Unable to prepare delete statements.');
+    }
+
+    $deleteClosures->bind_param('ii', $orderId, $userId);
+    $deleteOrder->bind_param('ii', $orderId, $userId);
+
+    $closuresOk = $deleteClosures->execute();
+    $orderOk = $deleteOrder->execute();
+
+    if ($closuresOk && $orderOk && $deleteOrder->affected_rows > 0) {
+        $conn->commit();
+        redirect_with_flash('success', 'Order deleted successfully.');
+    }
+
+    $conn->rollback();
+    redirect_with_flash('error', 'Failed to delete order.');
+}
+
 redirect_with_flash('error', 'Unknown action.');

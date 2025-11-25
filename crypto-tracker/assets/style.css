@@ -92,6 +92,13 @@ header h1 {
     outline: 2px solid var(--accent);
 }
 
+.input-inline {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 8px 0 4px;
+}
+
 .form-actions {
     display: flex;
     justify-content: flex-end;

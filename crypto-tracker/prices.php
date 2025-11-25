@@ -12,11 +12,22 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $assetsParam = $_GET['assets'] ?? '';
+$quotesParam = $_GET['quotes'] ?? '';
+
 $symbols = array_filter(array_unique(array_map(function ($symbol) {
     return strtoupper(trim($symbol));
 }, explode(',', $assetsParam))));
 
+$quotes = array_filter(array_unique(array_map(function ($quote) {
+    return strtoupper(trim($quote));
+}, explode(',', $quotesParam))));
+
 $symbols = array_slice($symbols, 0, 15);
+$quotes = array_slice($quotes, 0, 10);
+
+if (empty($quotes)) {
+    $quotes = ['USD'];
+}
 
 if (empty($symbols)) {
     echo json_encode(['prices' => []]);
@@ -24,7 +35,8 @@ if (empty($symbols)) {
 }
 
 $querySymbols = implode(',', $symbols);
-$url = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms=' . urlencode($querySymbols) . '&tsyms=USD';
+$queryQuotes = implode(',', $quotes);
+$url = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms=' . urlencode($querySymbols) . '&tsyms=' . urlencode($queryQuotes);
 
 $context = stream_context_create([
     'http' => [
@@ -39,8 +51,13 @@ if ($response !== false) {
     $json = json_decode($response, true);
     if (is_array($json)) {
         foreach ($symbols as $symbol) {
-            if (isset($json[$symbol]['USD'])) {
-                $prices[$symbol] = (float)$json[$symbol]['USD'];
+            foreach ($quotes as $quote) {
+                if (isset($json[$symbol][$quote])) {
+                    if (!isset($prices[$symbol])) {
+                        $prices[$symbol] = [];
+                    }
+                    $prices[$symbol][$quote] = (float)$json[$symbol][$quote];
+                }
             }
         }
     }

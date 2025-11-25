@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const roiEl = document.getElementById('roiValue');
     const totalInvestedEl = document.getElementById('totalInvestedValue');
     const liveStatusEl = document.getElementById('liveStatus');
+    const apiDebugList = document.getElementById('apiDebugList');
 
     const baseTotals = {
         invested: Number.parseFloat(summaryCard?.dataset.totalInvested || '0') || 0,
@@ -40,6 +41,30 @@ document.addEventListener('DOMContentLoaded', () => {
     let fxRates = { USD: 1 };
     let fxBase = 'USD';
     const selectedDisplayCurrency = (summaryCard?.dataset.realizedCurrency || 'USD').toUpperCase();
+
+    const apiDebugMessages = {
+        prices: 'Ingen spørring utført ennå.',
+        rates: 'Ingen spørring utført ennå.',
+    };
+
+    function renderApiDebug() {
+        if (!apiDebugList) return;
+        apiDebugList.innerHTML = '';
+
+        Object.entries(apiDebugMessages).forEach(([type, message]) => {
+            const item = document.createElement('li');
+            const label = type === 'prices' ? 'Live-priser' : 'Valutakurser';
+            item.innerHTML = `<span class="debug-label">${label}:</span> <code>${message}</code>`;
+            apiDebugList.appendChild(item);
+        });
+    }
+
+    function setApiDebugMessage(type, queryString) {
+        apiDebugMessages[type] = `${new Date().toLocaleTimeString()} – GET ${queryString}`;
+        renderApiDebug();
+    }
+
+    renderApiDebug();
 
     function findCurrencyForAsset(assetSymbol) {
         const rows = Array.from(document.querySelectorAll('#ordersTable tbody tr'));
@@ -144,6 +169,8 @@ document.addEventListener('DOMContentLoaded', () => {
             base: 'USD',
             symbols: currencies.join(','),
         });
+
+        setApiDebugMessage('rates', `rates.php?${params.toString()}`);
 
         try {
             const response = await fetch(`rates.php?${params.toString()}`);
@@ -293,6 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams({
                 pairs: pairs.join(','),
             });
+            setApiDebugMessage('prices', `prices.php?${params.toString()}`);
             const response = await fetch(`prices.php?${params.toString()}`);
             if (!response.ok) {
                 throw new Error(`Feed error (${response.status})`);

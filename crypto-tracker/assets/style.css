@@ -47,6 +47,45 @@ header h1 {
     color: var(--muted);
 }
 
+.debug-panel {
+    border: 1px dashed var(--accent);
+    background: #0b1221;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.debug-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 8px;
+}
+
+.debug-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 6px;
+}
+
+.debug-list code {
+    background: #0f172a;
+    padding: 6px 8px;
+    border-radius: 8px;
+    display: inline-block;
+    border: 1px solid var(--border);
+}
+
+.debug-label {
+    color: var(--muted);
+    margin-right: 6px;
+    font-weight: 600;
+}
+
 .card {
     background: var(--card);
     border: 1px solid var(--border);

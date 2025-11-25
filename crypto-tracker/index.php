@@ -127,6 +127,13 @@ if ($profit30Stmt) {
 </head>
 <body>
 <div class="container">
+    <section class="debug-panel" aria-live="polite">
+        <div class="debug-title">API debug</div>
+        <ul class="debug-list" id="apiDebugList">
+            <li><span class="debug-label">Live-priser:</span> <code>Ingen spørring utført ennå.</code></li>
+            <li><span class="debug-label">Valutakurser:</span> <code>Ingen spørring utført ennå.</code></li>
+        </ul>
+    </section>
     <header>
         <h1>Manual Crypto Order Tracker</h1>
         <p class="subtitle">Separate lines for each BUY, easy partial closes, clear profit per order.</p>

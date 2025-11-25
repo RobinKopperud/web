@@ -8,7 +8,6 @@ $currentUser = fetch_current_user($conn);
 $userId = (int)($_SESSION['user_id'] ?? 0);
 
 date_default_timezone_set('UTC');
-$currencyOptions = ['USD', 'EUR', 'NOK', 'USDT', 'GBP'];
 
 function h($value)
 {
@@ -23,9 +22,9 @@ function formatDecimal($number)
 $flash = $_SESSION['flash'] ?? null;
 unset($_SESSION['flash']);
 
-// Fetch available assets for filter dropdown scoped to the user
+// Fetch available assets for filter dropdown scoped to the user's open orders
 $assetOptions = [];
-$assetStmt = $conn->prepare("SELECT DISTINCT asset FROM orders WHERE user_id = ? ORDER BY asset");
+$assetStmt = $conn->prepare("SELECT DISTINCT asset FROM orders WHERE user_id = ? AND status = 'OPEN' ORDER BY asset");
 if ($assetStmt) {
     $assetStmt->bind_param('i', $userId);
     $assetStmt->execute();
@@ -33,6 +32,22 @@ if ($assetStmt) {
     if ($assetResult) {
         while ($row = $assetResult->fetch_assoc()) {
             $assetOptions[] = $row['asset'];
+        }
+    }
+}
+
+$currencyOptions = [];
+$currencyStmt = $conn->prepare("SELECT DISTINCT UPPER(currency) AS currency FROM orders WHERE user_id = ? AND status = 'OPEN' ORDER BY currency");
+if ($currencyStmt) {
+    $currencyStmt->bind_param('i', $userId);
+    $currencyStmt->execute();
+    $currencyResult = $currencyStmt->get_result();
+    if ($currencyResult) {
+        while ($row = $currencyResult->fetch_assoc()) {
+            $currency = $row['currency'];
+            if ($currency !== '') {
+                $currencyOptions[] = $currency;
+            }
         }
     }
 }
@@ -191,12 +206,13 @@ if ($realizedStmt) {
             </div>
             <div class="form-control">
                 <label for="currency">Price currency</label>
-                <select name="currency" id="currency">
+                <input list="currencyOptionsList" name="currency" id="currency" value="<?php echo h($currencyOptions[0] ?? ''); ?>" placeholder="e.g. USD" required>
+                <datalist id="currencyOptionsList">
                     <?php foreach ($currencyOptions as $currency): ?>
-                        <option value="<?php echo h($currency); ?>" <?php echo $currency === 'USD' ? 'selected' : ''; ?>><?php echo h($currency); ?></option>
+                        <option value="<?php echo h($currency); ?>"></option>
                     <?php endforeach; ?>
-                </select>
-                <p class="hint">Used for entry price and all closes on this order.</p>
+                </datalist>
+                <p class="hint">Used for entry price and all closes on this order. Suggestions are loaded from your open orders.</p>
             </div>
             <div class="form-control">
                 <label for="total_cost">Total cost (optional)</label>
@@ -274,7 +290,7 @@ if ($realizedStmt) {
                         $assetSymbol = strtoupper($order['asset']);
                         $remainingCostBasis = $isClosed ? 0 : $totalCost * ($order['remaining_quantity'] / $order['quantity']);
                         ?>
-                        <tr class="<?php echo $rowClass; ?>" data-entry-price="<?php echo formatDecimal($order['entry_price']); ?>" data-remaining="<?php echo formatDecimal($order['remaining_quantity']); ?>" data-asset="<?php echo h(strtolower($order['asset'])); ?>" data-asset-symbol="<?php echo h($assetSymbol); ?>" data-status="<?php echo h(strtolower($order['status'])); ?>" data-open-cost="<?php echo formatDecimal($remainingCostBasis); ?>" data-total-cost="<?php echo formatDecimal($totalCost); ?>" data-currency="<?php echo h($order['currency'] ?? 'USD'); ?>">
+                        <tr class="<?php echo $rowClass; ?>" data-entry-price="<?php echo formatDecimal($order['entry_price']); ?>" data-remaining="<?php echo formatDecimal($order['remaining_quantity']); ?>" data-asset="<?php echo h(strtolower($order['asset'])); ?>" data-asset-symbol="<?php echo h($assetSymbol); ?>" data-status="<?php echo h(strtolower($order['status'])); ?>" data-open-cost="<?php echo formatDecimal($remainingCostBasis); ?>" data-total-cost="<?php echo formatDecimal($totalCost); ?>" data-currency="<?php echo h(strtoupper($order['currency'] ?? 'USD')); ?>">
                             <td data-label="ID"><a href="order_detail.php?id=<?php echo (int)$order['id']; ?>">#<?php echo (int)$order['id']; ?></a></td>
                             <td data-label="Asset"><?php echo h($order['asset']); ?></td>
                             <td data-label="Status"><span class="badge <?php echo strtolower($order['status']); ?>"><?php echo h($order['status']); ?></span></td>
@@ -282,14 +298,14 @@ if ($realizedStmt) {
                             <td data-label="Entry price">
                                 <div class="cell-stack">
                                     <span class="mono"><?php echo formatDecimal($order['entry_price']); ?></span>
-                                    <span class="chip"><?php echo h($order['currency'] ?? 'USD'); ?></span>
+                                    <span class="chip"><?php echo h(strtoupper($order['currency'] ?? 'USD')); ?></span>
                                 </div>
                             </td>
                             <td data-label="Live price" class="live-price">-</td>
                             <td data-label="Total cost">
                                 <div class="cell-stack">
                                     <span class="mono"><?php echo formatDecimal($totalCost); ?></span>
-                                    <span class="chip"><?php echo h($order['currency'] ?? 'USD'); ?></span>
+                                    <span class="chip"><?php echo h(strtoupper($order['currency'] ?? 'USD')); ?></span>
                                 </div>
                             </td>
                             <td data-label="Unrealized P/L" class="profit unrealized">-</td>
@@ -301,7 +317,7 @@ if ($realizedStmt) {
                                             data-asset="<?php echo h($order['asset']); ?>"
                                             data-remaining="<?php echo formatDecimal($order['remaining_quantity']); ?>"
                                             data-entry-price="<?php echo formatDecimal($order['entry_price']); ?>"
-                                            data-currency="<?php echo h($order['currency'] ?? 'USD'); ?>">
+                                            data-currency="<?php echo h(strtoupper($order['currency'] ?? 'USD')); ?>">
                                         Close
                                     </button>
                                 <?php endif; ?>

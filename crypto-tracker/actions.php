@@ -10,10 +10,10 @@ date_default_timezone_set('UTC');
 
 function sanitize_currency(string $currency): string
 {
-    $allowed = ['USD', 'EUR', 'NOK', 'USDT', 'GBP'];
     $cleaned = strtoupper(trim($currency));
+    $cleaned = preg_replace('/[^A-Z0-9]/', '', $cleaned);
 
-    return in_array($cleaned, $allowed, true) ? $cleaned : 'USD';
+    return $cleaned !== '' ? $cleaned : 'USD';
 }
 
 function redirect_with_flash(string $type, string $message, string $location = 'index.php')

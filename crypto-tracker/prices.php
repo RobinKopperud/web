@@ -95,6 +95,8 @@ $binanceHosts = [
 
 $binanceRequests = [];
 
+$symbolPrices = [];
+
 $httpOptions = [
     'http' => [
         'timeout' => 6,
@@ -117,10 +119,12 @@ foreach ($pairs as $symbol => [$asset, $currency]) {
     }
 
     $prices[$asset][$currency] = $price;
+    $symbolPrices[$symbol] = $price;
 }
 
 echo json_encode([
     'prices' => $prices,
+    'symbol_prices' => $symbolPrices,
     'binance_requests' => array_values(array_unique($binanceRequests)),
     'requested' => array_values(array_unique(array_map(function ($pair) {
         return $pair[0];

@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     let livePrices = {};
+    let symbolPrices = {};
     const selectedDisplayCurrency = (summaryCard?.dataset.realizedCurrency || 'USD').toUpperCase();
 
     const apiDebugMessages = {
@@ -89,16 +90,33 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${formatNumber(amount)} ${currency}`;
     }
 
-    function resolveLivePrice(assetSymbol, preferredCurrency = 'USD', priceMap = livePrices) {
+    function resolveLivePrice(assetSymbol, preferredCurrency = 'USD', priceMap = livePrices, symbolMap = symbolPrices) {
         const available = priceMap?.[assetSymbol];
-        if (!available) return { price: null, currency: null };
 
-        if (available[preferredCurrency]) {
+        if (available?.[preferredCurrency]) {
             return { price: available[preferredCurrency], currency: preferredCurrency };
         }
 
-        const [firstQuote] = Object.keys(available);
-        return { price: available[firstQuote], currency: firstQuote };
+        const flatSymbol = `${assetSymbol}${preferredCurrency}`;
+        if (symbolMap?.[flatSymbol]) {
+            return { price: symbolMap[flatSymbol], currency: preferredCurrency };
+        }
+
+        if (available) {
+            const [firstQuote] = Object.keys(available);
+            if (firstQuote) {
+                return { price: available[firstQuote], currency: firstQuote };
+            }
+        }
+
+        const fallback = Object.entries(symbolMap || {}).find(([key]) => key.startsWith(assetSymbol));
+        if (fallback) {
+            const [symbol, price] = fallback;
+            const quote = symbol.replace(assetSymbol, '') || null;
+            return { price, currency: quote };
+        }
+
+        return { price: null, currency: null };
     }
 
     function updateMissingOrderField(changedField) {
@@ -243,6 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const data = await response.json();
             livePrices = data.prices || {};
+            symbolPrices = data.symbol_prices || {};
             const binanceRequests = (data.binance_requests || []).map(url => `GET ${url}`);
             const binanceDisplay = binanceRequests.length ? binanceRequests.join(' · ') : 'Ingen Binance-spørringer registrert.';
             setApiDebugMessage('prices', `GET ${path} | Binance: ${binanceDisplay}`);
@@ -278,8 +297,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 [assetCurrency]: manualPrice,
             },
         };
+        const overrideSymbolPrices = {
+            ...symbolPrices,
+            [`${selectedAsset}${assetCurrency}`]: manualPrice,
+        };
         setLiveStatus(`Manual override applied to ${selectedAsset}/${assetCurrency}.`);
         livePrices = overridePrices;
+        symbolPrices = overrideSymbolPrices;
         updateUnrealized(overridePrices);
     }
 

@@ -72,6 +72,58 @@ function fetch_price_from_hosts(string $symbol, array $hosts, array $context, ar
     return null;
 }
 
+function fetch_fx_rate(string $baseCurrency, string $quoteCurrency, array $context, array &$requestLog, array &$responseLog): ?float
+{
+    $providers = [
+        [
+            'name' => 'Coinbase',
+            'url' => "https://api.coinbase.com/v2/exchange-rates?currency=" . urlencode($baseCurrency),
+            'extract' => function (array $json, string $quoteCurrency): ?float {
+                $rate = $json['data']['rates'][$quoteCurrency] ?? null;
+                return is_numeric($rate) ? (float)$rate : null;
+            },
+        ],
+        [
+            'name' => 'XE',
+            'url' => "https://api.exchangerate.host/convert?from=" . urlencode($baseCurrency) . "&to=" . urlencode($quoteCurrency),
+            'extract' => function (array $json, string $quoteCurrency = ''): ?float {
+                $rate = $json['result'] ?? null;
+                return is_numeric($rate) ? (float)$rate : null;
+            },
+        ],
+    ];
+
+    foreach ($providers as $provider) {
+        $url = $provider['url'];
+        $requestLog[] = $url;
+        $response = fetch_with_curl($url, $context);
+
+        $responseLog[] = [
+            'provider' => $provider['name'],
+            'url' => $url,
+            'status' => $response['status'],
+            'body' => $response['body'],
+            'error' => $response['error'],
+        ];
+
+        if ($response['body'] === null) {
+            continue;
+        }
+
+        $json = json_decode($response['body'], true);
+        if (!is_array($json)) {
+            continue;
+        }
+
+        $rate = ($provider['extract'])($json, $quoteCurrency);
+        if (is_numeric($rate) && $rate > 0) {
+            return (float)$rate;
+        }
+    }
+
+    return null;
+}
+
 $userId = (int)($_SESSION['user_id'] ?? 0);
 $assetFilter = sanitize_symbol_part($_GET['asset'] ?? '');
 $statusFilter = ($_GET['status'] ?? 'open') === 'all' ? null : 'OPEN';
@@ -156,17 +208,30 @@ foreach ($pairs as $symbol => [$asset, $currency]) {
     $symbolPrices[$symbol] = $price;
 }
 
-$fxPairs = [
-    'USDNOK' => 'USD',
-    'EURNOK' => 'EUR',
-    'USDTNOK' => 'USDT',
-];
+$fxRequests = [];
+$fxResponses = [];
 
-foreach ($fxPairs as $symbol => $code) {
-    $fxPrice = fetch_price_from_hosts($symbol, $binanceHosts, $httpOptions, $binanceRequests, $binanceResponses);
+$fxCurrencies = ['USD', 'EUR', 'USDT'];
+$quoteCurrency = 'NOK';
+
+foreach ($fxCurrencies as $currencyCode) {
+    $fxPrice = fetch_fx_rate($currencyCode, $quoteCurrency, $httpOptions, $fxRequests, $fxResponses);
     if ($fxPrice !== null) {
-        $fxRates[$code] = $fxPrice;
-        $symbolPrices[$symbol] = $fxPrice;
+        $fxRates[$currencyCode] = $fxPrice;
+        $symbolPrices[$currencyCode . $quoteCurrency] = $fxPrice;
+        continue;
+    }
+
+    if ($currencyCode === 'USDT' && isset($fxRates['USD'])) {
+        $fxRates['USDT'] = $fxRates['USD'];
+        $symbolPrices['USDT' . $quoteCurrency] = $fxRates['USD'];
+        $fxResponses[] = [
+            'provider' => 'Derived',
+            'url' => null,
+            'status' => 200,
+            'body' => 'USDT pegged to USD rate',
+            'error' => null,
+        ];
     }
 }
 
@@ -174,6 +239,8 @@ echo json_encode([
     'prices' => $prices,
     'symbol_prices' => $symbolPrices,
     'fx_rates' => $fxRates,
+    'fx_requests' => array_values(array_unique($fxRequests)),
+    'fx_responses' => $fxResponses,
     'binance_requests' => array_values(array_unique($binanceRequests)),
     'binance_responses' => $binanceResponses,
     'requested' => array_values(array_unique(array_map(function ($pair) {

@@ -120,11 +120,6 @@ while ($row = $result->fetch_assoc()) {
     $pairs[$asset . $currency] = [$asset, $currency];
 }
 
-if (empty($pairs)) {
-    echo json_encode(['prices' => []]);
-    exit;
-}
-
 $binanceHosts = [
     'https://api.binance.com/api/v3/ticker/price',
 ];
@@ -133,6 +128,7 @@ $binanceRequests = [];
 $binanceResponses = [];
 
 $symbolPrices = [];
+$fxRates = [];
 
 $httpOptions = [
     'http' => [
@@ -141,6 +137,7 @@ $httpOptions = [
         'user_agent' => 'CryptoTracker/1.0',
     ],
 ];
+
 
 $prices = [];
 
@@ -159,9 +156,24 @@ foreach ($pairs as $symbol => [$asset, $currency]) {
     $symbolPrices[$symbol] = $price;
 }
 
+$fxPairs = [
+    'USDNOK' => 'USD',
+    'EURNOK' => 'EUR',
+    'USDTNOK' => 'USDT',
+];
+
+foreach ($fxPairs as $symbol => $code) {
+    $fxPrice = fetch_price_from_hosts($symbol, $binanceHosts, $httpOptions, $binanceRequests, $binanceResponses);
+    if ($fxPrice !== null) {
+        $fxRates[$code] = $fxPrice;
+        $symbolPrices[$symbol] = $fxPrice;
+    }
+}
+
 echo json_encode([
     'prices' => $prices,
     'symbol_prices' => $symbolPrices,
+    'fx_rates' => $fxRates,
     'binance_requests' => array_values(array_unique($binanceRequests)),
     'binance_responses' => $binanceResponses,
     'requested' => array_values(array_unique(array_map(function ($pair) {

@@ -14,9 +14,14 @@ function h($value)
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
 
-function formatDecimal($number)
+function formatDecimal($number, int $decimals = 8)
 {
-    return number_format((float)$number, 8, '.', '');
+    return number_format((float)$number, $decimals, '.', '');
+}
+
+function formatDisplay($number, int $decimals = 4)
+{
+    return number_format((float)$number, $decimals, '.', '');
 }
 
 $flash = $_SESSION['flash'] ?? null;
@@ -36,25 +41,9 @@ if ($assetStmt) {
     }
 }
 
-$currencyOptions = [];
-$currencyStmt = $conn->prepare("SELECT DISTINCT UPPER(currency) AS currency FROM orders WHERE user_id = ? AND status = 'OPEN' ORDER BY currency");
-if ($currencyStmt) {
-    $currencyStmt->bind_param('i', $userId);
-    $currencyStmt->execute();
-    $currencyResult = $currencyStmt->get_result();
-    if ($currencyResult) {
-        while ($row = $currencyResult->fetch_assoc()) {
-            $currency = $row['currency'];
-            if ($currency !== '') {
-                $currencyOptions[] = $currency;
-            }
-        }
-    }
-}
-
 $assetFilter = isset($_GET['asset']) ? trim($_GET['asset']) : '';
-$statusFilter = isset($_GET['status']) ? $_GET['status'] : 'open';
-$statusFilter = in_array($statusFilter, ['open', 'all']) ? $statusFilter : 'open';
+$statusFilter = isset($_GET['status']) ? $_GET['status'] : 'all';
+$statusFilter = in_array($statusFilter, ['open', 'all']) ? $statusFilter : 'all';
 
 $filterSql = "WHERE user_id = ?";
 $filterTypes = 'i';
@@ -73,15 +62,38 @@ if ($statusFilter === 'open') {
 $ordersQuery = "SELECT * FROM orders $filterSql ORDER BY created_at DESC";
 $ordersStmt = $conn->prepare($ordersQuery);
 if ($ordersStmt) {
-    if ($filterTypes === 'is') {
-        $ordersStmt->bind_param('is', $userId, $assetFilter);
-    } else {
-        $ordersStmt->bind_param('i', $userId);
-    }
+    $bindTypes = $filterTypes;
+    $bindValues = $filterValues;
+    $ordersStmt->bind_param($bindTypes, ...$bindValues);
     $ordersStmt->execute();
     $ordersResult = $ordersStmt->get_result();
+    $orders = $ordersResult ? $ordersResult->fetch_all(MYSQLI_ASSOC) : [];
 } else {
     $ordersResult = false;
+    $orders = [];
+}
+
+$closureProfits = [];
+
+if (!empty($orders)) {
+    $orderIds = array_column($orders, 'id');
+    $placeholders = implode(',', array_fill(0, count($orderIds), '?'));
+    $profitQuery = "SELECT oc.order_id, oc.currency, COALESCE(SUM(oc.profit), 0) AS realized_profit FROM order_closures oc JOIN ord"
+        . "ers o ON oc.order_id = o.id WHERE o.user_id = ? AND oc.order_id IN ($placeholders) GROUP BY oc.order_id, oc.currency";
+    $profitStmt = $conn->prepare($profitQuery);
+
+    if ($profitStmt) {
+        $types = 'i' . str_repeat('i', count($orderIds));
+        $bindParams = array_merge([$userId], $orderIds);
+        $profitStmt->bind_param($types, ...$bindParams);
+        $profitStmt->execute();
+        $profitResult = $profitStmt->get_result();
+        if ($profitResult) {
+            while ($row = $profitResult->fetch_assoc()) {
+                $closureProfits[(int)$row['order_id']] = (float)$row['realized_profit'];
+            }
+        }
+    }
 }
 
 ?>
@@ -114,6 +126,31 @@ if ($ordersStmt) {
         <div class="alert <?php echo h($flash['type']); ?>"><?php echo h($flash['message']); ?></div>
     <?php endif; ?>
 
+    <section class="card portfolio-header">
+        <div>
+            <h2>Portefølje i NOK</h2>
+            <p class="hint">Beregnet fra filtrerte ordrer (valuta konvertert til NOK).</p>
+        </div>
+        <div class="summary-grid" id="portfolioSummary">
+            <div class="stat">
+                <p class="eyebrow">Total invested</p>
+                <p class="mono" id="totalInvestedNok">-</p>
+            </div>
+            <div class="stat">
+                <p class="eyebrow">Realized P/L</p>
+                <p class="mono" id="realizedNok">-</p>
+            </div>
+            <div class="stat">
+                <p class="eyebrow">Unrealized P/L</p>
+                <p class="mono" id="unrealizedNok">-</p>
+            </div>
+            <div class="stat">
+                <p class="eyebrow">Lifetime ROI</p>
+                <p class="mono" id="lifetimeRoi">-</p>
+            </div>
+        </div>
+    </section>
+
     <section class="card">
         <h2>Add a new BUY order</h2>
         <form method="POST" action="actions.php" class="form-grid">
@@ -128,21 +165,20 @@ if ($ordersStmt) {
             </div>
             <div class="form-control">
                 <label for="entry_price">Entry price per unit</label>
-                <input type="number" step="0.00000001" min="0" name="entry_price" id="entry_price" required>
+                <input type="number" step="0.0001" min="0" name="entry_price" id="entry_price" required>
             </div>
             <div class="form-control">
                 <label for="currency">Price currency</label>
-                <input list="currencyOptionsList" name="currency" id="currency" value="<?php echo h($currencyOptions[0] ?? ''); ?>" placeholder="e.g. USD" required>
-                <datalist id="currencyOptionsList">
-                    <?php foreach ($currencyOptions as $currency): ?>
-                        <option value="<?php echo h($currency); ?>"></option>
-                    <?php endforeach; ?>
-                </datalist>
-                <p class="hint">Used for entry price and all closes on this order. Suggestions are loaded from your open orders.</p>
+                <select name="currency" id="currency" required>
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="USDT">USDT</option>
+                </select>
+                <p class="hint">Brukes for entry price og alle closes. Kun USD, EUR og USDT er tillatt.</p>
             </div>
             <div class="form-control">
                 <label for="total_cost">Total cost (optional)</label>
-                <input type="number" step="0.00000001" min="0" name="total_cost" id="total_cost" placeholder="Auto-calculated">
+                <input type="number" step="0.0001" min="0" name="total_cost" id="total_cost" placeholder="Auto-calculated">
                 <p class="hint">Fill any two of quantity, entry price, and total to auto-calculate the third.</p>
             </div>
             <div class="form-control">
@@ -192,12 +228,13 @@ if ($ordersStmt) {
         </div>
 
         <div id="ordersTable" class="order-grid">
-            <?php if ($ordersResult && $ordersResult->num_rows > 0): ?>
-                <?php while ($order = $ordersResult->fetch_assoc()): ?>
+            <?php if (!empty($orders)): ?>
+                <?php foreach ($orders as $order): ?>
                     <?php
                     $totalCost = ($order['quantity'] * $order['entry_price']) + $order['fee'];
                     $isClosed = $order['status'] === 'CLOSED';
                     $assetSymbol = strtoupper($order['asset']);
+                    $realizedForOrder = $closureProfits[(int)$order['id']] ?? 0.0;
                     ?>
                     <article class="order-card <?php echo $isClosed ? 'status-closed' : 'status-open'; ?>"
                              data-entry-price="<?php echo formatDecimal($order['entry_price']); ?>"
@@ -206,6 +243,7 @@ if ($ordersStmt) {
                              data-asset-symbol="<?php echo h($assetSymbol); ?>"
                              data-status="<?php echo h(strtolower($order['status'])); ?>"
                              data-total-cost="<?php echo formatDecimal($totalCost); ?>"
+                             data-realized-profit="<?php echo formatDecimal($realizedForOrder); ?>"
                              data-currency="<?php echo h(strtoupper($order['currency'] ?? 'USD')); ?>">
                         <header class="order-card__header">
                             <div>
@@ -226,11 +264,11 @@ if ($ordersStmt) {
                             </div>
                             <div class="order-stat">
                                 <p class="eyebrow">Entry price</p>
-                                <p class="mono"><?php echo formatDecimal($order['entry_price']); ?> <?php echo h(strtoupper($order['currency'] ?? 'USD')); ?></p>
+                                <p class="mono"><?php echo formatDisplay($order['entry_price']); ?> <?php echo h(strtoupper($order['currency'] ?? 'USD')); ?></p>
                             </div>
                             <div class="order-stat">
                                 <p class="eyebrow">Total cost</p>
-                                <p class="mono"><?php echo formatDecimal($totalCost); ?> <?php echo h(strtoupper($order['currency'] ?? 'USD')); ?></p>
+                                <p class="mono"><?php echo formatDisplay($totalCost); ?> <?php echo h(strtoupper($order['currency'] ?? 'USD')); ?></p>
                             </div>
                             <div class="order-stat">
                                 <p class="eyebrow">Unrealized P/L</p>
@@ -251,7 +289,7 @@ if ($ordersStmt) {
                             <?php endif; ?>
                         </div>
                     </article>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
             <?php else: ?>
                 <p class="muted">No orders yet. Add your first BUY above.</p>
             <?php endif; ?>

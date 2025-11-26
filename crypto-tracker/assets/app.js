@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let livePrices = {};
     let symbolPrices = {};
+    let fxRates = {};
 
     const apiDebugMessages = {
         prices: 'Ingen spørring utført ennå.',
@@ -55,6 +56,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function formatNumber(value) {
         return Number.parseFloat(value).toFixed(8);
+    }
+
+    function formatNok(value) {
+        if (!Number.isFinite(value)) return '-';
+        return `${value.toLocaleString('nb-NO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} NOK`;
+    }
+
+    function formatPercent(value) {
+        if (!Number.isFinite(value)) return '-';
+        return `${value.toFixed(2)}%`;
     }
 
     function parsePositiveNumber(value) {
@@ -96,6 +107,65 @@ document.addEventListener('DOMContentLoaded', () => {
         return { price: null, currency: null, source: 'ingen pris tilgjengelig' };
     }
 
+    function convertToNok(amount, currency) {
+        const rate = fxRates?.[currency];
+        if (!Number.isFinite(amount) || !Number.isFinite(rate)) return null;
+        return amount * rate;
+    }
+
+    function updatePortfolioSummary(priceMap = livePrices) {
+        const totalInvestedEl = document.getElementById('totalInvestedNok');
+        const realizedEl = document.getElementById('realizedNok');
+        const unrealizedEl = document.getElementById('unrealizedNok');
+        const roiEl = document.getElementById('lifetimeRoi');
+
+        if (!totalInvestedEl || !realizedEl || !unrealizedEl || !roiEl) return;
+
+        let totalInvestedNok = 0;
+        let realizedNok = 0;
+        let unrealizedNok = 0;
+
+        document.querySelectorAll('.order-card').forEach(card => {
+            if (card.classList.contains('is-hidden')) return;
+
+            const currency = (card.dataset.currency || 'USD').toUpperCase();
+            const totalCost = Number.parseFloat(card.dataset.totalCost);
+            const realizedProfit = Number.parseFloat(card.dataset.realizedProfit || '0');
+            const entryPrice = Number.parseFloat(card.dataset.entryPrice);
+            const remaining = Number.parseFloat(card.dataset.remaining);
+            const assetSymbol = card.dataset.assetSymbol;
+
+            const investedNok = convertToNok(totalCost, currency);
+            if (Number.isFinite(investedNok)) {
+                totalInvestedNok += investedNok;
+            }
+
+            const realizedNokValue = convertToNok(realizedProfit, currency);
+            if (Number.isFinite(realizedNokValue)) {
+                realizedNok += realizedNokValue;
+            }
+
+            if (remaining > 0 && Number.isFinite(entryPrice)) {
+                const { price: livePrice, currency: liveCurrency } = resolveLivePrice(assetSymbol, currency, priceMap, symbolPrices);
+                const priceCurrency = (liveCurrency || currency || '').toUpperCase();
+                if (Number.isFinite(livePrice) && fxRates[priceCurrency]) {
+                    const unrealizedNative = remaining * (livePrice - entryPrice);
+                    const unrealizedNokValue = convertToNok(unrealizedNative, priceCurrency);
+                    if (Number.isFinite(unrealizedNokValue)) {
+                        unrealizedNok += unrealizedNokValue;
+                    }
+                }
+            }
+        });
+
+        const lifetimeRoi = totalInvestedNok > 0 ? ((realizedNok + unrealizedNok) / totalInvestedNok) * 100 : null;
+
+        totalInvestedEl.textContent = formatNok(totalInvestedNok);
+        realizedEl.textContent = formatNok(realizedNok);
+        unrealizedEl.textContent = formatNok(unrealizedNok);
+        roiEl.textContent = formatPercent(lifetimeRoi);
+    }
+
     function updateMissingOrderField(changedField) {
         if (!quantityInput || !entryPriceInput || !totalCostInput) return;
 
@@ -111,19 +181,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (changedField !== 'entry_price' && quantity !== null && totalCost !== null) {
             const computedEntry = totalCost / quantity;
-            entryPriceInput.value = Number.isFinite(computedEntry) ? formatNumber(computedEntry) : '';
+            entryPriceInput.value = Number.isFinite(computedEntry) ? computedEntry.toFixed(4) : '';
             return;
         }
 
         if (changedField !== 'total_cost' && quantity !== null && entryPrice !== null) {
             const computedTotal = quantity * entryPrice;
-            totalCostInput.value = Number.isFinite(computedTotal) ? formatNumber(computedTotal) : '';
+            totalCostInput.value = Number.isFinite(computedTotal) ? computedTotal.toFixed(4) : '';
         }
     }
 
     function applyFilters() {
         const assetValue = assetFilterSelect?.value.trim().toLowerCase() || '';
-        const statusValue = Array.from(statusFilterRadios).find(radio => radio.checked)?.value || 'open';
+        const statusValue = Array.from(statusFilterRadios).find(radio => radio.checked)?.value || 'all';
 
         document.querySelectorAll('.order-card').forEach(card => {
             const matchesAsset = !assetValue || card.dataset.asset?.toLowerCase() === assetValue;
@@ -200,6 +270,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (resolutionLogs.length) {
             setApiDebugMessage('resolution', resolutionLogs.join(' · '));
         }
+
+        updatePortfolioSummary(priceMap);
     }
 
     async function fetchLivePrices() {
@@ -229,6 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             livePrices = data.prices || {};
             symbolPrices = data.symbol_prices || {};
+            fxRates = data.fx_rates || {};
             const binanceRequests = (data.binance_requests || []).map(url => `GET ${url}`);
             const binanceDisplay = binanceRequests.length ? binanceRequests.join(' · ') : 'Ingen Binance-spørringer registrert.';
             setApiDebugMessage('prices', `GET ${path} | Binance: ${binanceDisplay}`);

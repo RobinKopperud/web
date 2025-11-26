@@ -13,7 +13,12 @@ function sanitize_currency(string $currency): string
     $cleaned = strtoupper(trim($currency));
     $cleaned = preg_replace('/[^A-Z0-9]/', '', $cleaned);
 
-    return $cleaned !== '' ? $cleaned : 'USD';
+    $allowed = ['USD', 'EUR', 'USDT'];
+    if (in_array($cleaned, $allowed, true)) {
+        return $cleaned;
+    }
+
+    return '';
 }
 
 function redirect_with_flash(string $type, string $message, string $location = 'index.php')
@@ -38,6 +43,10 @@ if ($action === 'create_order') {
     $entryPrice = $_POST['entry_price'] ?? '';
     $fee = $_POST['fee'] ?? '0';
     $currency = sanitize_currency($_POST['currency'] ?? 'USD');
+
+    if ($currency === '') {
+        redirect_with_flash('error', 'Price currency must be USD, EUR, or USDT.');
+    }
 
     if ($asset === '' || !is_numeric($quantity) || !is_numeric($entryPrice) || $quantity <= 0 || $entryPrice < 0) {
         redirect_with_flash('error', 'Please provide a valid asset, quantity, and entry price.');
@@ -99,6 +108,10 @@ if ($action === 'close_order') {
     $profit = $proceeds - $allocatedCost;
 
     $orderCurrency = sanitize_currency($order['currency'] ?? 'USD');
+
+    if ($orderCurrency === '') {
+        redirect_with_flash('error', 'Unsupported currency on order.');
+    }
 
     $insertClosure = $conn->prepare('INSERT INTO order_closures (order_id, close_quantity, close_price, currency, fee, profit, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())');
     if (!$insertClosure) {

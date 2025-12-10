@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Borettslagstjenester</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Inter", Arial, sans-serif;
+      background: radial-gradient(circle at 20% 20%, #f1f5f9, #e2e8f0);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.12);
+      max-width: 960px;
+      width: 100%;
+      padding: 32px;
+      display: grid;
+      gap: 24px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      color: #0f172a;
+    }
+    p.description {
+      margin: 6px 0 0;
+      color: #475569;
+    }
+    .grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+    .tile {
+      position: relative;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 20px;
+      background: linear-gradient(135deg, #f8fafc, #ffffff);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+    .tile:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+      border-color: #cbd5e1;
+    }
+    .tile h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      color: #0f172a;
+    }
+    .tile p {
+      margin: 0;
+      color: #475569;
+      line-height: 1.5;
+    }
+    .tile a {
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #e0f2fe;
+      color: #0369a1;
+      border-radius: 12px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #0f172a;
+      text-decoration: none;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <a class="back-link" href="../indexlink.html">← Til hovedvalg</a>
+    <div>
+      <h1>Tjenester for borettslaget</h1>
+      <p class="description">Velg en av sidene under for å gå direkte til parkering eller se avfallsstasjoner.</p>
+    </div>
+    <div class="grid">
+      <div class="tile">
+        <div class="badge">Pålogging kreves</div>
+        <h2>Enkelparkering</h2>
+        <p>Administrer parkeringsplass, gjestekort og ventelister. Krever innlogging som før.</p>
+        <a href="../enkelparkering/index.php" aria-label="Gå til enkelparkering"></a>
+      </div>
+      <div class="tile">
+        <div class="badge" style="background:#ecfeff;color:#0ea5e9;">Åpen informasjon</div>
+        <h2>Avfallsstasjoner</h2>
+        <p>Få oversikt over hvor du kan levere restavfall, papp/papir og glass/metall uten å logge inn.</p>
+        <a href="./avfallsstasjoner.html" aria-label="Se avfallsstasjoner"></a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

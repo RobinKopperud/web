@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avfallsstasjoner</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.18);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Inter", Arial, sans-serif;
+      background: radial-gradient(circle at 20% 20%, #0f172a, #0b1222 50%, #060a13);
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px 48px;
+    }
+    .wrapper {
+      width: 100%;
+      max-width: 1100px;
+      display: grid;
+      gap: 20px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    h1 { margin: 0; font-size: 28px; }
+    p.lead { margin: 4px 0 0; color: #cbd5e1; }
+    a.back { color: #e2e8f0; text-decoration: none; font-weight: 600; }
+    a.back:hover { text-decoration: underline; }
+
+    .content {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    .map-card, .list-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+      backdrop-filter: blur(8px);
+    }
+
+    .map {
+      position: relative;
+      border-radius: 12px;
+      background: radial-gradient(circle at 30% 30%, rgba(14,165,233,0.08), rgba(59,130,246,0.05)),
+                  linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0));
+      border: 1px solid rgba(148,163,184,0.35);
+      min-height: 420px;
+      overflow: hidden;
+    }
+    .map::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: url('https://www.transparenttextures.com/patterns/cubes.png');
+      opacity: 0.08;
+      pointer-events: none;
+    }
+    .station {
+      position: absolute;
+      transform: translate(-50%, -50%);
+    }
+    .pin {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #22d3ee, #2563eb);
+      border: 2px solid #0b1222;
+      box-shadow: 0 0 0 6px rgba(59,130,246,0.18);
+    }
+    .station.glass .pin {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      box-shadow: 0 0 0 6px rgba(74,222,128,0.22);
+    }
+    .label {
+      margin-top: 10px;
+      background: rgba(15,23,42,0.7);
+      border: 1px solid rgba(148,163,184,0.35);
+      padding: 10px 12px;
+      border-radius: 10px;
+      width: 190px;
+      backdrop-filter: blur(6px);
+    }
+    .label h3 { margin: 0 0 4px; font-size: 15px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(148,163,184,0.12);
+      border: 1px solid rgba(148,163,184,0.35);
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+    .chip.glass { background: rgba(74,222,128,0.16); border-color: rgba(74,222,128,0.35); color: #bbf7d0; }
+
+    .list-card h2 { margin: 0 0 10px; font-size: 18px; }
+    .legend { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--border); }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot.base { background: linear-gradient(135deg, #22d3ee, #2563eb); }
+    .dot.glass { background: linear-gradient(135deg, #22c55e, #16a34a); }
+
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+    .item {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: rgba(148,163,184,0.06);
+    }
+    .item-title { margin: 0 0 6px; font-weight: 700; }
+    .item p { margin: 0; color: #cbd5e1; }
+
+    @media (max-width: 900px) {
+      .content { grid-template-columns: 1fr; }
+      .label { width: 170px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <div>
+        <a class="back" href="./index.html">← Tilbake til borettslagssiden</a>
+        <h1>Avfallsstasjoner</h1>
+        <p class="lead">Kartet viser hvor du kan kaste restavfall og papp/papir. Grønn markør betyr også glass/metall.</p>
+      </div>
+      <div>
+        <span class="legend"><span><span class="dot base"></span>Restavfall + papp/papir</span><span><span class="dot glass"></span>Har også glass/metall</span></span>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="map-card">
+        <div class="map">
+          <div class="station" style="top: 28%; left: 26%;">
+            <div class="pin"></div>
+            <div class="label">
+              <h3>Bjørkestien</h3>
+              <div class="chips">
+                <span class="chip">Restavfall</span>
+                <span class="chip">Papp/Papir</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="station glass" style="top: 38%; left: 55%;">
+            <div class="pin"></div>
+            <div class="label">
+              <h3>Sentrum øst</h3>
+              <div class="chips">
+                <span class="chip">Restavfall</span>
+                <span class="chip">Papp/Papir</span>
+                <span class="chip glass">Glass/Metall</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="station" style="top: 58%; left: 32%;">
+            <div class="pin"></div>
+            <div class="label">
+              <h3>Hagen</h3>
+              <div class="chips">
+                <span class="chip">Restavfall</span>
+                <span class="chip">Papp/Papir</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="station glass" style="top: 62%; left: 66%;">
+            <div class="pin"></div>
+            <div class="label">
+              <h3>Vestporten</h3>
+              <div class="chips">
+                <span class="chip">Restavfall</span>
+                <span class="chip">Papp/Papir</span>
+                <span class="chip glass">Glass/Metall</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="station" style="top: 74%; left: 48%;">
+            <div class="pin"></div>
+            <div class="label">
+              <h3>Fellesgarasjen</h3>
+              <div class="chips">
+                <span class="chip">Restavfall</span>
+                <span class="chip">Papp/Papir</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="station glass" style="top: 78%; left: 78%;">
+            <div class="pin"></div>
+            <div class="label">
+              <h3>Elvepromenaden</h3>
+              <div class="chips">
+                <span class="chip">Restavfall</span>
+                <span class="chip">Papp/Papir</span>
+                <span class="chip glass">Glass/Metall</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="list-card">
+        <h2>Stasjoner og fraksjoner</h2>
+        <div class="legend">
+          <span><span class="dot base"></span> Restavfall + papp/papir</span>
+          <span><span class="dot glass"></span> Har også glass/metall</span>
+        </div>
+        <div class="list">
+          <div class="item">
+            <p class="item-title">Bjørkestien</p>
+            <p>Restavfall og papp/papir.</p>
+          </div>
+          <div class="item">
+            <p class="item-title">Sentrum øst</p>
+            <p>Restavfall, papp/papir og glass/metall.</p>
+          </div>
+          <div class="item">
+            <p class="item-title">Hagen</p>
+            <p>Restavfall og papp/papir.</p>
+          </div>
+          <div class="item">
+            <p class="item-title">Vestporten</p>
+            <p>Restavfall, papp/papir og glass/metall.</p>
+          </div>
+          <div class="item">
+            <p class="item-title">Fellesgarasjen</p>
+            <p>Restavfall og papp/papir.</p>
+          </div>
+          <div class="item">
+            <p class="item-title">Elvepromenaden</p>
+            <p>Restavfall, papp/papir og glass/metall.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

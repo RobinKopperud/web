@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Treningslogg – målebasert utvikling</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Treningslogg</p>
+        <h1>Målebasert utvikling uten støy.</h1>
+        <p class="lead">
+          Hold orden på kroppsmålene dine i centimeter. Se siste måling, endring siste 30 dager
+          og utvikling over tid – helt uten kompliserte økter eller kosthold.
+        </p>
+      </div>
+      <div class="hero-card">
+        <p class="label">Siste måling</p>
+        <div class="hero-value">
+          <span>82,4</span>
+          <small>cm</small>
+        </div>
+        <p class="hero-meta">Mage · 12. juni 2024</p>
+        <div class="pill positive">-1,8 cm siste 30 dager</div>
+      </div>
+    </header>
+
+    <section class="measurements">
+      <div class="section-title">
+        <h2>Dine målinger</h2>
+        <button class="ghost">Opprett ny måling</button>
+      </div>
+      <div class="measurement-grid">
+        <article class="measurement-card">
+          <div class="card-header">
+            <h3>Mage</h3>
+            <span class="unit">cm</span>
+          </div>
+          <p class="card-value">82,4</p>
+          <p class="card-meta">Sist registrert 12.06.24</p>
+          <div class="delta positive">-1,8 siste 30 dager</div>
+          <svg class="chart" viewBox="0 0 260 120" aria-hidden="true">
+            <path d="M10 90 C 50 70, 80 75, 110 60 C 140 50, 170 55, 200 40 C 230 30, 250 35, 250 28" />
+            <circle cx="250" cy="28" r="4" />
+          </svg>
+          <button class="primary">Registrer måling</button>
+        </article>
+        <article class="measurement-card">
+          <div class="card-header">
+            <h3>Biceps</h3>
+            <span class="unit">cm</span>
+          </div>
+          <p class="card-value">35,1</p>
+          <p class="card-meta">Sist registrert 08.06.24</p>
+          <div class="delta neutral">+0,6 siste 30 dager</div>
+          <svg class="chart" viewBox="0 0 260 120" aria-hidden="true">
+            <path d="M10 85 C 40 80, 80 70, 120 72 C 150 74, 180 60, 210 50 C 235 42, 250 40, 250 38" />
+            <circle cx="250" cy="38" r="4" />
+          </svg>
+          <button class="primary">Registrer måling</button>
+        </article>
+        <article class="measurement-card">
+          <div class="card-header">
+            <h3>Lår</h3>
+            <span class="unit">cm</span>
+          </div>
+          <p class="card-value">58,7</p>
+          <p class="card-meta">Sist registrert 09.06.24</p>
+          <div class="delta positive">-0,9 siste 30 dager</div>
+          <svg class="chart" viewBox="0 0 260 120" aria-hidden="true">
+            <path d="M10 95 C 45 90, 85 88, 120 80 C 150 72, 180 70, 210 60 C 235 50, 250 48, 250 46" />
+            <circle cx="250" cy="46" r="4" />
+          </svg>
+          <button class="primary">Registrer måling</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="registration">
+      <div class="section-title">
+        <h2>Ny registrering</h2>
+        <p class="subtle">Én måling per dag per målingstype.</p>
+      </div>
+      <form class="entry-form">
+        <label>
+          Måling
+          <select>
+            <option>Mage</option>
+            <option>Biceps</option>
+            <option>Lår</option>
+          </select>
+        </label>
+        <label>
+          Dato
+          <input type="date" value="2024-06-12" required />
+        </label>
+        <label>
+          Verdi (cm)
+          <input type="number" step="0.1" value="82.4" required />
+        </label>
+        <button class="primary" type="submit">Lagre måling</button>
+      </form>
+    </section>
+
+    <section class="insight">
+      <div>
+        <h2>Innsikt siste 30 dager</h2>
+        <p class="subtle">
+          Reduksjon vises i grønt. Ingen vurdering – bare en ren oversikt over tallene dine.
+        </p>
+      </div>
+      <div class="insight-grid">
+        <div class="insight-card">
+          <p class="label">Mage</p>
+          <p class="insight-value positive">-1,8 cm</p>
+          <p class="insight-meta">4 registreringer</p>
+        </div>
+        <div class="insight-card">
+          <p class="label">Biceps</p>
+          <p class="insight-value neutral">+0,6 cm</p>
+          <p class="insight-meta">3 registreringer</p>
+        </div>
+        <div class="insight-card">
+          <p class="label">Lår</p>
+          <p class="insight-value positive">-0,9 cm</p>
+          <p class="insight-meta">3 registreringer</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

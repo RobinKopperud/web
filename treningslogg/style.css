@@ -166,11 +166,61 @@ h1 {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+}
+
+.measurement-card summary {
+  list-style: none;
+}
+
+.measurement-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.card-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
   padding: 20px;
+  cursor: pointer;
+}
+
+.card-summary-main {
+  display: grid;
+  gap: 10px;
+}
+
+.summary-toggle {
+  font-size: 13px;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.summary-toggle::before {
+  content: "Vis";
+  font-weight: 600;
+  color: var(--primary);
+  margin-right: 4px;
+}
+
+.measurement-card[open] .summary-toggle {
+  color: var(--primary);
+}
+
+.measurement-card[open] .summary-toggle::before {
+  content: "Skjul";
+}
+
+.card-details {
+  padding: 0 20px 20px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
 }
 
 .card-header {
@@ -270,9 +320,22 @@ h1 {
   gap: 16px;
 }
 
+.registration.compact {
+  padding: 16px 18px;
+}
+
 .entry-form {
   display: grid;
   gap: 12px;
+}
+
+.entry-form.compact-form {
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.entry-form.compact-form .primary {
+  justify-self: start;
 }
 
 .entry-form label {
@@ -429,6 +492,11 @@ h1 {
 
   .entry-form {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: end;
+  }
+
+  .entry-form.compact-form {
+    grid-template-columns: minmax(0, 260px) auto;
     align-items: end;
   }
 

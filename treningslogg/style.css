@@ -292,6 +292,11 @@ h1 {
   justify-content: center;
 }
 
+.danger {
+  background: var(--danger);
+  color: #fff;
+}
+
 .primary {
   background: var(--primary);
   color: #fff;
@@ -447,12 +452,43 @@ h1 {
 }
 
 .entry-list li {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.entry-surface {
   display: flex;
   justify-content: space-between;
   padding: 12px 14px;
   border-radius: 12px;
   background: #f8fafc;
   border: 1px solid var(--border);
+  transition: transform 0.2s ease;
+}
+
+.entry-row.dragging .entry-surface {
+  transition: none;
+}
+
+.entry-row.is-revealed .entry-surface,
+.entry-row:focus-within .entry-surface {
+  transform: translateX(-84px);
+}
+
+.entry-delete {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding-right: 8px;
+}
+
+.entry-delete button {
+  padding: 8px 14px;
+  border-radius: 999px;
 }
 
 @media (min-width: 720px) {

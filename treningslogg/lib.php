@@ -40,7 +40,7 @@ function fetch_last_entry(mysqli $conn, int $measurement_id): ?array
 
 function fetch_entries(mysqli $conn, int $measurement_id, int $limit = 12): array
 {
-    $stmt = $conn->prepare('SELECT entry_date, value FROM treningslogg_entries WHERE measurement_id = ? ORDER BY entry_date DESC LIMIT ?');
+    $stmt = $conn->prepare('SELECT id, entry_date, value FROM treningslogg_entries WHERE measurement_id = ? ORDER BY entry_date DESC LIMIT ?');
     if (!$stmt) {
         return [];
     }

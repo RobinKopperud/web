@@ -9,13 +9,21 @@ if (isset($_SESSION['user_id'])) {
     exit;
 }
 
+maybe_login_from_cookie($conn);
+
+if (isset($_SESSION['user_id'])) {
+    header('Location: index.php');
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $password = trim($_POST['password'] ?? '');
+    $remember_me = isset($_POST['remember_me']);
 
     if ($email === '' || $password === '') {
         $error = 'Fyll inn e-post og passord.';
-    } elseif (attempt_login($conn, $email, $password)) {
+    } elseif (attempt_login($conn, $email, $password, $remember_me)) {
         header('Location: index.php');
         exit;
     } else {
@@ -50,6 +58,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label>
           Passord
           <input type="password" name="password" required />
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" name="remember_me" />
+          Husk meg på denne enheten
         </label>
         <button class="primary" type="submit">Logg inn</button>
       </form>

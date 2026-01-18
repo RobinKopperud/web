@@ -368,7 +368,21 @@ h1 {
   color: var(--muted);
 }
 
-.entry-form input,
+.entry-form .checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.entry-form .checkbox input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.entry-form input:not([type="checkbox"]),
 .entry-form select {
   padding: 10px 12px;
   border-radius: 12px;

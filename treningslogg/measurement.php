@@ -3,7 +3,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/lib.php';
 
-ensure_logged_in();
+ensure_logged_in($conn);
 $user = fetch_current_user($conn);
 $user_name = $user['navn'] ?? 'Bruker';
 

@@ -103,7 +103,13 @@ function format_delta(?float $delta): string
 function build_chart_path(array $entries, int $width = 220, int $height = 80, int $padding = 10): array
 {
     if (count($entries) === 0) {
-        return ['path' => '', 'last' => null];
+        return [
+            'path' => '',
+            'last' => null,
+            'points' => [],
+            'min' => null,
+            'max' => null,
+        ];
     }
 
     $values = array_map(static fn(array $entry) => (float) $entry['value'], $entries);
@@ -132,6 +138,12 @@ function build_chart_path(array $entries, int $width = 220, int $height = 80, in
         $path .= sprintf('%s%.1f %.1f ', $command, $point['x'], $point['y']);
     }
 
-    return ['path' => trim($path), 'last' => end($points)];
+    return [
+        'path' => trim($path),
+        'last' => end($points),
+        'points' => $points,
+        'min' => $min,
+        'max' => $max,
+    ];
 }
 ?>

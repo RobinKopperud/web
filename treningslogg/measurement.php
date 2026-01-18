@@ -53,7 +53,14 @@ if (($_GET['success'] ?? '') === 'deleted') {
 $entries = fetch_entries($conn, $measurement_id, 20);
 $last_entry = fetch_last_entry($conn, $measurement_id);
 $delta = fetch_delta_30_days($conn, $measurement_id);
-$chart = build_chart_path($entries, 480, 160, 16);
+$chart_width = 480;
+$chart_height = 160;
+$chart = build_chart_path($entries, $chart_width, $chart_height, 16);
+$chart_grid = [
+  (int) round($chart_height * 0.3),
+  (int) round($chart_height * 0.5),
+  (int) round($chart_height * 0.7),
+];
 $delta_value = $delta ? $delta['delta'] : null;
 $delta_class = $delta_value === null ? 'neutral' : ($delta_value < 0 ? 'positive' : 'neutral');
 ?>
@@ -109,11 +116,29 @@ $delta_class = $delta_value === null ? 'neutral' : ($delta_value < 0 ? 'positive
 
     <section class="measurement-detail">
       <div class="chart-large">
-        <svg viewBox="0 0 480 160" aria-hidden="true">
+        <svg viewBox="0 0 <?php echo $chart_width; ?> <?php echo $chart_height; ?>" aria-hidden="true">
+          <g class="chart-grid">
+            <?php foreach ($chart_grid as $grid_y): ?>
+              <line x1="16" y1="<?php echo $grid_y; ?>" x2="464" y2="<?php echo $grid_y; ?>"></line>
+            <?php endforeach; ?>
+          </g>
           <?php if ($chart['path']): ?>
             <path d="<?php echo $chart['path']; ?>"></path>
+            <g class="chart-points">
+              <?php foreach ($chart['points'] as $point): ?>
+                <circle cx="<?php echo $point['x']; ?>" cy="<?php echo $point['y']; ?>" r="2.5"></circle>
+              <?php endforeach; ?>
+            </g>
             <?php if ($chart['last']): ?>
-              <circle cx="<?php echo $chart['last']['x']; ?>" cy="<?php echo $chart['last']['y']; ?>" r="4"></circle>
+              <circle class="chart-last" cx="<?php echo $chart['last']['x']; ?>" cy="<?php echo $chart['last']['y']; ?>" r="4"></circle>
+            <?php endif; ?>
+            <?php if ($chart['min'] !== null && $chart['max'] !== null): ?>
+              <text class="chart-label" x="16" y="24">
+                Maks <?php echo number_format((float) $chart['max'], 1, ',', ''); ?> cm
+              </text>
+              <text class="chart-label" x="16" y="<?php echo $chart_height - 8; ?>">
+                Min <?php echo number_format((float) $chart['min'], 1, ',', ''); ?> cm
+              </text>
             <?php endif; ?>
           <?php else: ?>
             <text x="24" y="80">Ingen data</text>
@@ -122,6 +147,7 @@ $delta_class = $delta_value === null ? 'neutral' : ($delta_value < 0 ? 'positive
       </div>
       <div class="entry-list">
         <h2>Historikk</h2>
+        <p class="subtle">Rader slettes ved å swipe til venstre.</p>
         <?php if (!$entries): ?>
           <p class="subtle">Ingen registreringer enda.</p>
         <?php else: ?>

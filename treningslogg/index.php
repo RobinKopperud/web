@@ -93,7 +93,14 @@ foreach ($measurements as $measurement) {
             $last_entry = fetch_last_entry($conn, (int) $measurement['id']);
             $delta = fetch_delta_30_days($conn, (int) $measurement['id']);
             $entries = fetch_entries($conn, (int) $measurement['id'], 10);
-            $chart = build_chart_path($entries);
+            $chart_width = 220;
+            $chart_height = 80;
+            $chart = build_chart_path($entries, $chart_width, $chart_height, 12);
+            $chart_grid = [
+              (int) round($chart_height * 0.3),
+              (int) round($chart_height * 0.5),
+              (int) round($chart_height * 0.7),
+            ];
             $delta_value = $delta ? $delta['delta'] : null;
             $delta_class = $delta_value === null ? 'neutral' : ($delta_value < 0 ? 'positive' : 'neutral');
           ?>
@@ -121,11 +128,21 @@ foreach ($measurements as $measurement) {
                   Ingen 30-dagers data
                 <?php endif; ?>
               </div>
-              <svg class="chart" viewBox="0 0 220 80" aria-hidden="true">
+              <svg class="chart" viewBox="0 0 <?php echo $chart_width; ?> <?php echo $chart_height; ?>" aria-hidden="true">
+                <g class="chart-grid">
+                  <?php foreach ($chart_grid as $grid_y): ?>
+                    <line x1="12" y1="<?php echo $grid_y; ?>" x2="208" y2="<?php echo $grid_y; ?>"></line>
+                  <?php endforeach; ?>
+                </g>
                 <?php if ($chart['path']): ?>
                   <path d="<?php echo $chart['path']; ?>"></path>
+                  <g class="chart-points">
+                    <?php foreach ($chart['points'] as $point): ?>
+                      <circle cx="<?php echo $point['x']; ?>" cy="<?php echo $point['y']; ?>" r="2"></circle>
+                    <?php endforeach; ?>
+                  </g>
                   <?php if ($chart['last']): ?>
-                    <circle cx="<?php echo $chart['last']['x']; ?>" cy="<?php echo $chart['last']['y']; ?>" r="3"></circle>
+                    <circle class="chart-last" cx="<?php echo $chart['last']['x']; ?>" cy="<?php echo $chart['last']['y']; ?>" r="3.5"></circle>
                   <?php endif; ?>
                 <?php else: ?>
                   <text x="16" y="40">Ingen data</text>

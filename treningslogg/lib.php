@@ -226,6 +226,245 @@ function analyze_measurement_with_ai(string $measurement_name, array $entries): 
     ];
 }
 
+function fetch_latest_entry_date_for_user(mysqli $conn, int $user_id): ?string
+{
+    $stmt = $conn->prepare(
+        'SELECT MAX(e.entry_date) AS last_entry_date
+         FROM treningslogg_entries e
+         INNER JOIN treningslogg_measurements m ON m.id = e.measurement_id
+         WHERE m.user_id = ?'
+    );
+    if (!$stmt) {
+        return null;
+    }
+
+    $stmt->bind_param('i', $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result ? $result->fetch_assoc() : null;
+
+    return $row['last_entry_date'] ?? null;
+}
+
+function fetch_recent_entries_for_user(mysqli $conn, int $user_id, int $days = 10): array
+{
+    $since = date('Y-m-d', strtotime("-{$days} days"));
+
+    $stmt = $conn->prepare(
+        'SELECT m.name AS measurement_name, e.entry_date, e.value
+         FROM treningslogg_entries e
+         INNER JOIN treningslogg_measurements m ON m.id = e.measurement_id
+         WHERE m.user_id = ? AND e.entry_date >= ?
+         ORDER BY e.entry_date ASC'
+    );
+    if (!$stmt) {
+        return [];
+    }
+
+    $stmt->bind_param('is', $user_id, $since);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+}
+
+function fetch_ai_trend_cache(mysqli $conn, int $user_id): ?array
+{
+    $stmt = $conn->prepare(
+        'SELECT summary, trend, stability, anomaly, updated_at, last_entry_date
+         FROM treningslogg_ai_trend_cache
+         WHERE user_id = ?
+         LIMIT 1'
+    );
+    if (!$stmt) {
+        return null;
+    }
+
+    $stmt->bind_param('i', $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result ? $result->fetch_assoc() : null;
+    if (!$row) {
+        return null;
+    }
+
+    return [
+        'summary' => (string) ($row['summary'] ?? ''),
+        'trend' => (string) ($row['trend'] ?? '–'),
+        'stability' => (string) ($row['stability'] ?? '–'),
+        'anomaly' => (bool) ($row['anomaly'] ?? false),
+        'updated_at' => $row['updated_at'] ?? null,
+        'last_entry_date' => $row['last_entry_date'] ?? null,
+    ];
+}
+
+function upsert_ai_trend_cache(mysqli $conn, int $user_id, array $analysis, ?string $last_entry_date): void
+{
+    $stmt = $conn->prepare(
+        'INSERT INTO treningslogg_ai_trend_cache (user_id, summary, trend, stability, anomaly, last_entry_date)
+         VALUES (?, ?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE
+           summary = VALUES(summary),
+           trend = VALUES(trend),
+           stability = VALUES(stability),
+           anomaly = VALUES(anomaly),
+           last_entry_date = VALUES(last_entry_date),
+           updated_at = CURRENT_TIMESTAMP'
+    );
+    if (!$stmt) {
+        return;
+    }
+
+    $summary = (string) ($analysis['summary'] ?? '');
+    $trend = (string) ($analysis['trend'] ?? '–');
+    $stability = (string) ($analysis['stability'] ?? '–');
+    $anomaly = (int) (($analysis['anomaly'] ?? false) ? 1 : 0);
+    $stmt->bind_param('isssis', $user_id, $summary, $trend, $stability, $anomaly, $last_entry_date);
+    $stmt->execute();
+}
+
+function analyze_recent_trends_with_ai(mysqli $conn, int $user_id, int $days = 10): array
+{
+    $entries = fetch_recent_entries_for_user($conn, $user_id, $days);
+    if (count($entries) < 2) {
+        return [
+            'summary' => 'Legg inn flere målinger for å få en samlet trendanalyse.',
+            'trend' => '–',
+            'stability' => '–',
+            'anomaly' => false,
+        ];
+    }
+
+    $api_key = get_openai_api_key();
+    if (!$api_key) {
+        return [
+            'summary' => 'Ingen API-nøkkel tilgjengelig for trendanalyse.',
+            'trend' => '–',
+            'stability' => '–',
+            'anomaly' => false,
+        ];
+    }
+
+    $grouped = [];
+    foreach ($entries as $entry) {
+        $name = $entry['measurement_name'];
+        if (!isset($grouped[$name])) {
+            $grouped[$name] = [];
+        }
+        $grouped[$name][] = [
+            'dato' => $entry['entry_date'],
+            'verdi' => (float) $entry['value'],
+        ];
+    }
+
+    $payload = [
+        'model' => 'gpt-5-nano',
+        'service_tier' => 'flex',
+        'temperature' => 0.2,
+        'max_tokens' => 240,
+        'response_format' => ['type' => 'json_object'],
+        'messages' => [
+            [
+                'role' => 'system',
+                'content' => 'Du er en treningscoach som lager korte, nøytrale trendinnsikter. '
+                    . 'Du skal gi en samlet trendanalyse for alle måletyper de siste 10 dagene. '
+                    . 'Returner kun JSON med feltene summary (streng), trend (går opp/går ned/har flatet ut/–), '
+                    . 'stability (stabil/varierende/–), anomaly (boolean). Skriv på norsk.',
+            ],
+            [
+                'role' => 'user',
+                'content' => json_encode([
+                    'periode' => "siste {$days} dager",
+                    'målinger' => array_map(
+                        static function (string $name, array $observations): array {
+                            return [
+                                'navn' => $name,
+                                'observasjoner' => $observations,
+                            ];
+                        },
+                        array_keys($grouped),
+                        array_values($grouped)
+                    ),
+                ], JSON_UNESCAPED_UNICODE),
+            ],
+        ],
+    ];
+
+    $ch = curl_init('https://api.openai.com/v1/chat/completions');
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $api_key,
+        ],
+        CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE),
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 10,
+    ]);
+
+    $response = curl_exec($ch);
+    $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if (!$response || $status < 200 || $status >= 300) {
+        return [
+            'summary' => 'AI-analysen er midlertidig utilgjengelig.',
+            'trend' => '–',
+            'stability' => '–',
+            'anomaly' => false,
+        ];
+    }
+
+    $decoded = json_decode($response, true);
+    $content = $decoded['choices'][0]['message']['content'] ?? '';
+    $analysis = json_decode($content, true);
+
+    if (!is_array($analysis)) {
+        return [
+            'summary' => 'Kunne ikke tolke AI-responsen.',
+            'trend' => '–',
+            'stability' => '–',
+            'anomaly' => false,
+        ];
+    }
+
+    return [
+        'summary' => (string) ($analysis['summary'] ?? 'Ingen oppsummering tilgjengelig.'),
+        'trend' => (string) ($analysis['trend'] ?? '–'),
+        'stability' => (string) ($analysis['stability'] ?? '–'),
+        'anomaly' => (bool) ($analysis['anomaly'] ?? false),
+    ];
+}
+
+function get_recent_trend_analysis(mysqli $conn, int $user_id, int $days = 10, int $ttl_seconds = 86400): array
+{
+    $cache = fetch_ai_trend_cache($conn, $user_id);
+    $latest_entry_date = fetch_latest_entry_date_for_user($conn, $user_id);
+    $cache_fresh = $cache && $cache['updated_at']
+        ? strtotime($cache['updated_at']) >= (time() - $ttl_seconds)
+        : false;
+    $no_new_data = $cache && !$latest_entry_date
+        ? true
+        : ($cache && $cache['last_entry_date'] && $latest_entry_date
+            ? $latest_entry_date <= $cache['last_entry_date']
+            : false);
+
+    if ($cache && ($cache_fresh || $no_new_data)) {
+        return $cache;
+    }
+
+    $analysis = analyze_recent_trends_with_ai($conn, $user_id, $days);
+    if ($latest_entry_date) {
+        upsert_ai_trend_cache($conn, $user_id, $analysis, $latest_entry_date);
+    }
+
+    if ($analysis['summary'] === 'AI-analysen er midlertidig utilgjengelig.' && $cache) {
+        return $cache;
+    }
+
+    return $analysis;
+}
+
 function fetch_delta_30_days(mysqli $conn, int $measurement_id): ?array
 {
     $since = date('Y-m-d', strtotime('-30 days'));

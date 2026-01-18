@@ -1,4 +1,8 @@
 <?php
+$api_key_path = $_SERVER['DOCUMENT_ROOT'] . '/api_keys.php';
+if (file_exists($api_key_path)) {
+    include_once $api_key_path;
+}
 function fetch_measurements(mysqli $conn, int $user_id): array
 {
     $stmt = $conn->prepare('SELECT id, name FROM treningslogg_measurements WHERE user_id = ? ORDER BY name ASC');
@@ -116,18 +120,7 @@ function fetch_user_entry_streak(mysqli $conn, int $user_id): int
 
 function get_openai_api_key(): ?string
 {
-    $api_key = $GLOBALS['OPENAI_API_KEY'] ?? null;
-    if ($api_key) {
-        return $api_key;
-    }
-
-    $api_key_path = $_SERVER['DOCUMENT_ROOT'] . '/api_keys.php';
-    if (file_exists($api_key_path)) {
-        include_once $api_key_path;
-        return $GLOBALS['OPENAI_API_KEY'] ?? null;
-    }
-
-    return null;
+    return $GLOBALS['OPENAI_API_KEY'] ?? null;
 }
 
 function analyze_measurement_with_ai(string $measurement_name, array $entries): array

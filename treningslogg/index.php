@@ -8,6 +8,7 @@ $user = fetch_current_user($conn);
 $user_name = $user['navn'] ?? 'Bruker';
 
 $flash = '';
+$flash_type = 'success';
 
 if (isset($_GET['success'])) {
     if ($_GET['success'] === 'measurement') {
@@ -16,6 +17,12 @@ if (isset($_GET['success'])) {
     if ($_GET['success'] === 'entry') {
         $flash = 'Målingen er lagret.';
     }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ai_debug'])) {
+    $debug_result = test_openai_connection();
+    $flash = $debug_result['message'];
+    $flash_type = $debug_result['ok'] ? 'success' : 'error';
 }
 
 $measurements = fetch_measurements($conn, (int) $_SESSION['user_id']);
@@ -88,12 +95,18 @@ foreach ($measurements as $measurement) {
       </div>
       <div class="topbar-actions">
         <span class="user-pill">Hei, <?php echo htmlspecialchars($user_name, ENT_QUOTES, 'UTF-8'); ?></span>
+        <form method="post">
+          <input type="hidden" name="ai_debug" value="1" />
+          <button class="ghost" type="submit">AI-debug</button>
+        </form>
         <a class="ghost" href="logout.php">Logg ut</a>
       </div>
     </header>
 
     <?php if ($flash): ?>
-      <div class="alert success"><?php echo htmlspecialchars($flash, ENT_QUOTES, 'UTF-8'); ?></div>
+      <div class="alert <?php echo htmlspecialchars($flash_type, ENT_QUOTES, 'UTF-8'); ?>">
+        <?php echo htmlspecialchars($flash, ENT_QUOTES, 'UTF-8'); ?>
+      </div>
     <?php endif; ?>
 
     <section class="hero">

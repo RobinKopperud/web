@@ -465,6 +465,65 @@ function get_recent_trend_analysis(mysqli $conn, int $user_id, int $days = 10, i
     return $analysis;
 }
 
+function test_openai_connection(): array
+{
+    $api_key = get_openai_api_key();
+    if (!$api_key) {
+        return [
+            'ok' => false,
+            'message' => 'Ingen API-nøkkel tilgjengelig for testkall.',
+        ];
+    }
+
+    $payload = [
+        'model' => 'gpt-5-nano',
+        'service_tier' => 'flex',
+        'temperature' => 0,
+        'max_tokens' => 8,
+        'messages' => [
+            [
+                'role' => 'system',
+                'content' => 'Svar kun med OK.',
+            ],
+            [
+                'role' => 'user',
+                'content' => 'Ping.',
+            ],
+        ],
+    ];
+
+    $ch = curl_init('https://api.openai.com/v1/chat/completions');
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $api_key,
+        ],
+        CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE),
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 10,
+    ]);
+
+    $response = curl_exec($ch);
+    $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if (!$response || $status < 200 || $status >= 300) {
+        return [
+            'ok' => false,
+            'message' => 'Testkallet feilet. HTTP-status: ' . ($status ?: 'ukjent') . '.',
+        ];
+    }
+
+    $decoded = json_decode($response, true);
+    $content = trim((string) ($decoded['choices'][0]['message']['content'] ?? ''));
+
+    return [
+        'ok' => true,
+        'message' => $content ? 'Testkall OK: ' . $content : 'Testkall OK.',
+    ];
+}
+
 function fetch_delta_30_days(mysqli $conn, int $measurement_id): ?array
 {
     $since = date('Y-m-d', strtotime('-30 days'));

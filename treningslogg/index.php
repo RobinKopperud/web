@@ -21,6 +21,7 @@ if (isset($_GET['success'])) {
 $measurements = fetch_measurements($conn, (int) $_SESSION['user_id']);
 $total_entries = fetch_user_entry_count($conn, (int) $_SESSION['user_id']);
 $current_streak = fetch_user_entry_streak($conn, (int) $_SESSION['user_id']);
+$trend_analysis = get_recent_trend_analysis($conn, (int) $_SESSION['user_id']);
 $milestones = [10, 30, 50];
 $next_milestone = null;
 foreach ($milestones as $milestone) {
@@ -199,7 +200,7 @@ foreach ($measurements as $measurement) {
       <div class="section-title">
         <div>
           <h2>Automatisk trendanalyse</h2>
-          <p class="subtle">En enkel AI-oppsummering av hva som går opp, ned eller flater ut.</p>
+          <p class="subtle">En samlet AI-oppsummering av registreringene dine de siste 10 dagene.</p>
         </div>
       </div>
       <div class="trend-grid">
@@ -208,26 +209,22 @@ foreach ($measurements as $measurement) {
             <p class="label">Ingen data</p>
             <p class="trend-summary">Legg inn første måling for å få trendanalyse.</p>
           </div>
-        <?php endif; ?>
-        <?php foreach ($measurements as $measurement): ?>
+        <?php else: ?>
           <?php
-            $ai_entries = fetch_entries($conn, (int) $measurement['id'], 20);
-            $analysis = analyze_measurement_with_ai($measurement['name'], $ai_entries);
-            $trend_class = $analysis['trend'] === 'går ned' ? 'positive' : 'neutral';
-            $stability_class = $analysis['stability'] === 'stabil' ? 'positive' : 'neutral';
-            $anomaly_class = $analysis['anomaly'] ? 'warning' : 'neutral';
-            $summary = $analysis['summary'];
+            $trend_class = $trend_analysis['trend'] === 'går ned' ? 'positive' : 'neutral';
+            $stability_class = $trend_analysis['stability'] === 'stabil' ? 'positive' : 'neutral';
+            $anomaly_class = $trend_analysis['anomaly'] ? 'warning' : 'neutral';
           ?>
           <article class="trend-card">
-            <p class="label"><?php echo htmlspecialchars($measurement['name'], ENT_QUOTES, 'UTF-8'); ?></p>
-            <p class="trend-summary"><?php echo htmlspecialchars($summary, ENT_QUOTES, 'UTF-8'); ?></p>
+            <p class="label">Samlet trend</p>
+            <p class="trend-summary"><?php echo htmlspecialchars($trend_analysis['summary'], ENT_QUOTES, 'UTF-8'); ?></p>
             <div class="trend-meta">
-              <span class="pill <?php echo $trend_class; ?>">Trend: <?php echo htmlspecialchars($analysis['trend'], ENT_QUOTES, 'UTF-8'); ?></span>
-              <span class="pill <?php echo $stability_class; ?>">Stabilitet: <?php echo htmlspecialchars($analysis['stability'], ENT_QUOTES, 'UTF-8'); ?></span>
-              <span class="pill <?php echo $anomaly_class; ?>">Avvik: <?php echo $analysis['anomaly'] ? 'Ja' : 'Nei'; ?></span>
+              <span class="pill <?php echo $trend_class; ?>">Trend: <?php echo htmlspecialchars($trend_analysis['trend'], ENT_QUOTES, 'UTF-8'); ?></span>
+              <span class="pill <?php echo $stability_class; ?>">Stabilitet: <?php echo htmlspecialchars($trend_analysis['stability'], ENT_QUOTES, 'UTF-8'); ?></span>
+              <span class="pill <?php echo $anomaly_class; ?>">Avvik: <?php echo $trend_analysis['anomaly'] ? 'Ja' : 'Nei'; ?></span>
             </div>
           </article>
-        <?php endforeach; ?>
+        <?php endif; ?>
       </div>
     </section>
 

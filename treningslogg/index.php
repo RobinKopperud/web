@@ -19,6 +19,46 @@ if (isset($_GET['success'])) {
 }
 
 $measurements = fetch_measurements($conn, (int) $_SESSION['user_id']);
+$total_entries = fetch_user_entry_count($conn, (int) $_SESSION['user_id']);
+$current_streak = fetch_user_entry_streak($conn, (int) $_SESSION['user_id']);
+$milestones = [10, 30, 50];
+$next_milestone = null;
+foreach ($milestones as $milestone) {
+    if ($total_entries < $milestone) {
+        $next_milestone = $milestone;
+        break;
+    }
+}
+$progress_target = $next_milestone ?? ($milestones ? end($milestones) : 0);
+$progress_value = $progress_target > 0 ? min(100, ($total_entries / $progress_target) * 100) : 0;
+$remaining_entries = $next_milestone ? max(0, $next_milestone - $total_entries) : 0;
+$badges = [
+    [
+        'title' => 'Første registrering',
+        'earned' => $total_entries >= 1,
+        'detail' => 'Du har startet reisen.',
+    ],
+    [
+        'title' => '10 registreringer',
+        'earned' => $total_entries >= 10,
+        'detail' => 'Stabil oppfølging av målene dine.',
+    ],
+    [
+        'title' => '30 registreringer',
+        'earned' => $total_entries >= 30,
+        'detail' => 'En hel måned med innsikt.',
+    ],
+    [
+        'title' => '7-dagers streak',
+        'earned' => $current_streak >= 7,
+        'detail' => 'Kontinuitet en hel uke.',
+    ],
+    [
+        'title' => '30-dagers streak',
+        'earned' => $current_streak >= 30,
+        'detail' => 'Langsiktig driv og momentum.',
+    ],
+];
 
 $latest_overall = null;
 foreach ($measurements as $measurement) {
@@ -155,6 +195,42 @@ foreach ($measurements as $measurement) {
       </div>
     </section>
 
+    <section class="trend">
+      <div class="section-title">
+        <div>
+          <h2>Automatisk trendanalyse</h2>
+          <p class="subtle">En enkel AI-oppsummering av hva som går opp, ned eller flater ut.</p>
+        </div>
+      </div>
+      <div class="trend-grid">
+        <?php if (!$measurements): ?>
+          <div class="trend-card">
+            <p class="label">Ingen data</p>
+            <p class="trend-summary">Legg inn første måling for å få trendanalyse.</p>
+          </div>
+        <?php endif; ?>
+        <?php foreach ($measurements as $measurement): ?>
+          <?php
+            $ai_entries = fetch_entries($conn, (int) $measurement['id'], 20);
+            $analysis = analyze_measurement_with_ai($measurement['name'], $ai_entries);
+            $trend_class = $analysis['trend'] === 'går ned' ? 'positive' : 'neutral';
+            $stability_class = $analysis['stability'] === 'stabil' ? 'positive' : 'neutral';
+            $anomaly_class = $analysis['anomaly'] ? 'warning' : 'neutral';
+            $summary = $analysis['summary'];
+          ?>
+          <article class="trend-card">
+            <p class="label"><?php echo htmlspecialchars($measurement['name'], ENT_QUOTES, 'UTF-8'); ?></p>
+            <p class="trend-summary"><?php echo htmlspecialchars($summary, ENT_QUOTES, 'UTF-8'); ?></p>
+            <div class="trend-meta">
+              <span class="pill <?php echo $trend_class; ?>">Trend: <?php echo htmlspecialchars($analysis['trend'], ENT_QUOTES, 'UTF-8'); ?></span>
+              <span class="pill <?php echo $stability_class; ?>">Stabilitet: <?php echo htmlspecialchars($analysis['stability'], ENT_QUOTES, 'UTF-8'); ?></span>
+              <span class="pill <?php echo $anomaly_class; ?>">Avvik: <?php echo $analysis['anomaly'] ? 'Ja' : 'Nei'; ?></span>
+            </div>
+          </article>
+        <?php endforeach; ?>
+      </div>
+    </section>
+
     <section class="insight">
       <div>
         <h2>Innsikt siste 30 dager</h2>
@@ -181,6 +257,48 @@ foreach ($measurements as $measurement) {
             <p class="insight-meta">Siste 30 dager</p>
           </div>
         <?php endforeach; ?>
+      </div>
+    </section>
+
+    <section class="motivation">
+      <div class="section-title">
+        <div>
+          <h2>Milestoner og badges</h2>
+          <p class="subtle">Bygg momentum med små mål og synlige belønninger.</p>
+        </div>
+      </div>
+      <div class="motivation-grid">
+        <div class="progress-card">
+          <p class="label">Registreringer</p>
+          <p class="progress-value"><?php echo $total_entries; ?> av <?php echo $progress_target; ?> registreringer</p>
+          <div class="progress-bar" role="progressbar" aria-valuenow="<?php echo (int) $progress_value; ?>" aria-valuemin="0" aria-valuemax="100">
+            <span style="width: <?php echo $progress_value; ?>%"></span>
+          </div>
+          <p class="subtle">
+            <?php if ($next_milestone): ?>
+              <?php echo $remaining_entries; ?> registreringer igjen til neste milestone.
+            <?php else: ?>
+              Du har nådd alle milepælene 🎉
+            <?php endif; ?>
+          </p>
+        </div>
+        <div class="progress-card">
+          <p class="label">Streak</p>
+          <p class="progress-value"><?php echo $current_streak; ?> dager på rad</p>
+          <div class="pill <?php echo $current_streak >= 7 ? 'positive' : 'neutral'; ?>">
+            <?php echo $current_streak >= 7 ? 'Streaken din holder seg!' : 'Neste badge ved 7 dager.'; ?>
+          </div>
+          <p class="subtle">Måles på dager med minst én registrering.</p>
+        </div>
+        <div class="badge-wall">
+          <?php foreach ($badges as $badge): ?>
+            <div class="badge-card <?php echo $badge['earned'] ? 'earned' : ''; ?>">
+              <p class="badge-title"><?php echo htmlspecialchars($badge['title'], ENT_QUOTES, 'UTF-8'); ?></p>
+              <p class="badge-detail"><?php echo htmlspecialchars($badge['detail'], ENT_QUOTES, 'UTF-8'); ?></p>
+              <span class="badge-status"><?php echo $badge['earned'] ? 'Opplåst' : 'Låst'; ?></span>
+            </div>
+          <?php endforeach; ?>
+        </div>
       </div>
     </section>
   </div>

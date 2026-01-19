@@ -595,7 +595,7 @@ function test_openai_connection(): array
     $payload = [
         'model' => 'gpt-5-nano',
         'service_tier' => 'flex',
-        'max_output_tokens' => 8,
+        'max_output_tokens' => 16,
         'input' => [
             [
                 'role' => 'system',

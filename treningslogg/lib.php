@@ -140,6 +140,32 @@ function normalize_openai_message_content($content): string
     return (string) $content;
 }
 
+function extract_openai_response_text(array $decoded): string
+{
+    if (isset($decoded['output_text']) && is_string($decoded['output_text'])) {
+        return $decoded['output_text'];
+    }
+
+    if (isset($decoded['output']) && is_array($decoded['output'])) {
+        $parts = [];
+        foreach ($decoded['output'] as $output) {
+            if (!is_array($output)) {
+                continue;
+            }
+            $content = $output['content'] ?? null;
+            if ($content !== null) {
+                $parts[] = normalize_openai_message_content($content);
+            }
+        }
+        $combined = trim(implode('', $parts));
+        if ($combined !== '') {
+            return $combined;
+        }
+    }
+
+    return normalize_openai_message_content($decoded['choices'][0]['message']['content'] ?? '');
+}
+
 function decode_openai_json_content(string $content): ?array
 {
     $content = trim($content);
@@ -200,8 +226,8 @@ function analyze_measurement_with_ai(string $measurement_name, array $entries): 
     $payload = [
         'model' => 'gpt-5-nano',
         'service_tier' => 'flex',
-        'max_completion_tokens' => 240,
-        'messages' => [
+        'max_output_tokens' => 240,
+        'input' => [
             [
                 'role' => 'system',
                 'content' => 'Du er en treningscoach som lager korte, nøytrale trendinnsikter. '
@@ -224,7 +250,7 @@ function analyze_measurement_with_ai(string $measurement_name, array $entries): 
         ],
     ];
 
-    $ch = curl_init('https://api.openai.com/v1/chat/completions');
+    $ch = curl_init('https://api.openai.com/v1/responses');
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_HTTPHEADER => [
@@ -250,7 +276,7 @@ function analyze_measurement_with_ai(string $measurement_name, array $entries): 
     }
 
     $decoded = json_decode($response, true);
-    $content = normalize_openai_message_content($decoded['choices'][0]['message']['content'] ?? '');
+    $content = extract_openai_response_text($decoded);
     $analysis_text = trim($content);
 
     if ($analysis_text === '') {
@@ -416,8 +442,8 @@ function analyze_recent_trends_with_ai(mysqli $conn, int $user_id, int $days = 1
     $payload = [
         'model' => 'gpt-5-nano',
         'service_tier' => 'flex',
-        'max_completion_tokens' => 240,
-        'messages' => [
+        'max_output_tokens' => 240,
+        'input' => [
             [
                 'role' => 'system',
                 'content' => 'Du er en treningscoach som lager korte, nøytrale trendinnsikter. '
@@ -434,12 +460,12 @@ function analyze_recent_trends_with_ai(mysqli $conn, int $user_id, int $days = 1
     $debug_details = null;
     if ($debug_mode) {
         $debug_details = [
-            'endpoint' => 'https://api.openai.com/v1/chat/completions',
+            'endpoint' => 'https://api.openai.com/v1/responses',
             'request_payload' => $payload,
         ];
     }
 
-    $ch = curl_init('https://api.openai.com/v1/chat/completions');
+    $ch = curl_init('https://api.openai.com/v1/responses');
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_HTTPHEADER => [
@@ -481,7 +507,7 @@ function analyze_recent_trends_with_ai(mysqli $conn, int $user_id, int $days = 1
     }
 
     $decoded = json_decode($response, true);
-    $content = normalize_openai_message_content($decoded['choices'][0]['message']['content'] ?? '');
+    $content = extract_openai_response_text($decoded);
     $analysis_text = trim($content);
 
     if ($analysis_text === '') {
@@ -554,7 +580,7 @@ function get_recent_trend_analysis(
 function test_openai_connection(): array
 {
     $api_key = get_openai_api_key();
-    $endpoint = 'https://api.openai.com/v1/chat/completions';
+    $endpoint = 'https://api.openai.com/v1/responses';
     if (!$api_key) {
         return [
             'ok' => false,
@@ -569,8 +595,8 @@ function test_openai_connection(): array
     $payload = [
         'model' => 'gpt-5-nano',
         'service_tier' => 'flex',
-        'max_completion_tokens' => 8,
-        'messages' => [
+        'max_output_tokens' => 8,
+        'input' => [
             [
                 'role' => 'system',
                 'content' => 'Svar kun med OK.',
@@ -621,7 +647,7 @@ function test_openai_connection(): array
     }
 
     $decoded = json_decode($response, true);
-    $content = trim(normalize_openai_message_content($decoded['choices'][0]['message']['content'] ?? ''));
+    $content = trim(extract_openai_response_text($decoded));
 
     return [
         'ok' => true,

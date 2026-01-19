@@ -428,6 +428,7 @@ function get_recent_trend_analysis(mysqli $conn, int $user_id, int $days = 10, i
 {
     $cache = fetch_ai_trend_cache($conn, $user_id);
     $latest_entry_date = fetch_latest_entry_date_for_user($conn, $user_id);
+    $api_key = get_openai_api_key();
     $cache_fresh = $cache && $cache['updated_at']
         ? strtotime($cache['updated_at']) >= (time() - $ttl_seconds)
         : false;
@@ -436,8 +437,11 @@ function get_recent_trend_analysis(mysqli $conn, int $user_id, int $days = 10, i
         : ($cache && $cache['last_entry_date'] && $latest_entry_date
             ? $latest_entry_date <= $cache['last_entry_date']
             : false);
+    $cache_missing_key = $cache
+        && ($cache['summary'] ?? '') === 'Ingen API-nøkkel tilgjengelig for trendanalyse.'
+        && $api_key;
 
-    if ($cache && ($cache_fresh || $no_new_data)) {
+    if ($cache && ($cache_fresh || $no_new_data) && !$cache_missing_key) {
         return $cache;
     }
 

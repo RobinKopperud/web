@@ -1,8 +1,5 @@
 <?php
-$api_key_path = $_SERVER['DOCUMENT_ROOT'] . '/api_keys.php';
-if (file_exists($api_key_path)) {
-    include_once $api_key_path;
-}
+include_once $_SERVER['DOCUMENT_ROOT'] . '/api_keys.php';
 function fetch_measurements(mysqli $conn, int $user_id): array
 {
     $stmt = $conn->prepare('SELECT id, name FROM treningslogg_measurements WHERE user_id = ? ORDER BY name ASC');
@@ -461,10 +458,15 @@ function get_recent_trend_analysis(mysqli $conn, int $user_id, int $days = 10, i
 function test_openai_connection(): array
 {
     $api_key = get_openai_api_key();
+    $endpoint = 'https://api.openai.com/v1/chat/completions';
     if (!$api_key) {
         return [
             'ok' => false,
             'message' => 'Ingen API-nøkkel tilgjengelig for testkall.',
+            'details' => [
+                'API-nøkkel funnet: nei',
+                'Endepunkt: ' . $endpoint,
+            ],
         ];
     }
 
@@ -485,7 +487,7 @@ function test_openai_connection(): array
         ],
     ];
 
-    $ch = curl_init('https://api.openai.com/v1/chat/completions');
+    $ch = curl_init($endpoint);
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_HTTPHEADER => [
@@ -498,13 +500,28 @@ function test_openai_connection(): array
     ]);
 
     $response = curl_exec($ch);
+    $curl_error = curl_error($ch);
+    $curl_errno = curl_errno($ch);
     $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $total_time = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
     curl_close($ch);
 
     if (!$response || $status < 200 || $status >= 300) {
+        $body = is_string($response) ? trim($response) : '';
+        if (strlen($body) > 300) {
+            $body = substr($body, 0, 300) . '…';
+        }
         return [
             'ok' => false,
             'message' => 'Testkallet feilet. HTTP-status: ' . ($status ?: 'ukjent') . '.',
+            'details' => array_filter([
+                'API-nøkkel funnet: ja',
+                'Endepunkt: ' . $endpoint,
+                'HTTP-status: ' . ($status ?: 'ukjent'),
+                $curl_errno ? 'cURL-feil: ' . $curl_errno . ' (' . $curl_error . ')' : null,
+                $total_time ? 'Svartid: ' . number_format($total_time, 2, ',', '') . 's' : null,
+                $body !== '' ? 'Respons: ' . $body : null,
+            ]),
         ];
     }
 
@@ -514,6 +531,12 @@ function test_openai_connection(): array
     return [
         'ok' => true,
         'message' => $content ? 'Testkall OK: ' . $content : 'Testkall OK.',
+        'details' => array_filter([
+            'API-nøkkel funnet: ja',
+            'Endepunkt: ' . $endpoint,
+            'HTTP-status: ' . ($status ?: 'ukjent'),
+            $total_time ? 'Svartid: ' . number_format($total_time, 2, ',', '') . 's' : null,
+        ]),
     ];
 }
 

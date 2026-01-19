@@ -9,6 +9,7 @@ $user_name = $user['navn'] ?? 'Bruker';
 
 $flash = '';
 $flash_type = 'success';
+$debug_details = [];
 
 if (isset($_GET['success'])) {
     if ($_GET['success'] === 'measurement') {
@@ -23,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ai_debug'])) {
     $debug_result = test_openai_connection();
     $flash = $debug_result['message'];
     $flash_type = $debug_result['ok'] ? 'success' : 'error';
+    $debug_details = $debug_result['details'] ?? [];
 }
 
 $measurements = fetch_measurements($conn, (int) $_SESSION['user_id']);
@@ -106,6 +108,13 @@ foreach ($measurements as $measurement) {
     <?php if ($flash): ?>
       <div class="alert <?php echo htmlspecialchars($flash_type, ENT_QUOTES, 'UTF-8'); ?>">
         <?php echo htmlspecialchars($flash, ENT_QUOTES, 'UTF-8'); ?>
+        <?php if ($debug_details): ?>
+          <ul class="alert-details">
+            <?php foreach ($debug_details as $detail): ?>
+              <li><?php echo htmlspecialchars((string) $detail, ENT_QUOTES, 'UTF-8'); ?></li>
+            <?php endforeach; ?>
+          </ul>
+        <?php endif; ?>
       </div>
     <?php endif; ?>
 

@@ -367,7 +367,7 @@ function upsert_ai_trend_cache(mysqli $conn, int $user_id, array $analysis, ?str
     $stmt->execute();
 }
 
-function analyze_recent_trends_with_ai(mysqli $conn, int $user_id, int $days = 10): array
+function analyze_recent_trends_with_ai(mysqli $conn, int $user_id, int $days = 10, bool $debug_mode = false): array
 {
     $entries = fetch_recent_entries_for_user($conn, $user_id, $days);
     if (count($entries) < 2) {
@@ -431,6 +431,13 @@ function analyze_recent_trends_with_ai(mysqli $conn, int $user_id, int $days = 1
             ],
         ],
     ];
+    $debug_details = null;
+    if ($debug_mode) {
+        $debug_details = [
+            'endpoint' => 'https://api.openai.com/v1/chat/completions',
+            'request_payload' => $payload,
+        ];
+    }
 
     $ch = curl_init('https://api.openai.com/v1/chat/completions');
     curl_setopt_array($ch, [
@@ -445,16 +452,32 @@ function analyze_recent_trends_with_ai(mysqli $conn, int $user_id, int $days = 1
     ]);
 
     $response = curl_exec($ch);
+    $curl_error = curl_error($ch);
+    $curl_errno = curl_errno($ch);
     $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
+    if ($debug_details !== null) {
+        $body = is_string($response) ? trim($response) : '';
+        if (strlen($body) > 2000) {
+            $body = substr($body, 0, 2000) . '…';
+        }
+        $debug_details['http_status'] = $status ?: 'ukjent';
+        $debug_details['curl_error'] = $curl_errno ? $curl_errno . ' (' . $curl_error . ')' : null;
+        $debug_details['response_body'] = $body !== '' ? $body : null;
+    }
+
     if (!$response || $status < 200 || $status >= 300) {
-        return [
+        $result = [
             'summary' => 'AI-analysen er midlertidig utilgjengelig.',
             'trend' => '–',
             'stability' => '–',
             'anomaly' => false,
         ];
+        if ($debug_details !== null) {
+            $result['debug'] = $debug_details;
+        }
+        return $result;
     }
 
     $decoded = json_decode($response, true);
@@ -462,23 +485,40 @@ function analyze_recent_trends_with_ai(mysqli $conn, int $user_id, int $days = 1
     $analysis_text = trim($content);
 
     if ($analysis_text === '') {
-        return [
+        $result = [
             'summary' => 'Kunne ikke tolke AI-responsen.',
             'trend' => '–',
             'stability' => '–',
             'anomaly' => false,
         ];
+        if ($debug_details !== null) {
+            $debug_details['decoded_preview'] = $decoded;
+            $result['debug'] = $debug_details;
+        }
+        return $result;
     }
 
-    return [
+    $result = [
         'summary' => $analysis_text,
         'trend' => '–',
         'stability' => '–',
         'anomaly' => false,
     ];
+    if ($debug_details !== null) {
+        $debug_details['decoded_preview'] = $decoded;
+        $result['debug'] = $debug_details;
+    }
+
+    return $result;
 }
 
-function get_recent_trend_analysis(mysqli $conn, int $user_id, int $days = 10, int $ttl_seconds = 86400): array
+function get_recent_trend_analysis(
+    mysqli $conn,
+    int $user_id,
+    int $days = 10,
+    int $ttl_seconds = 86400,
+    bool $debug_mode = false
+): array
 {
     $cache = fetch_ai_trend_cache($conn, $user_id);
     $latest_entry_date = fetch_latest_entry_date_for_user($conn, $user_id);
@@ -495,11 +535,11 @@ function get_recent_trend_analysis(mysqli $conn, int $user_id, int $days = 10, i
         && ($cache['summary'] ?? '') === 'Ingen API-nøkkel tilgjengelig for trendanalyse.'
         && $api_key;
 
-    if ($cache && ($cache_fresh || $no_new_data) && !$cache_missing_key) {
+    if (!$debug_mode && $cache && ($cache_fresh || $no_new_data) && !$cache_missing_key) {
         return $cache;
     }
 
-    $analysis = analyze_recent_trends_with_ai($conn, $user_id, $days);
+    $analysis = analyze_recent_trends_with_ai($conn, $user_id, $days, $debug_mode);
     if ($latest_entry_date) {
         upsert_ai_trend_cache($conn, $user_id, $analysis, $latest_entry_date);
     }

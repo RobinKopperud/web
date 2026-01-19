@@ -201,13 +201,12 @@ function analyze_measurement_with_ai(string $measurement_name, array $entries): 
         'model' => 'gpt-5-nano',
         'service_tier' => 'flex',
         'max_completion_tokens' => 240,
-        'response_format' => ['type' => 'json_object'],
         'messages' => [
             [
                 'role' => 'system',
                 'content' => 'Du er en treningscoach som lager korte, nøytrale trendinnsikter. '
-                    . 'Returner kun JSON med feltene summary (streng), trend (går opp/går ned/har flatet ut/–), '
-                    . 'stability (stabil/varierende/–), anomaly (boolean). Skriv på norsk.',
+                    . 'Returner kun ren tekst (ikke JSON) som inneholder kommentar på trend, stabilitet og avvik. '
+                    . 'Skriv på norsk.',
             ],
             [
                 'role' => 'user',
@@ -252,9 +251,9 @@ function analyze_measurement_with_ai(string $measurement_name, array $entries): 
 
     $decoded = json_decode($response, true);
     $content = normalize_openai_message_content($decoded['choices'][0]['message']['content'] ?? '');
-    $analysis = decode_openai_json_content($content);
+    $analysis_text = trim($content);
 
-    if (!is_array($analysis)) {
+    if ($analysis_text === '') {
         return [
             'summary' => 'Kunne ikke tolke AI-responsen.',
             'trend' => '–',
@@ -264,10 +263,10 @@ function analyze_measurement_with_ai(string $measurement_name, array $entries): 
     }
 
     return [
-        'summary' => (string) ($analysis['summary'] ?? 'Ingen oppsummering tilgjengelig.'),
-        'trend' => (string) ($analysis['trend'] ?? '–'),
-        'stability' => (string) ($analysis['stability'] ?? '–'),
-        'anomaly' => (bool) ($analysis['anomaly'] ?? false),
+        'summary' => $analysis_text,
+        'trend' => '–',
+        'stability' => '–',
+        'anomaly' => false,
     ];
 }
 
@@ -406,14 +405,13 @@ function analyze_recent_trends_with_ai(mysqli $conn, int $user_id, int $days = 1
         'model' => 'gpt-5-nano',
         'service_tier' => 'flex',
         'max_completion_tokens' => 240,
-        'response_format' => ['type' => 'json_object'],
         'messages' => [
             [
                 'role' => 'system',
                 'content' => 'Du er en treningscoach som lager korte, nøytrale trendinnsikter. '
                     . 'Du skal gi en samlet trendanalyse for alle måletyper de siste 10 dagene. '
-                    . 'Returner kun JSON med feltene summary (streng), trend (går opp/går ned/har flatet ut/–), '
-                    . 'stability (stabil/varierende/–), anomaly (boolean). Skriv på norsk.',
+                    . 'Returner kun ren tekst (ikke JSON) som inneholder kommentar på trend, stabilitet og avvik. '
+                    . 'Skriv på norsk.',
             ],
             [
                 'role' => 'user',
@@ -461,9 +459,9 @@ function analyze_recent_trends_with_ai(mysqli $conn, int $user_id, int $days = 1
 
     $decoded = json_decode($response, true);
     $content = normalize_openai_message_content($decoded['choices'][0]['message']['content'] ?? '');
-    $analysis = decode_openai_json_content($content);
+    $analysis_text = trim($content);
 
-    if (!is_array($analysis)) {
+    if ($analysis_text === '') {
         return [
             'summary' => 'Kunne ikke tolke AI-responsen.',
             'trend' => '–',
@@ -473,10 +471,10 @@ function analyze_recent_trends_with_ai(mysqli $conn, int $user_id, int $days = 1
     }
 
     return [
-        'summary' => (string) ($analysis['summary'] ?? 'Ingen oppsummering tilgjengelig.'),
-        'trend' => (string) ($analysis['trend'] ?? '–'),
-        'stability' => (string) ($analysis['stability'] ?? '–'),
-        'anomaly' => (bool) ($analysis['anomaly'] ?? false),
+        'summary' => $analysis_text,
+        'trend' => '–',
+        'stability' => '–',
+        'anomaly' => false,
     ];
 }
 

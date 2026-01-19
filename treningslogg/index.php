@@ -232,19 +232,9 @@ foreach ($measurements as $measurement) {
             <p class="trend-summary">Legg inn første måling for å få trendanalyse.</p>
           </div>
         <?php else: ?>
-          <?php
-            $trend_class = $trend_analysis['trend'] === 'går ned' ? 'positive' : 'neutral';
-            $stability_class = $trend_analysis['stability'] === 'stabil' ? 'positive' : 'neutral';
-            $anomaly_class = $trend_analysis['anomaly'] ? 'warning' : 'neutral';
-          ?>
           <article class="trend-card">
             <p class="label">Samlet trend</p>
             <p class="trend-summary"><?php echo htmlspecialchars($trend_analysis['summary'], ENT_QUOTES, 'UTF-8'); ?></p>
-            <div class="trend-meta">
-              <span class="pill <?php echo $trend_class; ?>">Trend: <?php echo htmlspecialchars($trend_analysis['trend'], ENT_QUOTES, 'UTF-8'); ?></span>
-              <span class="pill <?php echo $stability_class; ?>">Stabilitet: <?php echo htmlspecialchars($trend_analysis['stability'], ENT_QUOTES, 'UTF-8'); ?></span>
-              <span class="pill <?php echo $anomaly_class; ?>">Avvik: <?php echo $trend_analysis['anomaly'] ? 'Ja' : 'Nei'; ?></span>
-            </div>
           </article>
         <?php endif; ?>
       </div>

@@ -401,6 +401,18 @@ function analyze_recent_trends_with_ai(mysqli $conn, int $user_id, int $days = 1
         ];
     }
 
+    $lines = ["Periode: siste {$days} dager", 'Målinger:'];
+    foreach ($grouped as $name => $observations) {
+        $formatted = array_map(
+            static function (array $observation): string {
+                return sprintf('%s: %s', $observation['dato'], number_format((float) $observation['verdi'], 1, '.', ''));
+            },
+            $observations
+        );
+        $lines[] = sprintf('- %s: %s', $name, implode(', ', $formatted));
+    }
+    $summary_input = implode("\n", $lines);
+
     $payload = [
         'model' => 'gpt-5-nano',
         'service_tier' => 'flex',
@@ -415,19 +427,7 @@ function analyze_recent_trends_with_ai(mysqli $conn, int $user_id, int $days = 1
             ],
             [
                 'role' => 'user',
-                'content' => json_encode([
-                    'periode' => "siste {$days} dager",
-                    'målinger' => array_map(
-                        static function (string $name, array $observations): array {
-                            return [
-                                'navn' => $name,
-                                'observasjoner' => $observations,
-                            ];
-                        },
-                        array_keys($grouped),
-                        array_values($grouped)
-                    ),
-                ], JSON_UNESCAPED_UNICODE),
+                'content' => $summary_input,
             ],
         ],
     ];

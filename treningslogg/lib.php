@@ -120,6 +120,62 @@ function get_openai_api_key(): ?string
     return $GLOBALS['OPENAI_API_KEY'] ?? null;
 }
 
+function normalize_openai_message_content($content): string
+{
+    if (is_array($content)) {
+        $parts = [];
+        foreach ($content as $part) {
+            if (is_array($part) && isset($part['text'])) {
+                $parts[] = $part['text'];
+                continue;
+            }
+            if (is_string($part)) {
+                $parts[] = $part;
+            }
+        }
+
+        return implode('', $parts);
+    }
+
+    return (string) $content;
+}
+
+function decode_openai_json_content(string $content): ?array
+{
+    $content = trim($content);
+    if ($content === '') {
+        return null;
+    }
+
+    $decoded = json_decode($content, true);
+    if (is_array($decoded)) {
+        return $decoded;
+    }
+
+    $stripped = preg_replace('/^```(?:json)?\s*/i', '', $content);
+    $stripped = preg_replace('/\s*```$/', '', $stripped);
+    $stripped = trim($stripped);
+
+    if ($stripped !== $content) {
+        $decoded = json_decode($stripped, true);
+        if (is_array($decoded)) {
+            return $decoded;
+        }
+    }
+
+    $start = strpos($content, '{');
+    $end = strrpos($content, '}');
+    if ($start !== false && $end !== false && $end > $start) {
+        $snippet = substr($content, $start, $end - $start + 1);
+        $decoded = json_decode($snippet, true);
+        if (is_array($decoded)) {
+            return $decoded;
+        }
+    }
+
+    return null;
+}
+
 function analyze_measurement_with_ai(string $measurement_name, array $entries): array
 {
     if (count($entries) < 2) {
@@ -195,8 +251,8 @@ function analyze_measurement_with_ai(string $measurement_name, array $entries): 
     }
 
     $decoded = json_decode($response, true);
-    $content = $decoded['choices'][0]['message']['content'] ?? '';
-    $analysis = json_decode($content, true);
+    $content = normalize_openai_message_content($decoded['choices'][0]['message']['content'] ?? '');
+    $analysis = decode_openai_json_content($content);
 
     if (!is_array($analysis)) {
         return [
@@ -404,8 +460,8 @@ function analyze_recent_trends_with_ai(mysqli $conn, int $user_id, int $days = 1
     }
 
     $decoded = json_decode($response, true);
-    $content = $decoded['choices'][0]['message']['content'] ?? '';
-    $analysis = json_decode($content, true);
+    $content = normalize_openai_message_content($decoded['choices'][0]['message']['content'] ?? '');
+    $analysis = decode_openai_json_content($content);
 
     if (!is_array($analysis)) {
         return [
@@ -527,7 +583,7 @@ function test_openai_connection(): array
     }
 
     $decoded = json_decode($response, true);
-    $content = trim((string) ($decoded['choices'][0]['message']['content'] ?? ''));
+    $content = trim(normalize_openai_message_content($decoded['choices'][0]['message']['content'] ?? ''));
 
     return [
         'ok' => true,

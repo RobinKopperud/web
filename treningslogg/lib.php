@@ -145,7 +145,7 @@ function analyze_measurement_with_ai(string $measurement_name, array $entries): 
         'model' => 'gpt-5-nano',
         'service_tier' => 'flex',
         'temperature' => 0.2,
-        'max_tokens' => 240,
+        'max_completion_tokens' => 240,
         'response_format' => ['type' => 'json_object'],
         'messages' => [
             [
@@ -351,7 +351,7 @@ function analyze_recent_trends_with_ai(mysqli $conn, int $user_id, int $days = 1
         'model' => 'gpt-5-nano',
         'service_tier' => 'flex',
         'temperature' => 0.2,
-        'max_tokens' => 240,
+        'max_completion_tokens' => 240,
         'response_format' => ['type' => 'json_object'],
         'messages' => [
             [
@@ -474,7 +474,7 @@ function test_openai_connection(): array
         'model' => 'gpt-5-nano',
         'service_tier' => 'flex',
         'temperature' => 0,
-        'max_tokens' => 8,
+        'max_completion_tokens' => 8,
         'messages' => [
             [
                 'role' => 'system',

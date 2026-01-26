@@ -13,7 +13,7 @@ function sanitize_currency(string $currency): string
     $cleaned = strtoupper(trim($currency));
     $cleaned = preg_replace('/[^A-Z0-9]/', '', $cleaned);
 
-    $allowed = ['USD', 'EUR', 'USDT'];
+    $allowed = ['USD', 'EUR', 'USDC'];
     if (in_array($cleaned, $allowed, true)) {
         return $cleaned;
     }
@@ -45,7 +45,7 @@ if ($action === 'create_order') {
     $currency = sanitize_currency($_POST['currency'] ?? 'USD');
 
     if ($currency === '') {
-        redirect_with_flash('error', 'Price currency must be USD, EUR, or USDT.');
+        redirect_with_flash('error', 'Price currency must be USD, EUR, or USDC.');
     }
 
     if ($asset === '' || !is_numeric($quantity) || !is_numeric($entryPrice) || $quantity <= 0 || $entryPrice < 0) {

@@ -166,6 +166,63 @@ document.addEventListener('DOMContentLoaded', () => {
         roiEl.textContent = formatPercent(lifetimeRoi);
     }
 
+    function updateAssetAverages() {
+        const averagesContainer = document.getElementById('assetAverages');
+        if (!averagesContainer) return;
+
+        const assets = {};
+
+        document.querySelectorAll('.order-card').forEach(card => {
+            if (card.classList.contains('is-hidden')) return;
+
+            const remaining = Number.parseFloat(card.dataset.remaining);
+            const entryPrice = Number.parseFloat(card.dataset.entryPrice);
+            const assetSymbol = (card.dataset.assetSymbol || card.dataset.asset || '').toUpperCase();
+            const currency = (card.dataset.currency || 'USD').toUpperCase();
+
+            if (!assetSymbol || !Number.isFinite(entryPrice) || !Number.isFinite(remaining) || remaining <= 0) {
+                return;
+            }
+
+            const key = `${assetSymbol}-${currency}`;
+            if (!assets[key]) {
+                assets[key] = { asset: assetSymbol, currency, totalQty: 0, totalCost: 0 };
+            }
+
+            assets[key].totalQty += remaining;
+            assets[key].totalCost += remaining * entryPrice;
+        });
+
+        const entries = Object.values(assets).sort((a, b) => a.asset.localeCompare(b.asset));
+        averagesContainer.innerHTML = '';
+
+        if (!entries.length) {
+            averagesContainer.innerHTML = '<p class="muted">Ingen åpne posisjoner i filteret.</p>';
+            return;
+        }
+
+        entries.forEach(entry => {
+            const averagePrice = entry.totalQty > 0 ? entry.totalCost / entry.totalQty : null;
+            const card = document.createElement('div');
+            card.className = 'asset-average-card';
+            card.innerHTML = `
+                <div>
+                    <p class="eyebrow">Asset</p>
+                    <p class="mono">${entry.asset}</p>
+                </div>
+                <div>
+                    <p class="eyebrow">Snittpris</p>
+                    <p class="mono">${formatWithCurrency(averagePrice, entry.currency)}</p>
+                </div>
+                <div>
+                    <p class="eyebrow">Åpen mengde</p>
+                    <p class="mono">${formatNumber(entry.totalQty)}</p>
+                </div>
+            `;
+            averagesContainer.appendChild(card);
+        });
+    }
+
     function updateMissingOrderField(changedField) {
         if (!quantityInput || !entryPriceInput || !totalCostInput) return;
 
@@ -272,6 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         updatePortfolioSummary(priceMap);
+        updateAssetAverages();
     }
 
     async function fetchLivePrices() {

@@ -277,6 +277,22 @@ header h1 {
     margin-top: 14px;
 }
 
+.asset-average-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.asset-average-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: #0b1221;
+    display: grid;
+    gap: 8px;
+}
+
 .order-card {
     border: 1px solid var(--border);
     border-radius: 12px;

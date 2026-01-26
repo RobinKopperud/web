@@ -296,6 +296,18 @@ if (!empty($orders)) {
         </div>
     </section>
 
+    <section class="card">
+        <div class="price-row">
+            <div>
+                <h2>Gjennomsnittspris per asset</h2>
+                <p class="hint">Vektet etter gjenstående mengde i filtrerte ordrer.</p>
+            </div>
+        </div>
+        <div id="assetAverages" class="asset-average-grid">
+            <p class="muted">Ingen åpne posisjoner i filteret.</p>
+        </div>
+    </section>
+
     <div class="modal" id="closeModal" aria-hidden="true" role="dialog" aria-labelledby="closeModalTitle">
         <div class="modal-dialog">
             <div class="modal-header">

@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const key = `${assetSymbol}-${currency}`;
+            const key = assetSymbol;
             if (!assets[key]) {
                 assets[key] = { asset: assetSymbol, currency, totalQty: 0, totalCost: 0 };
             }

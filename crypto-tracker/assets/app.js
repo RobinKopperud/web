@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
             symbolPrices = data.symbol_prices || {};
             fxRates = data.fx_rates || {};
             const binanceRequests = (data.binance_requests || []).map(url => `GET ${url}`);
-            const fxRequests = (data.fx_requests || []).map(url => url ? `GET ${url}` : 'Derived USDT=USD');
+            const fxRequests = (data.fx_requests || []).map(url => url ? `GET ${url}` : 'Derived USDC=USD');
             const binanceDisplay = binanceRequests.length ? binanceRequests.join(' · ') : 'Ingen Binance-spørringer registrert.';
             const fxDisplay = fxRequests.length ? fxRequests.join(' · ') : 'Ingen FX-spørringer registrert.';
             setApiDebugMessage('prices', `GET ${path} | Binance: ${binanceDisplay} | FX: ${fxDisplay}`);

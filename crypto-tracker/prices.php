@@ -211,7 +211,7 @@ foreach ($pairs as $symbol => [$asset, $currency]) {
 $fxRequests = [];
 $fxResponses = [];
 
-$fxCurrencies = ['USD', 'EUR', 'USDT'];
+$fxCurrencies = ['USD', 'EUR', 'USDC'];
 $quoteCurrency = 'NOK';
 
 foreach ($fxCurrencies as $currencyCode) {
@@ -222,14 +222,14 @@ foreach ($fxCurrencies as $currencyCode) {
         continue;
     }
 
-    if ($currencyCode === 'USDT' && isset($fxRates['USD'])) {
-        $fxRates['USDT'] = $fxRates['USD'];
-        $symbolPrices['USDT' . $quoteCurrency] = $fxRates['USD'];
+    if ($currencyCode === 'USDC' && isset($fxRates['USD'])) {
+        $fxRates['USDC'] = $fxRates['USD'];
+        $symbolPrices['USDC' . $quoteCurrency] = $fxRates['USD'];
         $fxResponses[] = [
             'provider' => 'Derived',
             'url' => null,
             'status' => 200,
-            'body' => 'USDT pegged to USD rate',
+            'body' => 'USDC pegged to USD rate',
             'error' => null,
         ];
     }

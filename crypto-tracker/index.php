@@ -172,9 +172,9 @@ if (!empty($orders)) {
                 <select name="currency" id="currency" required>
                     <option value="USD">USD</option>
                     <option value="EUR">EUR</option>
-                    <option value="USDT">USDT</option>
+                    <option value="USDC">USDC</option>
                 </select>
-                <p class="hint">Brukes for entry price og alle closes. Kun USD, EUR og USDT er tillatt.</p>
+                <p class="hint">Brukes for entry price og alle closes. Kun USD, EUR og USDC er tillatt.</p>
             </div>
             <div class="form-control">
                 <label for="total_cost">Total cost (optional)</label>

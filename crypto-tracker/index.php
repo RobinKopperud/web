@@ -238,6 +238,7 @@ if (!empty($orders)) {
                     ?>
                     <article class="order-card <?php echo $isClosed ? 'status-closed' : 'status-open'; ?>"
                              data-entry-price="<?php echo formatDecimal($order['entry_price']); ?>"
+                             data-quantity="<?php echo formatDecimal($order['quantity']); ?>"
                              data-remaining="<?php echo formatDecimal($order['remaining_quantity']); ?>"
                              data-asset="<?php echo h(strtolower($order['asset'])); ?>"
                              data-asset-symbol="<?php echo h($assetSymbol); ?>"
@@ -278,6 +279,9 @@ if (!empty($orders)) {
                         <div class="order-card__actions">
                             <a class="btn ghost" href="order_detail.php?id=<?php echo (int)$order['id']; ?>">Details</a>
                             <?php if (!$isClosed): ?>
+                                <button class="btn ghost preview-toggle" type="button" aria-expanded="false">
+                                    Forhåndsvis salg
+                                </button>
                                 <button class="btn secondary open-close-modal" type="button"
                                         data-order-id="<?php echo (int)$order['id']; ?>"
                                         data-asset="<?php echo h($order['asset']); ?>"
@@ -288,6 +292,21 @@ if (!empty($orders)) {
                                 </button>
                             <?php endif; ?>
                         </div>
+                        <?php if (!$isClosed): ?>
+                            <div class="order-card__preview" hidden>
+                                <div class="preview-row">
+                                    <label for="preview-price-<?php echo (int)$order['id']; ?>">Pris for salg</label>
+                                    <div class="input-with-addon">
+                                        <input type="number" step="0.00000001" min="0" class="preview-price-input" id="preview-price-<?php echo (int)$order['id']; ?>" placeholder="0">
+                                        <span class="input-addon"><?php echo h(strtoupper($order['currency'] ?? 'USD')); ?></span>
+                                    </div>
+                                </div>
+                                <div class="preview-result">
+                                    <p class="eyebrow">Fortjeneste</p>
+                                    <p class="mono profit preview-profit">-</p>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                     </article>
                 <?php endforeach; ?>
             <?php else: ?>

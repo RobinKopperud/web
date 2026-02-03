@@ -332,6 +332,27 @@ header h1 {
     flex-wrap: wrap;
 }
 
+.order-card__preview {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+    display: grid;
+    gap: 10px;
+}
+
+.preview-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.preview-result {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
 .order-card.status-open { border-left: 3px solid var(--accent); }
 .order-card.status-closed { border-left: 3px solid var(--success); }
 

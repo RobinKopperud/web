@@ -78,6 +78,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${formatNumber(amount)} ${currency}`;
     }
 
+    function computeRemainingCostBasis({ remaining, quantity, entryPrice, totalCost }) {
+        if (!Number.isFinite(remaining) || remaining <= 0) return null;
+        if (Number.isFinite(totalCost) && Number.isFinite(quantity) && quantity > 0) {
+            return totalCost * (remaining / quantity);
+        }
+        if (Number.isFinite(entryPrice)) {
+            return remaining * entryPrice;
+        }
+        return null;
+    }
+
     function resolveLivePrice(assetSymbol, preferredCurrency = 'USD', priceMap = livePrices, symbolMap = symbolPrices) {
         const available = priceMap?.[assetSymbol];
 
@@ -332,6 +343,41 @@ document.addEventListener('DOMContentLoaded', () => {
         updateAssetAverages();
     }
 
+    function updatePreviewProfit(card) {
+        const input = card.querySelector('.preview-price-input');
+        const profitEl = card.querySelector('.preview-profit');
+        if (!input || !profitEl) return;
+
+        const price = parsePositiveNumber(input.value);
+        const remaining = Number.parseFloat(card.dataset.remaining);
+        const quantity = Number.parseFloat(card.dataset.quantity);
+        const entryPrice = Number.parseFloat(card.dataset.entryPrice);
+        const totalCost = Number.parseFloat(card.dataset.totalCost);
+        const currency = (card.dataset.currency || 'USD').toUpperCase();
+
+        if (!Number.isFinite(price) || !Number.isFinite(remaining) || remaining <= 0) {
+            profitEl.textContent = '-';
+            profitEl.classList.remove('positive', 'negative');
+            return;
+        }
+
+        const costBasis = computeRemainingCostBasis({ remaining, quantity, entryPrice, totalCost });
+        if (!Number.isFinite(costBasis)) {
+            profitEl.textContent = '-';
+            profitEl.classList.remove('positive', 'negative');
+            return;
+        }
+
+        const profit = (remaining * price) - costBasis;
+        profitEl.textContent = formatWithCurrency(profit, currency);
+        profitEl.classList.remove('positive', 'negative');
+        if (profit > 0) {
+            profitEl.classList.add('positive');
+        } else if (profit < 0) {
+            profitEl.classList.add('negative');
+        }
+    }
+
     async function fetchLivePrices() {
         const statusValue = Array.from(statusFilterRadios).find(radio => radio.checked)?.value || 'open';
         const params = new URLSearchParams();
@@ -436,6 +482,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 remaining: remaining || '0',
                 currency: currency || 'USD',
             });
+        });
+    });
+
+    document.querySelectorAll('.order-card').forEach(card => {
+        const toggle = card.querySelector('.preview-toggle');
+        const panel = card.querySelector('.order-card__preview');
+        const input = card.querySelector('.preview-price-input');
+
+        input?.addEventListener('input', () => updatePreviewProfit(card));
+
+        toggle?.addEventListener('click', () => {
+            if (!panel) return;
+            const isHidden = panel.hasAttribute('hidden');
+            if (isHidden) {
+                panel.removeAttribute('hidden');
+                toggle.setAttribute('aria-expanded', 'true');
+                input?.focus();
+                updatePreviewProfit(card);
+            } else {
+                panel.setAttribute('hidden', '');
+                toggle.setAttribute('aria-expanded', 'false');
+            }
         });
     });
 

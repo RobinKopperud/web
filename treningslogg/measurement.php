@@ -50,16 +50,40 @@ if (($_GET['success'] ?? '') === 'deleted') {
     $success = 'Registreringen er slettet.';
 }
 
-$entries = fetch_entries($conn, $measurement_id, 20);
+$all_entries = fetch_entries($conn, $measurement_id, 300);
 $last_entry = fetch_last_entry($conn, $measurement_id);
 $delta = fetch_delta_30_days($conn, $measurement_id);
+$range = $_GET['range'] ?? '90';
+$valid_ranges = ['30' => 30, '90' => 90, 'all' => null];
+if (!array_key_exists($range, $valid_ranges)) {
+    $range = '90';
+}
+
+$entries = $all_entries;
+if ($valid_ranges[$range] !== null) {
+    $since_date = date('Y-m-d', strtotime('-' . $valid_ranges[$range] . ' days'));
+    $entries = array_values(array_filter(
+        $all_entries,
+        static fn(array $entry): bool => $entry['entry_date'] >= $since_date
+    ));
+}
+
+$stats = summarize_measurement_entries($entries);
+$trend_points = calculate_moving_average_points($entries, 3);
 $chart_width = 480;
 $chart_height = 160;
 $chart = build_chart_path($entries, $chart_width, $chart_height, 16);
+$trend_chart = build_chart_path($trend_points, $chart_width, $chart_height, 16);
+$average_line_y = null;
+if ($chart['min'] !== null && $chart['max'] !== null && $stats['average'] !== null) {
+    $range_span = max((float) $chart['max'] - (float) $chart['min'], 1.0);
+    $average_line_y = $chart_height - 16 - (((float) $stats['average'] - (float) $chart['min']) / $range_span) * ($chart_height - 32);
+}
+
 $chart_grid = [
-  (int) round($chart_height * 0.3),
-  (int) round($chart_height * 0.5),
-  (int) round($chart_height * 0.7),
+    (int) round($chart_height * 0.3),
+    (int) round($chart_height * 0.5),
+    (int) round($chart_height * 0.7),
 ];
 $delta_value = $delta ? $delta['delta'] : null;
 $delta_class = $delta_value === null ? 'neutral' : ($delta_value < 0 ? 'positive' : 'neutral');
@@ -117,13 +141,34 @@ $delta_class = $delta_value === null ? 'neutral' : ($delta_value < 0 ? 'positive
     <section class="measurement-detail">
       <div class="chart-large">
         <svg viewBox="0 0 <?php echo $chart_width; ?> <?php echo $chart_height; ?>" aria-hidden="true">
+          <defs>
+            <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#1d4ed8" stop-opacity="0.28"></stop>
+              <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.04"></stop>
+            </linearGradient>
+          </defs>
           <g class="chart-grid">
             <?php foreach ($chart_grid as $grid_y): ?>
               <line x1="16" y1="<?php echo $grid_y; ?>" x2="464" y2="<?php echo $grid_y; ?>"></line>
             <?php endforeach; ?>
           </g>
           <?php if ($chart['path']): ?>
+            <?php
+              $first_point = $chart['points'][0];
+              $last_point = $chart['points'][count($chart['points']) - 1];
+              $area_path = $chart['path']
+                . sprintf('L%.1f %.1f ', $last_point['x'], $chart_height - 16)
+                . sprintf('L%.1f %.1f Z', $first_point['x'], $chart_height - 16);
+            ?>
+            <path class="chart-area" d="<?php echo $area_path; ?>"></path>
             <path d="<?php echo $chart['path']; ?>"></path>
+            <?php if ($trend_chart['path']): ?>
+              <path class="chart-trend" d="<?php echo $trend_chart['path']; ?>"></path>
+            <?php endif; ?>
+            <?php if ($average_line_y !== null): ?>
+              <line class="chart-average" x1="16" y1="<?php echo round($average_line_y, 1); ?>" x2="464" y2="<?php echo round($average_line_y, 1); ?>"></line>
+              <text class="chart-label" x="368" y="<?php echo round($average_line_y - 6, 1); ?>">Snitt</text>
+            <?php endif; ?>
             <g class="chart-points">
               <?php foreach ($chart['points'] as $point): ?>
                 <circle cx="<?php echo $point['x']; ?>" cy="<?php echo $point['y']; ?>" r="2.5"></circle>
@@ -141,13 +186,35 @@ $delta_class = $delta_value === null ? 'neutral' : ($delta_value < 0 ? 'positive
               </text>
             <?php endif; ?>
           <?php else: ?>
-            <text x="24" y="80">Ingen data</text>
+            <text x="24" y="80">Ingen data i valgt periode</text>
           <?php endif; ?>
         </svg>
       </div>
       <div class="entry-list">
         <h2>Historikk</h2>
         <p class="subtle">Rader slettes ved å swipe til venstre.</p>
+        <div class="range-tabs" role="tablist" aria-label="Tidsperiode for graf">
+          <a class="range-tab <?php echo $range === '30' ? 'active' : ''; ?>" href="measurement.php?id=<?php echo $measurement_id; ?>&range=30">30 dager</a>
+          <a class="range-tab <?php echo $range === '90' ? 'active' : ''; ?>" href="measurement.php?id=<?php echo $measurement_id; ?>&range=90">90 dager</a>
+          <a class="range-tab <?php echo $range === 'all' ? 'active' : ''; ?>" href="measurement.php?id=<?php echo $measurement_id; ?>&range=all">Alle</a>
+        </div>
+        <div class="detail-stats">
+          <article class="detail-card">
+            <p class="label">Endring i periode</p>
+            <strong><?php echo $stats['change'] !== null ? format_delta((float) $stats['change']) . ' cm' : '–'; ?></strong>
+            <span><?php echo $stats['change_percent'] !== null ? format_delta((float) $stats['change_percent']) . ' %' : 'Ingen sammenligning'; ?></span>
+          </article>
+          <article class="detail-card">
+            <p class="label">Gjennomsnitt</p>
+            <strong><?php echo $stats['average'] !== null ? number_format((float) $stats['average'], 1, ',', '') . ' cm' : '–'; ?></strong>
+            <span>Min <?php echo $stats['min'] !== null ? number_format((float) $stats['min'], 1, ',', '') : '–'; ?> · Maks <?php echo $stats['max'] !== null ? number_format((float) $stats['max'], 1, ',', '') : '–'; ?></span>
+          </article>
+          <article class="detail-card">
+            <p class="label">Registreringsfrekvens</p>
+            <strong><?php echo $stats['avg_days_between'] !== null ? number_format((float) $stats['avg_days_between'], 1, ',', '') . ' dager' : '–'; ?></strong>
+            <span><?php echo count($entries); ?> målinger på <?php echo (int) $stats['days_span']; ?> dager</span>
+          </article>
+        </div>
         <?php if (!$entries): ?>
           <p class="subtle">Ingen registreringer enda.</p>
         <?php else: ?>
@@ -158,7 +225,7 @@ $delta_class = $delta_value === null ? 'neutral' : ($delta_value < 0 ? 'positive
                   <span><?php echo htmlspecialchars($entry['entry_date'], ENT_QUOTES, 'UTF-8'); ?></span>
                   <strong><?php echo number_format((float) $entry['value'], 1, ',', ''); ?> cm</strong>
                 </div>
-                <form class="entry-delete" method="post" action="measurement.php?id=<?php echo $measurement_id; ?>">
+                <form class="entry-delete" method="post" action="measurement.php?id=<?php echo $measurement_id; ?>&range=<?php echo urlencode($range); ?>">
                   <input type="hidden" name="action" value="delete_entry" />
                   <input type="hidden" name="entry_id" value="<?php echo (int) $entry['id']; ?>" />
                   <button type="submit" class="danger">Slett</button>

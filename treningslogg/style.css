@@ -637,6 +637,70 @@ h1 {
   fill: #1f2937;
 }
 
+
+.chart-large .chart-area {
+  fill: url(#chartFill);
+  stroke: none;
+}
+
+.chart-large .chart-trend {
+  stroke: #7c3aed;
+  stroke-width: 2;
+  stroke-dasharray: 7 6;
+}
+
+.chart-large .chart-average {
+  stroke: rgba(29, 78, 216, 0.45);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 5;
+}
+
+.range-tabs {
+  display: inline-flex;
+  gap: 8px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #f8fafc;
+}
+
+.range-tab {
+  text-decoration: none;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 12px;
+  border-radius: 999px;
+}
+
+.range-tab.active {
+  color: #fff;
+  background: var(--primary);
+}
+
+.detail-stats {
+  display: grid;
+  gap: 10px;
+}
+
+.detail-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  display: grid;
+  gap: 4px;
+  background: #fcfdff;
+}
+
+.detail-card strong {
+  font-size: 18px;
+}
+
+.detail-card span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
 .entry-list ul {
   list-style: none;
   display: grid;
@@ -767,5 +831,9 @@ h1 {
 
   .measurement-detail > * {
     flex: 1;
+  }
+
+  .detail-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

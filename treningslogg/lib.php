@@ -755,4 +755,63 @@ function build_chart_path(array $entries, int $width = 220, int $height = 80, in
         'max' => $max,
     ];
 }
+
+function summarize_measurement_entries(array $entries): array
+{
+    if (count($entries) === 0) {
+        return [
+            'first' => null,
+            'last' => null,
+            'min' => null,
+            'max' => null,
+            'average' => null,
+            'change' => null,
+            'change_percent' => null,
+            'days_span' => 0,
+            'avg_days_between' => null,
+        ];
+    }
+
+    $first = $entries[0];
+    $last = $entries[count($entries) - 1];
+    $values = array_map(static fn(array $entry): float => (float) $entry['value'], $entries);
+    $change = (float) $last['value'] - (float) $first['value'];
+    $first_value = (float) $first['value'];
+
+    $first_date = new DateTime($first['entry_date']);
+    $last_date = new DateTime($last['entry_date']);
+    $days_span = (int) $first_date->diff($last_date)->format('%a');
+    $avg_days_between = count($entries) > 1 ? $days_span / (count($entries) - 1) : null;
+
+    return [
+        'first' => $first,
+        'last' => $last,
+        'min' => min($values),
+        'max' => max($values),
+        'average' => array_sum($values) / count($values),
+        'change' => $change,
+        'change_percent' => $first_value !== 0.0 ? ($change / $first_value) * 100 : null,
+        'days_span' => $days_span,
+        'avg_days_between' => $avg_days_between,
+    ];
+}
+
+function calculate_moving_average_points(array $entries, int $window = 3): array
+{
+    $result = [];
+    if ($window < 2 || count($entries) < $window) {
+        return $result;
+    }
+
+    for ($i = $window - 1; $i < count($entries); $i++) {
+        $slice = array_slice($entries, $i - $window + 1, $window);
+        $sum = array_reduce($slice, static fn(float $carry, array $entry): float => $carry + (float) $entry['value'], 0.0);
+        $result[] = [
+            'entry_date' => $entries[$i]['entry_date'],
+            'value' => $sum / $window,
+        ];
+    }
+
+    return $result;
+}
 ?>

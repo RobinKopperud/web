@@ -1,17 +1,17 @@
 <?php
-// Simple MySQL connection helper reused across apps.
-// Configure credentials via environment variables or edit the defaults below.
-$DB_HOST = getenv('DB_HOST') ?: 'localhost';
-$DB_NAME = getenv('DB_NAME') ?: 'your_database_name';
-$DB_USER = getenv('DB_USER') ?: 'your_database_user';
-$DB_PASS = getenv('DB_PASS') ?: 'your_secure_password';
+// db.php
+// Minimal MySQL-tilkobling brukt av alle sidene i MVP-en.
 
-$conn = new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
+$DB_HOST = getenv('DB_HOST') ?: '127.0.0.1';
+$DB_PORT = getenv('DB_PORT') ?: '3306';
+$DB_NAME = getenv('DB_NAME') ?: 'offers_mvp';
+$DB_USER = getenv('DB_USER') ?: 'root';
+$DB_PASS = getenv('DB_PASS') ?: '';
 
-if ($conn->connect_error) {
-    die('Database connection failed: ' . $conn->connect_error);
+$mysqli = new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME, (int) $DB_PORT);
+
+if ($mysqli->connect_error) {
+    die('Kunne ikke koble til databasen: ' . $mysqli->connect_error);
 }
 
-// Ensure consistent encoding.
-$conn->set_charset('utf8mb4');
-?>
+$mysqli->set_charset('utf8mb4');

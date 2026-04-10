@@ -6,6 +6,9 @@ require_once __DIR__ . '/db.php';
 
 // Vi bruker smalot/pdfparser hvis tilgjengelig via Composer.
 $autoloadPath = __DIR__ . '/vendor/autoload.php';
+if (!file_exists($autoloadPath)) {
+    $autoloadPath = dirname(__DIR__) . '/vendor/autoload.php';
+}
 if (file_exists($autoloadPath)) {
     require_once $autoloadPath;
 }

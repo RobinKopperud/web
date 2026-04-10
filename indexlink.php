@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mine sider</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Inter", Arial, sans-serif;
+      background: radial-gradient(circle at 20% 20%, #f3f4f6, #e5e7eb);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+    .container {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+      max-width: 960px;
+      width: 100%;
+      padding: 32px;
+      display: grid;
+      gap: 16px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      color: #0f172a;
+    }
+    p.lead {
+      margin: 6px 0 0;
+      color: #475569;
+    }
+    .grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+    .card {
+      position: relative;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 20px;
+      background: linear-gradient(135deg, #f8fafc, #ffffff);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+      border-color: #cbd5e1;
+    }
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      color: #0f172a;
+    }
+    .card p {
+      margin: 0;
+      color: #475569;
+      line-height: 1.5;
+    }
+    .card a {
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+    }
+    .tag { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: #2563eb; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div>
+      <h1>Velg område</h1>
+      <p class="lead">Gå til borettslagssidene, sjekk kryptosporet, åpne treningsloggen eller prissammenligningsappen.</p>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <div class="tag">🏢 Borettslag</div>
+        <h2>Borettslaget</h2>
+        <p>Tilgang til parkering og avfallsstasjoner samlet på ett sted.</p>
+        <a href="borettslag/index.html" aria-label="Gå til borettslaget"></a>
+      </div>
+      <div class="card">
+        <div class="tag" style="color:#6b21a8;">🪙 Krypto</div>
+        <h2>Crypto Tracker</h2>
+        <p>Åpner eksisterende oversikt over kryptovaluta-priser.</p>
+        <a href="crypto-tracker/index.php" aria-label="Gå til Crypto Tracker"></a>
+      </div>
+      <div class="card">
+        <div class="tag" style="color:#0f766e;">📏 Treningslogg</div>
+        <h2>Treningslogg</h2>
+        <p>En enkel, målebasert oversikt over kroppsmål og utvikling.</p>
+        <a href="treningslogg/index.php" aria-label="Gå til treningsloggen"></a>
+      </div>
+      <div class="card">
+        <div class="tag" style="color:#b45309;">🛒 Pris</div>
+        <h2>Prissammenligning</h2>
+        <p>Last opp tilbuds-PDF-er og sammenlign priser mellom to butikker.</p>
+        <a href="prissammenligning/index.php" aria-label="Gå til prissammenligning"></a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

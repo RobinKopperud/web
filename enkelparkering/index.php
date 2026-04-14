@@ -10,7 +10,9 @@ if (!isset($_SESSION['user_id'])) {
 
 // Hent brukerinfo
 $user_id = $_SESSION['user_id'];
-$sql = "SELECT * FROM users WHERE id = ?";
+$sql = "SELECT u.*, b.navn AS borettslag_navn FROM users u
+        LEFT JOIN borettslag b ON u.borettslag_id = b.id
+        WHERE u.id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -67,7 +69,7 @@ foreach ($anlegg as $anleggData) {
     <button class="menu-toggle" id="menuToggle">☰</button>
     <nav class="nav">
       <a href="index.php">🏠 Hjem</a>
-      <a href="min_side.php">🚗 Mine plasser</a>
+      <a href="min_side.php">👤 Min side</a>
       <a href="min_venteliste.php">📋 Min venteliste</a>
       <?php if ($user['rolle'] === 'admin'): ?>
         <a href="admin/admin.php">Adminpanel</a>
@@ -94,6 +96,7 @@ foreach ($anlegg as $anleggData) {
         <h3>📍 Nærmeste ledige plass</h3>
         <p id="nearestSpotInfo"
            data-address="<?= htmlspecialchars($user['adresse']) ?>"
+           data-borettslag="<?= htmlspecialchars($user['borettslag_navn'] ?? '') ?>"
            data-anlegg='<?= htmlspecialchars(json_encode($anlegg, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES, 'UTF-8') ?>'>
           Finner nærmeste ledige plass basert på adressen din…
         </p>
@@ -214,6 +217,7 @@ foreach ($anlegg as $anleggData) {
     if (!infoElement) return;
 
     var adresse = infoElement.dataset.address;
+    var borettslagNavn = (infoElement.dataset.borettslag || '').trim();
     var anleggListe = [];
     try {
       anleggListe = JSON.parse(infoElement.dataset.anlegg || '[]');
@@ -230,17 +234,17 @@ foreach ($anlegg as $anleggData) {
       return;
     }
 
-    var geoUrl = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(adresse);
-    fetch(geoUrl, { headers: { 'Accept': 'application/json' } })
-      .then(function (response) { return response.json(); })
-      .then(function (data) {
-        if (!Array.isArray(data) || !data.length) {
-          infoElement.textContent = 'Fant ikke koordinater for adressen din. Sjekk at adressen er komplett.';
+    var geoKandidater = lagAdresseKandidater(adresse, borettslagNavn);
+
+    finnKoordinater(geoKandidater)
+      .then(function (posisjon) {
+        if (!posisjon) {
+          infoElement.textContent = 'Fant ikke koordinater for adressen din. Sjekk at adressen er komplett, eller oppdater den på Min side.';
           return;
         }
 
-        var brukerLat = Number(data[0].lat);
-        var brukerLng = Number(data[0].lon);
+        var brukerLat = Number(posisjon.lat);
+        var brukerLng = Number(posisjon.lon);
         var naermest = null;
 
         kandidater.forEach(function (a) {
@@ -262,6 +266,38 @@ foreach ($anlegg as $anleggData) {
         infoElement.textContent = 'Kunne ikke beregne avstand akkurat nå. Prøv igjen senere.';
       });
   })();
+
+  function lagAdresseKandidater(adresse, borettslagNavn) {
+    var base = (adresse || '').trim();
+    if (!base) return [];
+
+    var kandidater = [base];
+    if (borettslagNavn) kandidater.push(base + ', ' + borettslagNavn);
+    kandidater.push(base + ', Oslo');
+    kandidater.push(base + ', Oslo, Norge');
+    kandidater.push(base + ', Norge');
+
+    return Array.from(new Set(kandidater.map(function (k) { return k.trim(); }).filter(Boolean)));
+  }
+
+  function finnKoordinater(kandidater) {
+    if (!kandidater.length) return Promise.resolve(null);
+
+    var query = kandidater[0];
+    var geoUrl = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=no&q=' + encodeURIComponent(query);
+
+    return fetch(geoUrl, { headers: { 'Accept': 'application/json' } })
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        if (Array.isArray(data) && data.length) {
+          return data[0];
+        }
+        return finnKoordinater(kandidater.slice(1));
+      })
+      .catch(function () {
+        return finnKoordinater(kandidater.slice(1));
+      });
+  }
 
   function kalkulerAvstandKm(lat1, lng1, lat2, lng2) {
     var R = 6371;

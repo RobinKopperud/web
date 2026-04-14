@@ -96,7 +96,7 @@ if ($oppføring) {
     <button class="menu-toggle" id="menuToggle">☰</button>
     <nav class="nav">
       <a href="index.php">🏠 Hjem</a>
-      <a href="min_side.php">🚗 Mine plasser</a>
+      <a href="min_side.php">👤 Min side</a>
       <a href="min_venteliste.php">📋 Min venteliste</a>
       <?php if ($rolle === 'admin'): ?>
         <a href="admin/admin.php">Adminpanel</a>
@@ -198,7 +198,7 @@ if ($oppføring) {
                   <p><a href="kontrakter/<?= rawurlencode($kontrakt['filnavn']) ?>" target="_blank">📄 Åpne kontrakt</a></p>
                 <?php endif; ?>
               <?php else: ?>
-                <p>Kontrakten er ferdigstilt. Følg med i mine plasser for oppdatert status.</p>
+                <p>Kontrakten er ferdigstilt. Følg med på Min side for oppdatert status.</p>
                 <?php if (!empty($kontrakt['filnavn'])): ?>
                   <p><a href="kontrakter/<?= rawurlencode($kontrakt['filnavn']) ?>" target="_blank">📄 Åpne kontrakt</a></p>
                 <?php endif; ?>

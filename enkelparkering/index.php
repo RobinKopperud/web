@@ -17,11 +17,13 @@ $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 
 // Sjekk om bruker står på ventelisten
-$stmt = $conn->prepare("SELECT id FROM venteliste WHERE user_id = ? AND borettslag_id = ?");
+$stmt = $conn->prepare("SELECT id, anlegg_id FROM venteliste WHERE user_id = ? AND borettslag_id = ?");
 $stmt->bind_param("ii", $user_id, $user['borettslag_id']);
 $stmt->execute();
 $venteliste_entry = $stmt->get_result()->fetch_assoc();
 $er_på_venteliste = !empty($venteliste_entry);
+$venteliste_anlegg_id = isset($venteliste_entry['anlegg_id']) ? (int)$venteliste_entry['anlegg_id'] : null;
+$har_global_venteliste = $er_på_venteliste && $venteliste_anlegg_id === 0;
 
 
 // Hent anlegg + oppsummering fra plasser
@@ -78,6 +80,18 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
   </section>
   <aside class="sidebar">
   <h2>Anlegg</h2>
+    <?php if (empty($user['adresse'])): ?>
+      <p class="message">📍 Legg til adresse når du registrerer bruker/profil for å få forslag til nærmeste ledige plass.</p>
+    <?php else: ?>
+      <div class="facility-card nearest-card">
+        <h3>📍 Nærmeste ledige plass</h3>
+        <p id="nearestSpotInfo"
+           data-address="<?= htmlspecialchars($user['adresse']) ?>"
+           data-anlegg='<?= htmlspecialchars(json_encode($anlegg, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES, 'UTF-8') ?>'>
+          Finner nærmeste ledige plass basert på adressen din…
+        </p>
+      </div>
+    <?php endif; ?>
   <!-- Global venteliste-boks -->
     <form method="post" action="venteliste.php">
     <input type="hidden" name="anlegg_id" value="">
@@ -86,7 +100,11 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         Ønsker lader
     </label>
     <button type="submit" class="global-waitlist-button" <?= $er_på_venteliste ? 'disabled' : '' ?>>
-        <?= $er_på_venteliste ? '✔️ Du er på venteliste' : '➕ Meld meg på venteliste for første ledige plass i borettslaget' ?>
+        <?=
+          $har_global_venteliste
+            ? '✔️ Du står på venteliste for første ledige plass i borettslaget'
+            : ($er_på_venteliste ? 'Du står på venteliste for et spesifikt anlegg' : '➕ Meld meg på venteliste for første ledige plass i borettslaget')
+        ?>
     </button>
     </form>
 
@@ -108,7 +126,11 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             Ønsker lader
         </label>
         <button type="submit" <?= $er_på_venteliste ? 'disabled' : '' ?>>
-            <?= $er_på_venteliste ? '✔️ Du er på venteliste' : '➕ Meld meg på venteliste for dette anlegget' ?>
+            <?=
+              ($er_på_venteliste && $venteliste_anlegg_id === (int)$a['id'])
+                ? '✔️ Du står på venteliste for dette anlegget'
+                : ($er_på_venteliste ? 'Du står på venteliste for et annet valg' : '➕ Meld meg på venteliste for dette anlegget')
+            ?>
         </button>
         </form>
     </div>
@@ -159,6 +181,71 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
       card.style.display = navn.includes(q) ? '' : 'none';
     });
   });
+
+  (function visNarmesteLedigPlass() {
+    var infoElement = document.getElementById('nearestSpotInfo');
+    if (!infoElement) return;
+
+    var adresse = infoElement.dataset.address;
+    var anleggListe = [];
+    try {
+      anleggListe = JSON.parse(infoElement.dataset.anlegg || '[]');
+    } catch (e) {
+      infoElement.textContent = 'Kunne ikke lese anleggsdata.';
+      return;
+    }
+
+    var kandidater = anleggListe.filter(function (a) {
+      return Number(a.ledige) > 0 && a.lat && a.lng;
+    });
+    if (!kandidater.length) {
+      infoElement.textContent = 'Ingen ledige plasser med kartposisjon er tilgjengelige akkurat nå.';
+      return;
+    }
+
+    var geoUrl = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(adresse);
+    fetch(geoUrl, { headers: { 'Accept': 'application/json' } })
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        if (!Array.isArray(data) || !data.length) {
+          infoElement.textContent = 'Fant ikke koordinater for adressen din. Sjekk at adressen er komplett.';
+          return;
+        }
+
+        var brukerLat = Number(data[0].lat);
+        var brukerLng = Number(data[0].lon);
+        var naermest = null;
+
+        kandidater.forEach(function (a) {
+          var avstandKm = kalkulerAvstandKm(brukerLat, brukerLng, Number(a.lat), Number(a.lng));
+          if (!naermest || avstandKm < naermest.avstandKm) {
+            naermest = { navn: a.navn, avstandKm: avstandKm, ledige: Number(a.ledige) };
+          }
+        });
+
+        if (!naermest) {
+          infoElement.textContent = 'Fant ingen ledig plass med beregnbar avstand.';
+          return;
+        }
+
+        infoElement.innerHTML = '<strong>' + naermest.navn + '</strong> er nærmest med ledig plass (' +
+          naermest.avstandKm.toFixed(2) + ' km unna, ' + naermest.ledige + ' ledig).';
+      })
+      .catch(function () {
+        infoElement.textContent = 'Kunne ikke beregne avstand akkurat nå. Prøv igjen senere.';
+      });
+  })();
+
+  function kalkulerAvstandKm(lat1, lng1, lat2, lng2) {
+    var R = 6371;
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLng = (lng2 - lng1) * Math.PI / 180;
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
 </script>
 </body>
 </html>

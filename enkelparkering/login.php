@@ -18,17 +18,26 @@ function kodetEmne(string $subject): string
     return '=?UTF-8?B?' . base64_encode($subject) . '?=';
 }
 
-// Håndter innlogging
-if (isset($_POST['login'])) {
-    $email = trim($_POST['email']);
-    $passord = trim($_POST['passord']);
-
+function finnBrukerViaEpost(mysqli $conn, string $email): ?array
+{
     $sql = "SELECT * FROM users WHERE epost = ?";
     $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        return null;
+    }
+
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
+    return $result->fetch_assoc() ?: null;
+}
+
+// Håndter innlogging
+if (isset($_POST['login'])) {
+    $email = strtolower(trim($_POST['email']));
+    $passord = trim($_POST['passord']);
+
+    $user = finnBrukerViaEpost($conn, $email);
 
     if ($user && password_verify($passord, $user['passord'])) {
         $_SESSION['user_id'] = $user['id'];
@@ -45,46 +54,64 @@ if (isset($_POST['login'])) {
 // Håndter registrering
 if (isset($_POST['register'])) {
     $navn = trim($_POST['navn']);
-    $email = trim($_POST['email']);
-    $passord = password_hash(trim($_POST['passord']), PASSWORD_DEFAULT);
+    $email = strtolower(trim($_POST['email']));
+    $passordInput = trim($_POST['passord']);
     $kode = trim($_POST['kode']); // borettslagskode
     $adresse = trim($_POST['adresse'] ?? '');
 
-    $sql = "SELECT id FROM borettslag WHERE kode = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $kode);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $borettslag = $result->fetch_assoc();
-
-    if ($borettslag) {
-        if (harKolonne($conn, 'users', 'adresse')) {
-            $sql = "INSERT INTO users (borettslag_id, navn, epost, passord, rolle, adresse) VALUES (?, ?, ?, ?, 'user', ?)";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("issss", $borettslag['id'], $navn, $email, $passord, $adresse);
-        } else {
-            $sql = "INSERT INTO users (borettslag_id, navn, epost, passord, rolle) VALUES (?, ?, ?, ?, 'user')";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("isss", $borettslag['id'], $navn, $email, $passord);
-        }
-        if ($stmt->execute()) {
-            $subject = "Velkommen til EnkelParkering";
-            $body = "Hei $navn,\n\nTakk for at du registrerte deg hos EnkelParkering. Du kan nå logge inn og administrere parkeringsplassene dine.\n\nVennlig hilsen\nEnkelParkering";
-            $headers = "From: noreply@robinkopperud.no\r\n" .
-                       "Reply-To: noreply@robinkopperud.no\r\n" .
-                       "MIME-Version: 1.0\r\n" .
-                       "Content-Type: text/plain; charset=UTF-8\r\n" .
-                       "Content-Transfer-Encoding: 8bit\r\n" .
-                       "X-Mailer: PHP/" . phpversion();
-
-            mail($email, kodetEmne($subject), $body, $headers);
-
-            $message = "✅ Bruker opprettet. Logg inn nå.";
-        } else {
-            $message = "Feil: " . $conn->error;
-        }
+    if ($navn === '' || $email === '' || $passordInput === '' || $kode === '') {
+        $message = "❌ Fyll inn alle obligatoriske felt.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $message = "❌ Ugyldig e-postadresse.";
+    } elseif (strlen($passordInput) < 8) {
+        $message = "❌ Passord må være minst 8 tegn.";
     } else {
-        $message = "❌ Ugyldig kode fra borettslaget.";
+        $sql = "SELECT id FROM borettslag WHERE kode = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $kode);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $borettslag = $result->fetch_assoc();
+
+        if (!$borettslag) {
+            $message = "❌ Ugyldig kode fra borettslaget.";
+        } elseif (finnBrukerViaEpost($conn, $email)) {
+            $message = "❌ Denne e-posten er allerede registrert. Prøv å logge inn.";
+        } else {
+            $passord = password_hash($passordInput, PASSWORD_DEFAULT);
+
+            if (harKolonne($conn, 'users', 'adresse')) {
+                $sql = "INSERT INTO users (borettslag_id, navn, epost, passord, rolle, adresse) VALUES (?, ?, ?, ?, 'user', ?)";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("issss", $borettslag['id'], $navn, $email, $passord, $adresse);
+            } else {
+                $sql = "INSERT INTO users (borettslag_id, navn, epost, passord, rolle) VALUES (?, ?, ?, ?, 'user')";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("isss", $borettslag['id'], $navn, $email, $passord);
+            }
+
+            if ($stmt->execute()) {
+                $subject = "Velkommen til EnkelParkering";
+                $body = "Hei $navn,\n\nTakk for at du registrerte deg hos EnkelParkering. Kontoen din er nå aktiv, og du er logget inn.\n\nVennlig hilsen\nEnkelParkering";
+                $headers = "From: noreply@robinkopperud.no\r\n" .
+                           "Reply-To: noreply@robinkopperud.no\r\n" .
+                           "MIME-Version: 1.0\r\n" .
+                           "Content-Type: text/plain; charset=UTF-8\r\n" .
+                           "Content-Transfer-Encoding: 8bit\r\n" .
+                           "X-Mailer: PHP/" . phpversion();
+
+                mail($email, kodetEmne($subject), $body, $headers);
+
+                $_SESSION['user_id'] = $stmt->insert_id;
+                $_SESSION['rolle'] = 'user';
+                $_SESSION['borettslag_id'] = $borettslag['id'];
+
+                header("Location: index.php");
+                exit;
+            } else {
+                $message = "❌ Kunne ikke opprette bruker akkurat nå. Prøv igjen.";
+            }
+        }
     }
 }
 

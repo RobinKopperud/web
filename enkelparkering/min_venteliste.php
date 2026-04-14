@@ -62,7 +62,7 @@ $rolle = $user['rolle'] ?? '';
 
 // Hent oppføring for brukeren
 $stmt = $conn->prepare("
-    SELECT v.id, v.anlegg_id, v.onsker_lader, v.registrert, a.navn AS anlegg_navn
+    SELECT v.id, v.anlegg_id, (v.onsker_lader + 0) AS onsker_lader, v.registrert, a.navn AS anlegg_navn
     FROM venteliste v
     LEFT JOIN anlegg a ON v.anlegg_id = a.id
     WHERE v.user_id = ? AND v.borettslag_id = ?

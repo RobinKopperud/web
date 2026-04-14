@@ -9,8 +9,25 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 $borettslag_id = $_SESSION['borettslag_id']; 
-$anlegg_id = !empty($_POST['anlegg_id']) ? (int)$_POST['anlegg_id'] : null;
-$onsker_lader = isset($_POST['onsker_lader']) ? 1 : 0;
+$anlegg_id = isset($_POST['anlegg_id']) && $_POST['anlegg_id'] !== '' ? (int)$_POST['anlegg_id'] : null;
+$onsker_lader = (isset($_POST['onsker_lader']) && $_POST['onsker_lader'] === '1') ? 1 : 0;
+
+if ($anlegg_id !== null) {
+    $stmt = $conn->prepare("SELECT id, har_ladere FROM anlegg WHERE id = ? AND borettslag_id = ? LIMIT 1");
+    $stmt->bind_param("ii", $anlegg_id, $borettslag_id);
+    $stmt->execute();
+    $valgt_anlegg = $stmt->get_result()->fetch_assoc();
+
+    if (!$valgt_anlegg) {
+        $_SESSION['message'] = "❌ Ugyldig anlegg valgt.";
+        header("Location: index.php");
+        exit;
+    }
+
+    if (!(int)$valgt_anlegg['har_ladere']) {
+        $onsker_lader = 0;
+    }
+}
 
 // Sjekk om bruker allerede står på ventelisten i dette borettslaget
 $stmt = $conn->prepare("SELECT id FROM venteliste WHERE user_id = ? AND borettslag_id = ?");

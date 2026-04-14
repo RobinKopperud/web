@@ -27,7 +27,7 @@ $har_global_venteliste = $er_på_venteliste && $venteliste_anlegg_id === 0;
 
 
 // Hent anlegg + oppsummering fra plasser
-$sql = "SELECT a.id, a.navn, a.type, a.lat, a.lng,
+$sql = "SELECT a.id, a.navn, a.type, a.lat, a.lng, a.har_ladere,
         COUNT(p.id) as total,
         SUM(p.status = 'ledig') as ledige,
         SUM(p.status = 'opptatt') as opptatte,
@@ -40,6 +40,13 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user['borettslag_id']);
 $stmt->execute();
 $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$finnes_ladere_i_borettslag = false;
+foreach ($anlegg as $anleggData) {
+    if (!empty($anleggData['har_ladere'])) {
+        $finnes_ladere_i_borettslag = true;
+        break;
+    }
+}
 
 ?>
 <!DOCTYPE html>
@@ -93,20 +100,32 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
       </div>
     <?php endif; ?>
   <!-- Global venteliste-boks -->
-    <form method="post" action="venteliste.php">
-    <input type="hidden" name="anlegg_id" value="">
-    <label>
-        <input type="checkbox" name="onsker_lader" value="1" <?= $er_på_venteliste ? 'disabled' : '' ?>>
-        Ønsker lader
-    </label>
-    <button type="submit" class="global-waitlist-button" <?= $er_på_venteliste ? 'disabled' : '' ?>>
-        <?=
-          $har_global_venteliste
-            ? '✔️ Du står på venteliste for første ledige plass i borettslaget'
-            : ($er_på_venteliste ? 'Du står på venteliste for et spesifikt anlegg' : '➕ Meld meg på venteliste for første ledige plass i borettslaget')
-        ?>
-    </button>
-    </form>
+    <div class="facility-card waitlist-hero-card">
+      <h3>⏳ Første ledige plass</h3>
+      <p>Meld deg på én samlet kø for første ledige plass i borettslaget.</p>
+      <form method="post" action="venteliste.php">
+      <input type="hidden" name="anlegg_id" value="">
+      <label>
+          <input
+            type="checkbox"
+            name="onsker_lader"
+            value="1"
+            <?= ($er_på_venteliste || !$finnes_ladere_i_borettslag) ? 'disabled' : '' ?>
+          >
+          Ønsker lader
+      </label>
+      <?php if (!$finnes_ladere_i_borettslag): ?>
+        <small>Det finnes ingen anlegg med ladere i borettslaget.</small>
+      <?php endif; ?>
+      <button type="submit" class="global-waitlist-button" <?= $er_på_venteliste ? 'disabled' : '' ?>>
+          <?=
+            $har_global_venteliste
+              ? '✔️ Du står på venteliste for første ledige plass i borettslaget'
+              : ($er_på_venteliste ? 'Du står på venteliste for et spesifikt anlegg' : '➕ Meld meg på venteliste for første ledige plass i borettslaget')
+          ?>
+      </button>
+      </form>
+    </div>
 
     <!-- Liste over anlegg -->
   <?php foreach ($anlegg as $a): ?>
@@ -122,9 +141,17 @@ $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
       <form method="post" action="venteliste.php">
         <input type="hidden" name="anlegg_id" value="<?= $a['id'] ?>">
         <label>
-            <input type="checkbox" name="onsker_lader" value="1" <?= $er_på_venteliste ? 'disabled' : '' ?>>
+            <input
+              type="checkbox"
+              name="onsker_lader"
+              value="1"
+              <?= ($er_på_venteliste || !$a['har_ladere']) ? 'disabled' : '' ?>
+            >
             Ønsker lader
         </label>
+        <?php if (!$a['har_ladere']): ?>
+          <small>Dette anlegget har ingen ladere.</small>
+        <?php endif; ?>
         <button type="submit" <?= $er_på_venteliste ? 'disabled' : '' ?>>
             <?=
               ($er_på_venteliste && $venteliste_anlegg_id === (int)$a['id'])

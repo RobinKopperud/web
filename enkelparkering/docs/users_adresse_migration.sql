@@ -1,0 +1,2 @@
+ALTER TABLE users
+ADD COLUMN adresse VARCHAR(255) NULL AFTER epost;

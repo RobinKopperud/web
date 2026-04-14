@@ -131,6 +131,10 @@ unset($_SESSION['admin_message']);
               <button disabled>Ingen ledig</button>
             <?php endif; ?>
           <?php elseif ($kontrakt['status'] === 'tilbud'): ?>
+            <form method="post" action="send_tilbud_pa_nytt.php" class="inline-form">
+              <input type="hidden" name="kontrakt_id" value="<?= $kontrakt['id'] ?>">
+              <button type="submit">🔁 Send tilbud på nytt</button>
+            </form>
             <form method="post" action="kontrakt_last_opp.php" enctype="multipart/form-data" class="inline-form">
               <input type="hidden" name="kontrakt_id" value="<?= $kontrakt['id'] ?>">
               <label>Signert kontrakt

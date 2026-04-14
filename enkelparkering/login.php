@@ -5,6 +5,14 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 // Meldinger
 $message = "";
 
+function harKolonne(mysqli $conn, string $tabell, string $kolonne): bool
+{
+    $stmt = $conn->prepare("SHOW COLUMNS FROM `$tabell` LIKE ?");
+    $stmt->bind_param("s", $kolonne);
+    $stmt->execute();
+    return $stmt->get_result()->num_rows > 0;
+}
+
 // Håndter innlogging
 if (isset($_POST['login'])) {
     $email = trim($_POST['email']);
@@ -35,6 +43,7 @@ if (isset($_POST['register'])) {
     $email = trim($_POST['email']);
     $passord = password_hash(trim($_POST['passord']), PASSWORD_DEFAULT);
     $kode = trim($_POST['kode']); // borettslagskode
+    $adresse = trim($_POST['adresse'] ?? '');
 
     $sql = "SELECT id FROM borettslag WHERE kode = ?";
     $stmt = $conn->prepare($sql);
@@ -44,9 +53,15 @@ if (isset($_POST['register'])) {
     $borettslag = $result->fetch_assoc();
 
     if ($borettslag) {
-        $sql = "INSERT INTO users (borettslag_id, navn, epost, passord, rolle) VALUES (?, ?, ?, ?, 'user')";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("isss", $borettslag['id'], $navn, $email, $passord);
+        if (harKolonne($conn, 'users', 'adresse')) {
+            $sql = "INSERT INTO users (borettslag_id, navn, epost, passord, rolle, adresse) VALUES (?, ?, ?, ?, 'user', ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("issss", $borettslag['id'], $navn, $email, $passord, $adresse);
+        } else {
+            $sql = "INSERT INTO users (borettslag_id, navn, epost, passord, rolle) VALUES (?, ?, ?, ?, 'user')";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("isss", $borettslag['id'], $navn, $email, $passord);
+        }
         if ($stmt->execute()) {
             $subject = "Velkommen til EnkelParkering";
             $body = "Hei $navn,\n\nTakk for at du registrerte deg hos EnkelParkering. Du kan nå logge inn og administrere parkeringsplassene dine.\n\nVennlig hilsen\nEnkelParkering";
@@ -305,6 +320,7 @@ if ($result) {
       <input type="text" name="navn" placeholder="Navn" required>
       <input type="email" name="email" placeholder="E-post" required>
       <input type="password" name="passord" placeholder="Passord" required>
+      <input type="text" name="adresse" placeholder="Adresse (for nærmeste ledige plass)" required>
       <input type="text" name="kode" placeholder="Kode fra borettslaget" required>
       <button type="submit" name="register">Registrer bruker</button>
     </form>

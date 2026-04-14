@@ -20,7 +20,7 @@ if ($user['rolle'] !== 'admin') {
 
 // Hent venteliste med bruker og anlegg
 $stmt = $conn->prepare("
-    SELECT v.id, v.user_id, v.anlegg_id, v.onsker_lader, v.registrert,
+    SELECT v.id, v.user_id, v.anlegg_id, (v.onsker_lader + 0) AS onsker_lader, v.registrert,
            u.navn, u.epost, a.navn AS anlegg_navn
     FROM venteliste v
     JOIN users u ON v.user_id = u.id

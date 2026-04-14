@@ -13,6 +13,11 @@ function harKolonne(mysqli $conn, string $tabell, string $kolonne): bool
     return $stmt->get_result()->num_rows > 0;
 }
 
+function kodetEmne(string $subject): string
+{
+    return '=?UTF-8?B?' . base64_encode($subject) . '?=';
+}
+
 // Håndter innlogging
 if (isset($_POST['login'])) {
     $email = trim($_POST['email']);
@@ -67,9 +72,12 @@ if (isset($_POST['register'])) {
             $body = "Hei $navn,\n\nTakk for at du registrerte deg hos EnkelParkering. Du kan nå logge inn og administrere parkeringsplassene dine.\n\nVennlig hilsen\nEnkelParkering";
             $headers = "From: noreply@robinkopperud.no\r\n" .
                        "Reply-To: noreply@robinkopperud.no\r\n" .
+                       "MIME-Version: 1.0\r\n" .
+                       "Content-Type: text/plain; charset=UTF-8\r\n" .
+                       "Content-Transfer-Encoding: 8bit\r\n" .
                        "X-Mailer: PHP/" . phpversion();
 
-            mail($email, $subject, $body, $headers);
+            mail($email, kodetEmne($subject), $body, $headers);
 
             $message = "✅ Bruker opprettet. Logg inn nå.";
         } else {

@@ -93,12 +93,12 @@ foreach ($anlegg as $anleggData) {
       <p class="message">📍 Legg til adresse når du registrerer bruker/profil for å få forslag til nærmeste ledige plass.</p>
     <?php else: ?>
       <div class="facility-card nearest-card">
-        <h3>📍 Nærmeste ledige plass</h3>
+        <h3>📍 Nærmeste ledige plasser</h3>
         <p id="nearestSpotInfo"
            data-address="<?= htmlspecialchars($user['adresse']) ?>"
            data-borettslag="<?= htmlspecialchars($user['borettslag_navn'] ?? '') ?>"
            data-anlegg='<?= htmlspecialchars(json_encode($anlegg, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES, 'UTF-8') ?>'>
-          Finner nærmeste ledige plass basert på adressen din…
+          Finner nærmeste ledige plass og nærmeste ledige el-plass basert på adressen din…
         </p>
       </div>
     <?php endif; ?>
@@ -246,11 +246,15 @@ foreach ($anlegg as $anleggData) {
         var brukerLat = Number(posisjon.lat);
         var brukerLng = Number(posisjon.lon);
         var naermest = null;
+        var naermestEl = null;
 
         kandidater.forEach(function (a) {
           var avstandKm = kalkulerAvstandKm(brukerLat, brukerLng, Number(a.lat), Number(a.lng));
           if (!naermest || avstandKm < naermest.avstandKm) {
             naermest = { navn: a.navn, avstandKm: avstandKm, ledige: Number(a.ledige) };
+          }
+          if (Number(a.ledige_med_lader) > 0 && (!naermestEl || avstandKm < naermestEl.avstandKm)) {
+            naermestEl = { navn: a.navn, avstandKm: avstandKm, ledigeMedLader: Number(a.ledige_med_lader) };
           }
         });
 
@@ -259,8 +263,18 @@ foreach ($anlegg as $anleggData) {
           return;
         }
 
-        infoElement.innerHTML = '<strong>' + naermest.navn + '</strong> er nærmest med ledig plass (' +
+        var html = '';
+        html += '<strong>Nærmeste ledige plass:</strong> ' + naermest.navn + ' (' +
           naermest.avstandKm.toFixed(2) + ' km unna, ' + naermest.ledige + ' ledig).';
+        html += '<br>';
+        if (naermestEl) {
+          html += '<strong>Nærmeste ledige el-plass:</strong> ' + naermestEl.navn + ' (' +
+            naermestEl.avstandKm.toFixed(2) + ' km unna, ' + naermestEl.ledigeMedLader + ' ledig med lader).';
+        } else {
+          html += '<strong>Nærmeste ledige el-plass:</strong> Ingen ledige el-plasser akkurat nå.';
+        }
+
+        infoElement.innerHTML = html;
       })
       .catch(function () {
         infoElement.textContent = 'Kunne ikke beregne avstand akkurat nå. Prøv igjen senere.';
@@ -284,13 +298,23 @@ foreach ($anlegg as $anleggData) {
     if (!kandidater.length) return Promise.resolve(null);
 
     var query = kandidater[0];
-    var geoUrl = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=no&q=' + encodeURIComponent(query);
+    var geoUrl = 'https://ws.geonorge.no/adresser/v1/sok?sok=' + encodeURIComponent(query) +
+      '&fuzzy=true&treffPerSide=1&side=0';
 
     return fetch(geoUrl, { headers: { 'Accept': 'application/json' } })
-      .then(function (response) { return response.json(); })
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error('Geonorge-feil');
+        }
+        return response.json();
+      })
       .then(function (data) {
-        if (Array.isArray(data) && data.length) {
-          return data[0];
+        var treff = Array.isArray(data && data.adresser) ? data.adresser : [];
+        if (treff.length) {
+          var punkt = treff[0].representasjonspunkt || {};
+          if (typeof punkt.lat !== 'undefined' && typeof punkt.lon !== 'undefined') {
+            return { lat: punkt.lat, lon: punkt.lon };
+          }
         }
         return finnKoordinater(kandidater.slice(1));
       })

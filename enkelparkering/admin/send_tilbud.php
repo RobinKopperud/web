@@ -3,6 +3,11 @@ session_start();
 include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 require_once __DIR__ . '/../lib/PdfGenerator.php';
 
+function kodetEmne(string $subject): string
+{
+    return '=?UTF-8?B?' . base64_encode($subject) . '?=';
+}
+
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../login.php');
     exit;
@@ -132,10 +137,13 @@ if ($pdfAttachment) {
     $message .= $pdfAttachment . "\r\n";
     $message .= "--{$boundary}--";
 
-    $mail_ok = @mail($venteliste_entry['epost'], $subject, $message, $headers);
+    $mail_ok = @mail($venteliste_entry['epost'], kodetEmne($subject), $message, $headers);
 } else {
-    $headers = "From: noreply@enkelparkering.test";
-    $mail_ok = @mail($venteliste_entry['epost'], $subject, $body, $headers);
+    $headers = "From: noreply@enkelparkering.test\r\n";
+    $headers .= "MIME-Version: 1.0\r\n";
+    $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+    $headers .= "Content-Transfer-Encoding: 8bit";
+    $mail_ok = @mail($venteliste_entry['epost'], kodetEmne($subject), $body, $headers);
 }
 
 if ($mail_ok) {

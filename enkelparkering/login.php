@@ -8,6 +8,9 @@ $message = "";
 function harKolonne(mysqli $conn, string $tabell, string $kolonne): bool
 {
     $stmt = $conn->prepare("SHOW COLUMNS FROM `$tabell` LIKE ?");
+    if (!$stmt) {
+        return false;
+    }
     $stmt->bind_param("s", $kolonne);
     $stmt->execute();
     return $stmt->get_result()->num_rows > 0;
@@ -68,48 +71,58 @@ if (isset($_POST['register'])) {
     } else {
         $sql = "SELECT id FROM borettslag WHERE kode = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $kode);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $borettslag = $result->fetch_assoc();
-
-        if (!$borettslag) {
-            $message = "❌ Ugyldig kode fra borettslaget.";
-        } elseif (finnBrukerViaEpost($conn, $email)) {
-            $message = "❌ Denne e-posten er allerede registrert. Prøv å logge inn.";
+        if (!$stmt) {
+            $message = "❌ Kunne ikke verifisere borettslagskode akkurat nå. Prøv igjen.";
         } else {
-            $passord = password_hash($passordInput, PASSWORD_DEFAULT);
+            $stmt->bind_param("s", $kode);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $borettslag = $result->fetch_assoc();
 
-            if (harKolonne($conn, 'users', 'adresse')) {
-                $sql = "INSERT INTO users (borettslag_id, navn, epost, passord, rolle, adresse) VALUES (?, ?, ?, ?, 'user', ?)";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("issss", $borettslag['id'], $navn, $email, $passord, $adresse);
+            if (!$borettslag) {
+                $message = "❌ Ugyldig kode fra borettslaget.";
+            } elseif (finnBrukerViaEpost($conn, $email)) {
+                $message = "❌ Denne e-posten er allerede registrert. Prøv å logge inn.";
             } else {
-                $sql = "INSERT INTO users (borettslag_id, navn, epost, passord, rolle) VALUES (?, ?, ?, ?, 'user')";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("isss", $borettslag['id'], $navn, $email, $passord);
-            }
+                $passord = password_hash($passordInput, PASSWORD_DEFAULT);
 
-            if ($stmt->execute()) {
-                $subject = "Velkommen til EnkelParkering";
-                $body = "Hei $navn,\n\nTakk for at du registrerte deg hos EnkelParkering. Kontoen din er nå aktiv, og du er logget inn.\n\nVennlig hilsen\nEnkelParkering";
-                $headers = "From: noreply@robinkopperud.no\r\n" .
-                           "Reply-To: noreply@robinkopperud.no\r\n" .
-                           "MIME-Version: 1.0\r\n" .
-                           "Content-Type: text/plain; charset=UTF-8\r\n" .
-                           "Content-Transfer-Encoding: 8bit\r\n" .
-                           "X-Mailer: PHP/" . phpversion();
+                if (harKolonne($conn, 'users', 'adresse')) {
+                    $sql = "INSERT INTO users (borettslag_id, navn, epost, passord, rolle, adresse) VALUES (?, ?, ?, ?, 'user', ?)";
+                    $stmt = $conn->prepare($sql);
+                    if ($stmt) {
+                        $stmt->bind_param("issss", $borettslag['id'], $navn, $email, $passord, $adresse);
+                    }
+                } else {
+                    $sql = "INSERT INTO users (borettslag_id, navn, epost, passord, rolle) VALUES (?, ?, ?, ?, 'user')";
+                    $stmt = $conn->prepare($sql);
+                    if ($stmt) {
+                        $stmt->bind_param("isss", $borettslag['id'], $navn, $email, $passord);
+                    }
+                }
 
-                mail($email, kodetEmne($subject), $body, $headers);
+                if (!$stmt) {
+                    $message = "❌ Klarte ikke å opprette bruker akkurat nå. Prøv igjen.";
+                } elseif ($stmt->execute()) {
+                    $subject = "Velkommen til EnkelParkering";
+                    $body = "Hei $navn,\n\nTakk for at du registrerte deg hos EnkelParkering. Kontoen din er nå aktiv, og du er logget inn.\n\nVennlig hilsen\nEnkelParkering";
+                    $headers = "From: noreply@robinkopperud.no\r\n" .
+                               "Reply-To: noreply@robinkopperud.no\r\n" .
+                               "MIME-Version: 1.0\r\n" .
+                               "Content-Type: text/plain; charset=UTF-8\r\n" .
+                               "Content-Transfer-Encoding: 8bit\r\n" .
+                               "X-Mailer: PHP/" . phpversion();
 
-                $_SESSION['user_id'] = $stmt->insert_id;
-                $_SESSION['rolle'] = 'user';
-                $_SESSION['borettslag_id'] = $borettslag['id'];
+                    mail($email, kodetEmne($subject), $body, $headers);
 
-                header("Location: index.php");
-                exit;
-            } else {
-                $message = "❌ Kunne ikke opprette bruker akkurat nå. Prøv igjen.";
+                    $_SESSION['user_id'] = $stmt->insert_id;
+                    $_SESSION['rolle'] = 'user';
+                    $_SESSION['borettslag_id'] = $borettslag['id'];
+
+                    header("Location: index.php");
+                    exit;
+                } else {
+                    $message = "❌ Kunne ikke opprette bruker akkurat nå. Prøv igjen.";
+                }
             }
         }
     }

@@ -20,6 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const assetFilterSelect = document.getElementById('filter_asset');
     const statusFilterRadios = document.querySelectorAll('input[name="status"]');
     const apiDebugList = document.getElementById('apiDebugList');
+    const topNavButtons = document.querySelectorAll('.nav-btn');
+    const viewSections = document.querySelectorAll('.view-section');
+    const ordersTable = document.getElementById('ordersTable');
 
     let livePrices = {};
     let symbolPrices = {};
@@ -196,12 +199,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const key = `${assetSymbol}-${currency}`;
+            const { price: livePrice, currency: liveCurrency } = resolveLivePrice(assetSymbol, currency);
             if (!assets[key]) {
-                assets[key] = { asset: assetSymbol, currency, totalQty: 0, totalCost: 0 };
+                assets[key] = { asset: assetSymbol, currency, totalQty: 0, totalCost: 0, livePrice, liveCurrency };
             }
 
             assets[key].totalQty += remaining;
             assets[key].totalCost += remaining * entryPrice;
+            if (!Number.isFinite(assets[key].livePrice) && Number.isFinite(livePrice)) {
+                assets[key].livePrice = livePrice;
+                assets[key].liveCurrency = liveCurrency;
+            }
         });
 
         const entries = Object.values(assets).sort((a, b) => a.asset.localeCompare(b.asset));
@@ -229,7 +237,44 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p class="eyebrow">Åpen mengde</p>
                     <p class="mono">${formatNumber(entry.totalQty)}</p>
                 </div>
+                <div class="preview-row">
+                    <label>Forhåndsvis salg (snitt)</label>
+                    <div class="input-with-addon">
+                        <input type="number" step="0.00000001" min="0" class="asset-preview-price-input" placeholder="${Number.isFinite(entry.livePrice) ? formatNumber(entry.livePrice) : '0'}">
+                        <span class="input-addon">${entry.currency}</span>
+                    </div>
+                    <p class="hint">Beregner fortjeneste for hele åpne mengden.</p>
+                </div>
+                <div class="preview-result">
+                    <p class="eyebrow">Estimert fortjeneste</p>
+                    <p class="mono profit asset-preview-profit">-</p>
+                </div>
             `;
+            const previewInput = card.querySelector('.asset-preview-price-input');
+            const previewProfit = card.querySelector('.asset-preview-profit');
+            const costBasis = averagePrice * entry.totalQty;
+
+            const updateAssetPreview = () => {
+                const sellPrice = parsePositiveNumber(previewInput?.value || '');
+                if (!Number.isFinite(sellPrice) || !Number.isFinite(costBasis)) {
+                    previewProfit.textContent = '-';
+                    previewProfit.classList.remove('positive', 'negative');
+                    return;
+                }
+
+                const profit = (sellPrice * entry.totalQty) - costBasis;
+                previewProfit.textContent = formatWithCurrency(profit, entry.currency);
+                previewProfit.classList.remove('positive', 'negative');
+                if (profit > 0) previewProfit.classList.add('positive');
+                if (profit < 0) previewProfit.classList.add('negative');
+            };
+
+            previewInput?.addEventListener('input', updateAssetPreview);
+
+            if (Number.isFinite(entry.livePrice)) {
+                previewInput.value = formatNumber(entry.livePrice);
+                updateAssetPreview();
+            }
             averagesContainer.appendChild(card);
         });
     }
@@ -319,6 +364,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (Number.isFinite(currentPrice) && !Number.isNaN(entryPrice) && !Number.isNaN(remaining) && remaining > 0) {
                 const profitNative = remaining * (currentPrice - entryPrice);
+                const returnPercent = entryPrice > 0 ? ((currentPrice - entryPrice) / entryPrice) * 100 : Number.NEGATIVE_INFINITY;
+                card.dataset.returnPercent = Number.isFinite(returnPercent) ? String(returnPercent) : String(Number.NEGATIVE_INFINITY);
 
                 if (profitEl) {
                     profitEl.textContent = formatWithCurrency(profitNative, displayCurrency);
@@ -332,8 +379,14 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (profitEl) {
                 profitEl.textContent = '-';
                 profitEl.classList.remove('positive', 'negative');
+                card.dataset.returnPercent = String(Number.NEGATIVE_INFINITY);
             }
         });
+
+        const sortableCards = Array.from(cards).filter(card => !card.classList.contains('is-hidden'));
+        sortableCards
+            .sort((a, b) => Number.parseFloat(b.dataset.returnPercent || '-Infinity') - Number.parseFloat(a.dataset.returnPercent || '-Infinity'))
+            .forEach(card => ordersTable?.appendChild(card));
 
         if (resolutionLogs.length) {
             setApiDebugMessage('resolution', resolutionLogs.join(' · '));
@@ -443,6 +496,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     refreshButton?.addEventListener('click', fetchLivePrices);
 
+    function activateView(targetId) {
+        viewSections.forEach(section => {
+            section.classList.toggle('is-hidden', section.id !== targetId);
+        });
+        topNavButtons.forEach(button => {
+            button.classList.toggle('is-active', button.dataset.target === targetId);
+        });
+    }
+
+    topNavButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const target = button.dataset.target;
+            if (!target) return;
+            activateView(target);
+        });
+    });
+
     function hideCloseModal() {
         closeModal?.classList.remove('open');
         document.body.classList.remove('modal-open');
@@ -522,5 +592,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     applyFilters();
     fetchLivePrices();
+    activateView('portfolioSection');
     setInterval(fetchLivePrices, 60000);
 });

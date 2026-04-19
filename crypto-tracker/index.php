@@ -126,7 +126,15 @@ if (!empty($orders)) {
         <div class="alert <?php echo h($flash['type']); ?>"><?php echo h($flash['message']); ?></div>
     <?php endif; ?>
 
-    <section class="card portfolio-header">
+    <nav class="top-nav card" aria-label="Visning">
+        <button type="button" class="btn nav-btn is-active" data-target="portfolioSection">Portefølje</button>
+        <button type="button" class="btn nav-btn" data-target="ordersSection">Ordre</button>
+        <button type="button" class="btn nav-btn" data-target="addOrderSection">Legg inn ordre</button>
+        <button type="button" class="btn nav-btn" data-target="filtersSection">Filtre</button>
+        <button type="button" class="btn nav-btn" data-target="averagesSection">Gjennomsnitt</button>
+    </nav>
+
+    <section class="card portfolio-header view-section" id="portfolioSection">
         <div>
             <h2>Portefølje i NOK</h2>
             <p class="hint">Beregnet fra filtrerte ordrer (valuta konvertert til NOK).</p>
@@ -151,7 +159,7 @@ if (!empty($orders)) {
         </div>
     </section>
 
-    <section class="card">
+    <section class="card view-section is-hidden" id="addOrderSection">
         <h2>Add a new BUY order</h2>
         <form method="POST" action="actions.php" class="form-grid">
             <input type="hidden" name="action" value="create_order">
@@ -191,7 +199,7 @@ if (!empty($orders)) {
         </form>
     </section>
 
-    <section class="card filters">
+    <section class="card filters view-section is-hidden" id="filtersSection">
         <form method="GET" class="filter-row">
             <div class="form-control">
                 <label for="filter_asset">Filter asset</label>
@@ -215,7 +223,7 @@ if (!empty($orders)) {
         </form>
     </section>
 
-    <section class="card">
+    <section class="card view-section is-hidden" id="ordersSection">
         <div class="price-row">
             <div>
                 <h2>Orders with live prices</h2>
@@ -315,7 +323,7 @@ if (!empty($orders)) {
         </div>
     </section>
 
-    <section class="card">
+    <section class="card view-section is-hidden" id="averagesSection">
         <div class="price-row">
             <div>
                 <h2>Gjennomsnittspris per asset</h2>

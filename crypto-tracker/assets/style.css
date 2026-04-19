@@ -99,6 +99,21 @@ header h1 {
     margin-top: 0;
 }
 
+.top-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    position: sticky;
+    top: 8px;
+    z-index: 5;
+}
+
+.nav-btn.is-active {
+    background: var(--accent);
+    color: #0f172a;
+    border-color: var(--accent);
+}
+
 .form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

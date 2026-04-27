@@ -1,7 +1,6 @@
 const ids = [
   'purchasePrice', 'equity', 'buyCostPct', 'interestRate', 'loanYears', 'holdYears',
-  'monthlyRent', 'vacancyPct', 'opexYear', 'maintYear', 'rentGrowthPct', 'costGrowthPct',
-  'salePrice', 'sellCostPct'
+  'monthlyCommonCosts', 'otherCostsYear', 'costGrowthPct', 'salePrice', 'sellCostPct'
 ];
 
 const fmtNok = (n) => new Intl.NumberFormat('nb-NO', { style: 'currency', currency: 'NOK', maximumFractionDigits: 0 }).format(n);
@@ -39,11 +38,8 @@ function calculate() {
   const interestRate = val('interestRate');
   const loanYears = val('loanYears');
   const holdYears = val('holdYears');
-  const monthlyRent = val('monthlyRent');
-  const vacancyPct = val('vacancyPct');
-  const opexYear = val('opexYear');
-  const maintYear = val('maintYear');
-  const rentGrowthPct = val('rentGrowthPct');
+  const monthlyCommonCosts = val('monthlyCommonCosts');
+  const otherCostsYear = val('otherCostsYear');
   const costGrowthPct = val('costGrowthPct');
   const salePrice = val('salePrice');
   const sellCostPct = val('sellCostPct');
@@ -54,15 +50,12 @@ function calculate() {
   const monthlyDebtService = annuityPayment(loanAmount, interestRate, loanYears);
   const yearlyDebtService = monthlyDebtService * 12;
 
-  let totalNetCashFlow = 0;
+  let totalOwnerCosts = 0;
   for (let year = 0; year < holdYears; year += 1) {
-    const rentFactor = Math.pow(1 + rentGrowthPct / 100, year);
     const costFactor = Math.pow(1 + costGrowthPct / 100, year);
-    const grossRentYear = monthlyRent * 12 * rentFactor;
-    const effectiveRentYear = grossRentYear * (1 - vacancyPct / 100);
-    const costsYear = (opexYear + maintYear) * costFactor;
-    const netYear = effectiveRentYear - costsYear - yearlyDebtService;
-    totalNetCashFlow += netYear;
+    const commonCostsYear = monthlyCommonCosts * 12 * costFactor;
+    const otherYear = otherCostsYear * costFactor;
+    totalOwnerCosts += commonCostsYear + otherYear + yearlyDebtService;
   }
 
   const monthsHeld = holdYears * 12;
@@ -70,15 +63,17 @@ function calculate() {
   const saleCosts = salePrice * (sellCostPct / 100);
   const equityFromSale = salePrice - saleCosts - loanBalanceAtSale;
 
-  const totalPropertyProfit = (salePrice - saleCosts) - (purchasePrice + buyCosts) + totalNetCashFlow;
-  const propertyTotalReturnPct = purchasePrice > 0 ? (totalPropertyProfit / (purchasePrice + buyCosts)) * 100 : 0;
+  const totalPropertyProfit = (salePrice - saleCosts) - (purchasePrice + buyCosts) - totalOwnerCosts;
+  const propertyTotalReturnPct = (purchasePrice + buyCosts) > 0
+    ? (totalPropertyProfit / (purchasePrice + buyCosts)) * 100
+    : 0;
 
-  const totalEquityProfit = equityFromSale + totalNetCashFlow - investedCapital;
+  const totalEquityProfit = equityFromSale - investedCapital - totalOwnerCosts;
   const equityTotalReturnPct = investedCapital > 0 ? (totalEquityProfit / investedCapital) * 100 : 0;
 
   const propertyCagr = holdYears > 0 ? (Math.pow((1 + propertyTotalReturnPct / 100), (1 / holdYears)) - 1) * 100 : 0;
   const equityCagr = holdYears > 0 ? (Math.pow((1 + equityTotalReturnPct / 100), (1 / holdYears)) - 1) * 100 : 0;
-  const avgNetCashFlow = holdYears > 0 ? totalNetCashFlow / holdYears : 0;
+  const avgAnnualCost = holdYears > 0 ? totalOwnerCosts / holdYears : 0;
 
   document.getElementById('propertyTotal').textContent = fmtPct(propertyTotalReturnPct);
   document.getElementById('propertyCagr').textContent = `Årlig snitt (CAGR): ${fmtPct(propertyCagr)}`;
@@ -86,7 +81,7 @@ function calculate() {
   document.getElementById('equityTotal').textContent = fmtPct(equityTotalReturnPct);
   document.getElementById('equityCagr').textContent = `Årlig snitt (CAGR): ${fmtPct(equityCagr)}`;
 
-  document.getElementById('netCashFlow').textContent = fmtNok(avgNetCashFlow);
+  document.getElementById('avgAnnualCost').textContent = fmtNok(avgAnnualCost);
   document.getElementById('loanBalance').textContent = fmtNok(loanBalanceAtSale);
   document.getElementById('equityFromSale').textContent = `Egenkapital frigjort ved salg: ${fmtNok(equityFromSale)}`;
 
@@ -94,9 +89,9 @@ function calculate() {
   const detailRows = [
     ['Lånebeløp ved kjøp', fmtNok(loanAmount)],
     ['Månedlig terminbeløp', fmtNok(monthlyDebtService)],
-    ['Totalt netto kontantstrøm', fmtNok(totalNetCashFlow)],
-    ['Samlet gevinst på bolig', fmtNok(totalPropertyProfit)],
-    ['Samlet gevinst på egenkapital', fmtNok(totalEquityProfit)],
+    ['Totale eierkostnader i perioden', fmtNok(totalOwnerCosts)],
+    ['Samlet fortjeneste på bolig', fmtNok(totalPropertyProfit)],
+    ['Samlet fortjeneste på egenkapital', fmtNok(totalEquityProfit)],
     ['Belåningsmultiplikator', `${leverage.toFixed(2)}x`],
     ['Netto salg etter kostnader', fmtNok(salePrice - saleCosts)],
     ['Total investert kapital', fmtNok(investedCapital)]

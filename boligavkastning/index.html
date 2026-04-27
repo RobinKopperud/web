@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Boligavkastning – analyse av bolig og egenkapital</title>
+  <title>Boligavkastning – fortjeneste over tid</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="app">
     <header>
       <h1>Boligavkastning</h1>
-      <p>Se både avkastning på bolig og avkastning på egenkapital — uten database, alt beregnes i nettleseren.</p>
+      <p>Fokus på fortjeneste over valgt antall år – med finansiering, felleskostnader og salg.</p>
     </header>
 
     <section class="card">
@@ -38,22 +38,13 @@
     </section>
 
     <section class="card">
-      <h2>2) Drift og leie</h2>
+      <h2>2) Løpende kostnader</h2>
       <div class="grid">
-        <label>Månedlig leieinntekt (kr)
-          <input type="number" id="monthlyRent" value="18000" min="0" step="500">
+        <label>Felleskostnader per måned (kr)
+          <input type="number" id="monthlyCommonCosts" value="4500" min="0" step="100">
         </label>
-        <label>Ledighet (%)
-          <input type="number" id="vacancyPct" value="4" min="0" max="100" step="0.1">
-        </label>
-        <label>Driftskostnader per år (kr)
-          <input type="number" id="opexYear" value="45000" min="0" step="1000">
-        </label>
-        <label>Vedlikehold per år (kr)
-          <input type="number" id="maintYear" value="25000" min="0" step="1000">
-        </label>
-        <label>Leievekst per år (%)
-          <input type="number" id="rentGrowthPct" value="2.5" min="-10" max="20" step="0.1">
+        <label>Andre kostnader per år (kr)
+          <input type="number" id="otherCostsYear" value="20000" min="0" step="1000">
         </label>
         <label>Kostnadsvekst per år (%)
           <input type="number" id="costGrowthPct" value="2.0" min="-10" max="20" step="0.1">
@@ -74,25 +65,25 @@
     </section>
 
     <section class="card actions">
-      <button id="calculateBtn">Beregn avkastning</button>
-      <p class="note">Tips: Endre én variabel om gangen for å gjøre enkel sensitivitetsanalyse.</p>
+      <button id="calculateBtn">Beregn fortjeneste</button>
+      <p class="note">Tips: Test ulike kombinasjoner av tidshorisont, rente og salgspris.</p>
     </section>
 
     <section class="results">
       <article class="metric">
-        <h3>Boligens totalavkastning</h3>
+        <h3>Total fortjeneste på bolig</h3>
         <p id="propertyTotal" class="value">-</p>
         <small id="propertyCagr">-</small>
       </article>
       <article class="metric highlight">
-        <h3>Egenkapitalavkastning</h3>
+        <h3>Fortjeneste på egenkapital</h3>
         <p id="equityTotal" class="value">-</p>
         <small id="equityCagr">-</small>
       </article>
       <article class="metric">
-        <h3>Årlig netto kontantstrøm</h3>
-        <p id="netCashFlow" class="value">-</p>
-        <small>Snitt per år etter renter/avdrag/kostnader</small>
+        <h3>Snitt årlig kostnad</h3>
+        <p id="avgAnnualCost" class="value">-</p>
+        <small>Felleskostnader + øvrige kostnader + renter/avdrag</small>
       </article>
       <article class="metric">
         <h3>Lånesaldo ved salg</h3>
@@ -104,16 +95,6 @@
     <section class="card" id="detailsCard">
       <h2>Detaljer</h2>
       <div id="details"></div>
-    </section>
-
-    <section class="card tips">
-      <h2>Ekstra funksjonalitet du kan vurdere</h2>
-      <ul>
-        <li>Sensitivitetsmatrise (f.eks. rente × salgspris) med fargekart.</li>
-        <li>Skattemodell (utleieskatt, fradrag, gevinstbeskatning) som valgfritt lag.</li>
-        <li>Sammenligning av flere scenarier side om side (Base, Optimistisk, Stress).</li>
-        <li>Eksport til PDF/CSV for deling med bank eller medinvestorer.</li>
-      </ul>
     </section>
   </main>
 

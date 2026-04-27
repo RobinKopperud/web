@@ -101,6 +101,12 @@
         <p>Last opp tilbuds-PDF-er og sammenlign priser mellom to butikker.</p>
         <a href="prissammenligning/index.php" aria-label="Gå til prissammenligning"></a>
       </div>
+      <div class="card">
+        <div class="tag" style="color:#0f766e;">🏠 Analyse</div>
+        <h2>Boligavkastning</h2>
+        <p>Analyser avkastning på bolig og egenkapital direkte i nettleseren.</p>
+        <a href="boligavkastning/index.html" aria-label="Gå til boligavkastning"></a>
+      </div>
     </div>
   </div>
 </body>

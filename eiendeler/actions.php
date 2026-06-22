@@ -35,36 +35,40 @@ if ($action === 'save_asset') {
     $assetId = (int)($_POST['asset_id'] ?? 0);
     $category = clean_category($_POST['category'] ?? 'other');
     $name = trim($_POST['name'] ?? '');
+    $assetType = trim($_POST['asset_type'] ?? '');
     $provider = trim($_POST['provider'] ?? '');
     $grossValue = $_POST['gross_value'] ?? '';
+    $loanAmount = $_POST['loan_amount'] ?? '0';
     $ownershipPercent = $_POST['ownership_percent'] ?? '100';
     $currency = clean_currency($_POST['currency'] ?? 'NOK');
     $valuationDate = trim($_POST['valuation_date'] ?? '');
     $notes = trim($_POST['notes'] ?? '');
 
-    if ($name === '' || !is_numeric($grossValue) || (float)$grossValue < 0 || !is_numeric($ownershipPercent)) {
-        redirect_with_flash('error', 'Fyll ut navn, verdi og eierandel med gyldige tall.');
+    if ($name === '' || !is_numeric($grossValue) || (float)$grossValue < 0 || !is_numeric($loanAmount) || (float)$loanAmount < 0 || !is_numeric($ownershipPercent)) {
+        redirect_with_flash('error', 'Fyll ut navn, verdi, lån og eierandel med gyldige tall.');
     }
 
     $grossValue = (float)$grossValue;
+    $loanAmount = (float)$loanAmount;
     $ownershipPercent = max(0, min(100, (float)$ownershipPercent));
+    $assetType = $assetType !== '' ? $assetType : null;
     $provider = $provider !== '' ? $provider : null;
     $notes = $notes !== '' ? $notes : null;
     $valuationDate = $valuationDate !== '' ? $valuationDate : null;
 
     if ($assetId > 0) {
-        $stmt = $conn->prepare('UPDATE assets SET category = ?, name = ?, provider = ?, gross_value = ?, ownership_percent = ?, currency = ?, valuation_date = ?, notes = ? WHERE id = ? AND user_id = ?');
+        $stmt = $conn->prepare('UPDATE assets SET category = ?, asset_type = ?, name = ?, provider = ?, gross_value = ?, loan_amount = ?, ownership_percent = ?, currency = ?, valuation_date = ?, notes = ? WHERE id = ? AND user_id = ?');
         if (!$stmt) {
             redirect_with_flash('error', 'Kunne ikke forberede oppdatering.');
         }
-        $stmt->bind_param('sssddsssii', $category, $name, $provider, $grossValue, $ownershipPercent, $currency, $valuationDate, $notes, $assetId, $userId);
+        $stmt->bind_param('ssssdddsssii', $category, $assetType, $name, $provider, $grossValue, $loanAmount, $ownershipPercent, $currency, $valuationDate, $notes, $assetId, $userId);
         $ok = $stmt->execute();
     } else {
-        $stmt = $conn->prepare('INSERT INTO assets (user_id, category, name, provider, gross_value, ownership_percent, currency, valuation_date, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $stmt = $conn->prepare('INSERT INTO assets (user_id, category, asset_type, name, provider, gross_value, loan_amount, ownership_percent, currency, valuation_date, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
         if (!$stmt) {
             redirect_with_flash('error', 'Kunne ikke forberede lagring.');
         }
-        $stmt->bind_param('isssddsss', $userId, $category, $name, $provider, $grossValue, $ownershipPercent, $currency, $valuationDate, $notes);
+        $stmt->bind_param('issssdddsss', $userId, $category, $assetType, $name, $provider, $grossValue, $loanAmount, $ownershipPercent, $currency, $valuationDate, $notes);
         $ok = $stmt->execute();
     }
 

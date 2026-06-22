@@ -107,6 +107,12 @@
         <p>Analyser avkastning på bolig og egenkapital direkte i nettleseren.</p>
         <a href="boligavkastning/index.html" aria-label="Gå til boligavkastning"></a>
       </div>
+      <div class="card">
+        <div class="tag" style="color:#2563eb;">💼 Verdier</div>
+        <h2>Mine verdier</h2>
+        <p>Logg bolig, krypto, cash og andre eiendeler med verdi, bank/leverandør og eierandel.</p>
+        <a href="eiendeler/index.php" aria-label="Gå til Mine verdier"></a>
+      </div>
     </div>
   </div>
 </body>

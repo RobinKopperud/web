@@ -37,9 +37,13 @@ if ($stmt) {
 }
 
 $total = 0;
+$totalLoan = 0;
 $categoryTotals = array_fill_keys(array_keys($categoryLabels), 0);
 foreach ($assets as $asset) {
-    $netValue = (float)$asset['gross_value'] * ((float)$asset['ownership_percent'] / 100);
+    $ownedValue = (float)$asset['gross_value'] * ((float)$asset['ownership_percent'] / 100);
+    $loanAmount = (float)($asset['loan_amount'] ?? 0);
+    $totalLoan += $loanAmount;
+    $netValue = $ownedValue - $loanAmount;
     $total += $netValue;
     $categoryTotals[$asset['category']] = ($categoryTotals[$asset['category']] ?? 0) + $netValue;
 }
@@ -83,7 +87,11 @@ foreach ($assets as $asset) {
         <article class="card total-card">
             <p class="eyebrow">Total nettoverdi</p>
             <strong><?php echo h(nok($total)); ?></strong>
-            <span>Basert på verdi × eierandel.</span>
+            <span>Basert på verdi × eierandel minus lån.</span>
+        </article>
+        <article class="card stat-card">
+            <p>Totalt lån</p>
+            <strong><?php echo h(nok($totalLoan)); ?></strong>
         </article>
         <?php foreach ($categoryLabels as $key => $label): ?>
             <article class="card stat-card">
@@ -109,6 +117,9 @@ foreach ($assets as $asset) {
                 <label>Navn
                     <input type="text" name="name" value="<?php echo h($editing['name'] ?? ''); ?>" placeholder="F.eks. Leilighet, BTC, DNB brukskonto" required>
                 </label>
+                <label>Valgfri type
+                    <input type="text" name="asset_type" value="<?php echo h($editing['asset_type'] ?? ''); ?>" placeholder="F.eks. primærbolig, fond, sparekonto">
+                </label>
                 <label>Leverandør / lokasjon
                     <input type="text" name="provider" value="<?php echo h($editing['provider'] ?? ''); ?>" placeholder="F.eks. bank, børs eller adresse">
                 </label>
@@ -121,13 +132,16 @@ foreach ($assets as $asset) {
                     </label>
                 </div>
                 <div class="split">
+                    <label>Lån
+                        <input type="number" step="0.01" min="0" name="loan_amount" value="<?php echo h($editing['loan_amount'] ?? '0'); ?>" placeholder="0">
+                    </label>
                     <label>Eierandel %
                         <input type="number" step="0.01" min="0" max="100" name="ownership_percent" value="<?php echo h($editing['ownership_percent'] ?? '100'); ?>" required>
                     </label>
-                    <label>Verdidato
-                        <input type="date" name="valuation_date" value="<?php echo h($editing['valuation_date'] ?? date('Y-m-d')); ?>">
-                    </label>
                 </div>
+                <label>Verdidato
+                    <input type="date" name="valuation_date" value="<?php echo h($editing['valuation_date'] ?? date('Y-m-d')); ?>">
+                </label>
                 <label>Notater
                     <textarea name="notes" rows="3" placeholder="Valgfritt"><?php echo h($editing['notes'] ?? ''); ?></textarea>
                 </label>
@@ -145,10 +159,15 @@ foreach ($assets as $asset) {
             <?php else: ?>
                 <div class="asset-list">
                     <?php foreach ($assets as $asset): ?>
-                        <?php $netValue = (float)$asset['gross_value'] * ((float)$asset['ownership_percent'] / 100); ?>
+                        <?php
+                            $ownedValue = (float)$asset['gross_value'] * ((float)$asset['ownership_percent'] / 100);
+                            $loanAmount = (float)($asset['loan_amount'] ?? 0);
+                            $netValue = $ownedValue - $loanAmount;
+                        ?>
                         <section class="asset-row">
                             <div>
                                 <span class="pill"><?php echo h($categoryLabels[$asset['category']] ?? 'Annet'); ?></span>
+                                <?php if (!empty($asset['asset_type'])): ?><span class="pill muted-pill"><?php echo h($asset['asset_type']); ?></span><?php endif; ?>
                                 <h3><?php echo h($asset['name']); ?></h3>
                                 <p><?php echo h($asset['provider'] ?: 'Ingen leverandør'); ?> · <?php echo h($asset['ownership_percent']); ?> % eid</p>
                                 <?php if (!empty($asset['notes'])): ?><p class="notes"><?php echo h($asset['notes']); ?></p><?php endif; ?>
@@ -156,6 +175,7 @@ foreach ($assets as $asset) {
                             <div class="value-box">
                                 <strong><?php echo h(nok($netValue)); ?></strong>
                                 <span>Brutto <?php echo h(number_format((float)$asset['gross_value'], 2, ',', ' ') . ' ' . $asset['currency']); ?></span>
+                                <?php if ($loanAmount > 0): ?><span>Lån <?php echo h(number_format($loanAmount, 2, ',', ' ') . ' ' . $asset['currency']); ?></span><?php endif; ?>
                                 <div class="row-actions">
                                     <a href="?edit=<?php echo (int)$asset['id']; ?>">Endre</a>
                                     <form method="POST" action="actions.php" onsubmit="return confirm('Slette denne eiendelen?');">

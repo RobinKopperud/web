@@ -3,101 +3,109 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Boligavkastning – fortjeneste over tid</title>
+  <title>Boligavkastning – se hva boligen kan gi deg</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="app">
-    <header>
-      <h1>Boligavkastning</h1>
-      <p>Fokus på fortjeneste over valgt antall år – med finansiering, felleskostnader og salg.</p>
+    <header class="hero">
+      <div>
+        <span class="eyebrow">Boligkalkulator</span>
+        <h1>Hva har boligen gitt deg?</h1>
+        <p>Start enkelt med kjøp, salg og datoer. Legg til lån og kostnader bare hvis du ønsker et mer detaljert regnestykke.</p>
+      </div>
+      <div class="mode-switch" role="group" aria-label="Velg beregningsnivå">
+        <button type="button" class="mode active" data-mode="simple" aria-pressed="true">Enkel</button>
+        <button type="button" class="mode" data-mode="advanced" aria-pressed="false">Detaljert</button>
+      </div>
     </header>
 
-    <section class="card">
-      <h2>1) Kjøp og finansiering</h2>
-      <div class="grid">
-        <label>Kjøpspris (kr)
-          <input type="number" id="purchasePrice" value="4500000" min="0" step="10000">
+    <section class="card primary-card">
+      <div class="section-heading">
+        <div><span class="step">1</span><h2>Boligen din</h2></div>
+        <p id="modeHelp">Alt du trenger for et raskt overslag.</p>
+      </div>
+      <div class="core-grid">
+        <label>Kjøpspris
+          <div class="input-suffix"><input type="number" id="purchasePrice" value="4500000" min="0" step="50000"><span>kr</span></div>
         </label>
-        <label>Egenkapital (kr)
-          <input type="number" id="equity" value="900000" min="0" step="10000">
+        <label>Forventet salgspris
+          <div class="input-suffix"><input type="number" id="salePrice" value="6200000" min="0" step="50000"><span>kr</span></div>
         </label>
-        <label>Kjøpskostnader (%)
-          <input type="number" id="buyCostPct" value="2.5" min="0" max="20" step="0.1">
+        <label>Kjøpt
+          <input type="month" id="purchaseDate" value="2019-08">
         </label>
-        <label>Rente på lån (%)
-          <input type="number" id="interestRate" value="5.5" min="0" max="25" step="0.1">
+        <label>Solgt / forventet solgt
+          <input type="month" id="saleDate" value="2029-08">
         </label>
-        <label>Lånetid (år)
-          <input type="number" id="loanYears" value="25" min="1" max="40" step="1">
+      </div>
+      <div class="price-slider">
+        <div><span>Juster forventet salgspris</span><output id="salePriceOutput">6 200 000 kr</output></div>
+        <input type="range" id="salePriceRange" min="500000" max="15000000" value="6200000" step="50000">
+        <div class="range-labels"><span>0,5 mill.</span><span>15 mill.</span></div>
+      </div>
+      <p class="validation" id="dateError" role="alert"></p>
+    </section>
+
+    <section class="card advanced" id="advancedInputs" hidden>
+      <div class="section-heading">
+        <div><span class="step">2</span><h2>Finansiering og kostnader</h2></div>
+        <p>Finjuster antakelsene. Resultatet oppdateres med én gang.</p>
+      </div>
+      <div class="advanced-grid">
+        <label>Egenkapital
+          <div class="input-suffix"><input type="number" id="equity" value="900000" min="0" step="10000"><span>kr</span></div>
         </label>
-        <label>Analyseperiode (år)
-          <input type="number" id="holdYears" value="10" min="1" max="40" step="1">
+        <label>Kjøpskostnader
+          <div class="input-suffix"><input type="number" id="buyCostPct" value="2.5" min="0" max="20" step="0.1"><span>%</span></div>
         </label>
+        <div class="slider-field">
+          <label for="interestRate">Rente <output id="interestRateOutput">5,5 %</output></label>
+          <input type="range" id="interestRate" value="5.5" min="0" max="15" step="0.1">
+        </div>
+        <div class="slider-field">
+          <label for="loanYears">Lånetid <output id="loanYearsOutput">25 år</output></label>
+          <input type="range" id="loanYears" value="25" min="5" max="40" step="1">
+        </div>
+        <label>Felleskostnader per måned
+          <div class="input-suffix"><input type="number" id="monthlyCommonCosts" value="4500" min="0" step="100"><span>kr</span></div>
+        </label>
+        <label>Andre kostnader per år
+          <div class="input-suffix"><input type="number" id="otherCostsYear" value="20000" min="0" step="1000"><span>kr</span></div>
+        </label>
+        <div class="slider-field">
+          <label for="costGrowthPct">Årlig kostnadsvekst <output id="costGrowthPctOutput">2,0 %</output></label>
+          <input type="range" id="costGrowthPct" value="2" min="-5" max="10" step="0.1">
+        </div>
+        <div class="slider-field">
+          <label for="sellCostPct">Salgskostnader <output id="sellCostPctOutput">2,0 %</output></label>
+          <input type="range" id="sellCostPct" value="2" min="0" max="10" step="0.1">
+        </div>
       </div>
     </section>
 
-    <section class="card">
-      <h2>2) Løpende kostnader</h2>
-      <div class="grid">
-        <label>Felleskostnader per måned (kr)
-          <input type="number" id="monthlyCommonCosts" value="4500" min="0" step="100">
-        </label>
-        <label>Andre kostnader per år (kr)
-          <input type="number" id="otherCostsYear" value="20000" min="0" step="1000">
-        </label>
-        <label>Kostnadsvekst per år (%)
-          <input type="number" id="costGrowthPct" value="2.0" min="-10" max="20" step="0.1">
-        </label>
+    <section class="results" aria-live="polite">
+      <article class="result-hero">
+        <span class="result-label" id="profitLabel">Verdiøkning</span>
+        <p id="mainProfit" class="main-value">–</p>
+        <p id="mainProfitPct" class="result-context">–</p>
+        <div class="result-divider"></div>
+        <div class="result-row"><span>Gjennomsnitt per år</span><strong id="annualReturn">–</strong></div>
+        <div class="result-row"><span>Eiertid</span><strong id="holdingPeriod">–</strong></div>
+      </article>
+      <div class="result-side">
+        <article class="metric"><span>Forventet salgspris</span><strong id="resultSalePrice">–</strong><small id="saleDifference">–</small></article>
+        <article class="metric advanced-result" hidden><span>Igjen etter salg og lån</span><strong id="equityFromSale">–</strong><small id="loanBalance">–</small></article>
+        <article class="metric advanced-result" hidden><span>Samlede kostnader</span><strong id="totalCosts">–</strong><small id="monthlyPayment">–</small></article>
       </div>
     </section>
 
-    <section class="card">
-      <h2>3) Salg</h2>
-      <div class="grid">
-        <label>Forventet salgspris (kr)
-          <input type="number" id="salePrice" value="6200000" min="0" step="10000">
-        </label>
-        <label>Salgskostnader (%)
-          <input type="number" id="sellCostPct" value="2.0" min="0" max="20" step="0.1">
-        </label>
-      </div>
-    </section>
-
-    <section class="card actions">
-      <button id="calculateBtn">Beregn fortjeneste</button>
-      <p class="note">Tips: Test ulike kombinasjoner av tidshorisont, rente og salgspris.</p>
-    </section>
-
-    <section class="results">
-      <article class="metric">
-        <h3>Total fortjeneste på bolig</h3>
-        <p id="propertyTotal" class="value">-</p>
-        <small id="propertyCagr">-</small>
-      </article>
-      <article class="metric highlight">
-        <h3>Fortjeneste på egenkapital</h3>
-        <p id="equityTotal" class="value">-</p>
-        <small id="equityCagr">-</small>
-      </article>
-      <article class="metric">
-        <h3>Snitt årlig kostnad</h3>
-        <p id="avgAnnualCost" class="value">-</p>
-        <small>Felleskostnader + øvrige kostnader + renter/avdrag</small>
-      </article>
-      <article class="metric">
-        <h3>Lånesaldo ved salg</h3>
-        <p id="loanBalance" class="value">-</p>
-        <small id="equityFromSale">-</small>
-      </article>
-    </section>
-
-    <section class="card" id="detailsCard">
-      <h2>Detaljer</h2>
+    <details class="card details-card" id="detailsCard">
+      <summary>Se hele regnestykket <span>⌄</span></summary>
       <div id="details"></div>
-    </section>
+    </details>
+    <p class="disclaimer">Beregningen er et estimat og tar ikke hensyn til skatt, inflasjon eller alternativ avkastning.</p>
   </main>
-
   <script src="script.js"></script>
 </body>
 </html>

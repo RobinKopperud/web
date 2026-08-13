@@ -1,109 +1,75 @@
-const ids = [
-  'purchasePrice', 'equity', 'buyCostPct', 'interestRate', 'loanYears', 'holdYears',
-  'monthlyCommonCosts', 'otherCostsYear', 'costGrowthPct', 'salePrice', 'sellCostPct'
-];
+const $ = (id) => document.getElementById(id);
+const fmtNok = (n) => new Intl.NumberFormat('nb-NO',{style:'currency',currency:'NOK',maximumFractionDigits:0}).format(Number.isFinite(n)?n:0);
+const fmtNumber = (n) => new Intl.NumberFormat('nb-NO',{maximumFractionDigits:0}).format(n);
+const fmtPct = (n) => `${(Number.isFinite(n)?n:0).toLocaleString('nb-NO',{minimumFractionDigits:1,maximumFractionDigits:1})} %`;
+const val = (id) => Number($(id).value || 0);
+let mode = 'simple';
 
-const fmtNok = (n) => new Intl.NumberFormat('nb-NO', { style: 'currency', currency: 'NOK', maximumFractionDigits: 0 }).format(n);
-const fmtPct = (n) => `${n.toFixed(1)} %`;
-
-function val(id) {
-  return Number(document.getElementById(id).value || 0);
+function yearsBetween(){
+  if(!$('purchaseDate').value || !$('saleDate').value) return 0;
+  const [py,pm]=$('purchaseDate').value.split('-').map(Number);
+  const [sy,sm]=$('saleDate').value.split('-').map(Number);
+  return ((sy-py)*12+(sm-pm))/12;
 }
-
-function annuityPayment(principal, yearlyRate, years) {
-  if (principal <= 0 || years <= 0) return 0;
-  const monthlyRate = (yearlyRate / 100) / 12;
-  const periods = years * 12;
-  if (monthlyRate === 0) return principal / periods;
-  return principal * (monthlyRate / (1 - Math.pow(1 + monthlyRate, -periods)));
+function annuityPayment(principal,rate,years){
+  if(principal<=0||years<=0)return 0;
+  const r=rate/100/12,n=years*12;
+  return r===0?principal/n:principal*(r/(1-Math.pow(1+r,-n)));
 }
-
-function remainingLoan(principal, yearlyRate, years, monthsPaid) {
-  const payment = annuityPayment(principal, yearlyRate, years);
-  let bal = principal;
-  const r = (yearlyRate / 100) / 12;
-
-  for (let i = 0; i < monthsPaid; i += 1) {
-    const interestPart = bal * r;
-    const principalPart = payment - interestPart;
-    bal = Math.max(0, bal - principalPart);
+function loanAfter(principal,rate,years,months){
+  const payment=annuityPayment(principal,rate,years),r=rate/100/12;
+  let balance=principal;
+  for(let i=0;i<Math.min(months,years*12);i+=1) balance=Math.max(0,balance-(payment-balance*r));
+  return balance;
+}
+function calculate(){
+  const purchase=val('purchasePrice'),sale=val('salePrice'),years=yearsBetween();
+  const valid=years>0;
+  $('dateError').textContent=valid?'':'Salgsdato må være etter kjøpsdato.';
+  const appreciation=sale-purchase;
+  const totalPct=purchase>0?appreciation/purchase*100:0;
+  const annual=purchase>0&&sale>0&&valid?(Math.pow(sale/purchase,1/years)-1)*100:0;
+  let profit=appreciation,profitPct=totalPct;
+  let details=[['Kjøpspris',fmtNok(purchase)],['Salgspris',fmtNok(sale)],['Verdiøkning',fmtNok(appreciation)],['Total prisendring',fmtPct(totalPct)]];
+  if(mode==='advanced'){
+    const equity=val('equity'),buyCosts=purchase*val('buyCostPct')/100,loan=Math.max(0,purchase-equity);
+    const payment=annuityPayment(loan,val('interestRate'),val('loanYears'));
+    const months=Math.max(0,Math.round(years*12));
+    const balance=loanAfter(loan,val('interestRate'),val('loanYears'),months);
+    let ownerCosts=0;
+    for(let m=0;m<months;m+=1){const factor=Math.pow(1+val('costGrowthPct')/100,m/12);ownerCosts+=(val('monthlyCommonCosts')+val('otherCostsYear')/12)*factor+payment;}
+    const saleCosts=sale*val('sellCostPct')/100;
+    const buyInvestment=equity+buyCosts;
+    const fromSale=sale-saleCosts-balance;
+    profit=fromSale-buyInvestment-ownerCosts;
+    profitPct=buyInvestment>0?profit/buyInvestment*100:0;
+    $('equityFromSale').textContent=fmtNok(fromSale);
+    $('loanBalance').textContent=`Restlån: ${fmtNok(balance)}`;
+    $('totalCosts').textContent=fmtNok(ownerCosts+buyCosts+saleCosts);
+    $('monthlyPayment').textContent=`Terminbeløp: ${fmtNok(payment)} / md.`;
+    details=[...details,['Lån ved kjøp',fmtNok(loan)],['Kjøpskostnader',fmtNok(buyCosts)],['Salgskostnader',fmtNok(saleCosts)],['Løpende kostnader og terminbeløp',fmtNok(ownerCosts)],['Restlån ved salg',fmtNok(balance)],['Netto resultat på egenkapital',fmtNok(profit)]];
   }
-  return bal;
+  $('profitLabel').textContent=mode==='simple'?'Verdiøkning':'Netto resultat på egenkapital';
+  $('mainProfit').textContent=valid?fmtNok(profit):'–';
+  $('mainProfitPct').textContent=valid?`${fmtPct(profitPct)} totalt`:'Kontroller datoene';
+  $('annualReturn').textContent=valid?fmtPct(mode==='simple'?annual:(profitPct>-100?((Math.pow(1+profitPct/100,1/years)-1)*100):0)):'–';
+  $('holdingPeriod').textContent=valid?`${years.toLocaleString('nb-NO',{maximumFractionDigits:1})} år`:'–';
+  $('resultSalePrice').textContent=fmtNok(sale);
+  $('saleDifference').textContent=`${appreciation>=0?'+':''}${fmtNok(appreciation)} fra kjøp`;
+  $('details').innerHTML=details.map(([key,value])=>`<div><span>${key}</span><strong>${value}</strong></div>`).join('');
+  $('salePriceOutput').textContent=`${fmtNumber(sale)} kr`;
 }
-
-function calculate() {
-  const purchasePrice = val('purchasePrice');
-  const equity = val('equity');
-  const buyCostPct = val('buyCostPct');
-  const interestRate = val('interestRate');
-  const loanYears = val('loanYears');
-  const holdYears = val('holdYears');
-  const monthlyCommonCosts = val('monthlyCommonCosts');
-  const otherCostsYear = val('otherCostsYear');
-  const costGrowthPct = val('costGrowthPct');
-  const salePrice = val('salePrice');
-  const sellCostPct = val('sellCostPct');
-
-  const buyCosts = purchasePrice * (buyCostPct / 100);
-  const investedCapital = equity + buyCosts;
-  const loanAmount = Math.max(0, purchasePrice - equity);
-  const monthlyDebtService = annuityPayment(loanAmount, interestRate, loanYears);
-  const yearlyDebtService = monthlyDebtService * 12;
-
-  let totalOwnerCosts = 0;
-  for (let year = 0; year < holdYears; year += 1) {
-    const costFactor = Math.pow(1 + costGrowthPct / 100, year);
-    const commonCostsYear = monthlyCommonCosts * 12 * costFactor;
-    const otherYear = otherCostsYear * costFactor;
-    totalOwnerCosts += commonCostsYear + otherYear + yearlyDebtService;
-  }
-
-  const monthsHeld = holdYears * 12;
-  const loanBalanceAtSale = remainingLoan(loanAmount, interestRate, loanYears, monthsHeld);
-  const saleCosts = salePrice * (sellCostPct / 100);
-  const equityFromSale = salePrice - saleCosts - loanBalanceAtSale;
-
-  const totalPropertyProfit = (salePrice - saleCosts) - (purchasePrice + buyCosts) - totalOwnerCosts;
-  const propertyTotalReturnPct = (purchasePrice + buyCosts) > 0
-    ? (totalPropertyProfit / (purchasePrice + buyCosts)) * 100
-    : 0;
-
-  const totalEquityProfit = equityFromSale - investedCapital - totalOwnerCosts;
-  const equityTotalReturnPct = investedCapital > 0 ? (totalEquityProfit / investedCapital) * 100 : 0;
-
-  const propertyCagr = holdYears > 0 ? (Math.pow((1 + propertyTotalReturnPct / 100), (1 / holdYears)) - 1) * 100 : 0;
-  const equityCagr = holdYears > 0 ? (Math.pow((1 + equityTotalReturnPct / 100), (1 / holdYears)) - 1) * 100 : 0;
-  const avgAnnualCost = holdYears > 0 ? totalOwnerCosts / holdYears : 0;
-
-  document.getElementById('propertyTotal').textContent = fmtPct(propertyTotalReturnPct);
-  document.getElementById('propertyCagr').textContent = `Årlig snitt (CAGR): ${fmtPct(propertyCagr)}`;
-
-  document.getElementById('equityTotal').textContent = fmtPct(equityTotalReturnPct);
-  document.getElementById('equityCagr').textContent = `Årlig snitt (CAGR): ${fmtPct(equityCagr)}`;
-
-  document.getElementById('avgAnnualCost').textContent = fmtNok(avgAnnualCost);
-  document.getElementById('loanBalance').textContent = fmtNok(loanBalanceAtSale);
-  document.getElementById('equityFromSale').textContent = `Egenkapital frigjort ved salg: ${fmtNok(equityFromSale)}`;
-
-  const leverage = investedCapital > 0 ? purchasePrice / investedCapital : 0;
-  const detailRows = [
-    ['Lånebeløp ved kjøp', fmtNok(loanAmount)],
-    ['Månedlig terminbeløp', fmtNok(monthlyDebtService)],
-    ['Totale eierkostnader i perioden', fmtNok(totalOwnerCosts)],
-    ['Samlet fortjeneste på bolig', fmtNok(totalPropertyProfit)],
-    ['Samlet fortjeneste på egenkapital', fmtNok(totalEquityProfit)],
-    ['Belåningsmultiplikator', `${leverage.toFixed(2)}x`],
-    ['Netto salg etter kostnader', fmtNok(salePrice - saleCosts)],
-    ['Total investert kapital', fmtNok(investedCapital)]
-  ];
-
-  const detailRoot = document.getElementById('details');
-  detailRoot.innerHTML = detailRows.map(([k, v]) => `<div><strong>${k}:</strong> ${v}</div>`).join('');
+function setMode(next){
+  mode=next;
+  document.querySelectorAll('.mode').forEach(btn=>{const active=btn.dataset.mode===mode;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',active);});
+  $('advancedInputs').hidden=mode!=='advanced';
+  document.querySelectorAll('.advanced-result').forEach(el=>el.hidden=mode!=='advanced');
+  $('modeHelp').textContent=mode==='simple'?'Alt du trenger for et raskt overslag.':'Start med boligen, og finjuster kostnadene under.';
+  calculate();
 }
-
-for (const id of ids) {
-  document.getElementById(id).addEventListener('input', calculate);
-}
-document.getElementById('calculateBtn').addEventListener('click', calculate);
-
+document.querySelectorAll('.mode').forEach(btn=>btn.addEventListener('click',()=>setMode(btn.dataset.mode)));
+['purchasePrice','salePrice','purchaseDate','saleDate','equity','buyCostPct','interestRate','loanYears','monthlyCommonCosts','otherCostsYear','costGrowthPct','sellCostPct'].forEach(id=>$(id).addEventListener('input',calculate));
+$('salePriceRange').addEventListener('input',()=>{$('salePrice').value=$('salePriceRange').value;calculate();});
+$('salePrice').addEventListener('input',()=>{$('salePriceRange').value=Math.min(15000000,Math.max(500000,val('salePrice')));});
+[['interestRate','interestRateOutput',' %'],['loanYears','loanYearsOutput',' år'],['costGrowthPct','costGrowthPctOutput',' %'],['sellCostPct','sellCostPctOutput',' %']].forEach(([input,output,suffix])=>$(input).addEventListener('input',()=>{$(output).textContent=`${val(input).toLocaleString('nb-NO')}${suffix}`;}));
 calculate();

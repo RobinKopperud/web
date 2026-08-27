@@ -73,3 +73,38 @@ $('salePriceRange').addEventListener('input',()=>{$('salePrice').value=$('salePr
 $('salePrice').addEventListener('input',()=>{$('salePriceRange').value=Math.min(15000000,Math.max(500000,val('salePrice')));});
 [['interestRate','interestRateOutput',' %'],['loanYears','loanYearsOutput',' år'],['costGrowthPct','costGrowthPctOutput',' %'],['sellCostPct','sellCostPctOutput',' %']].forEach(([input,output,suffix])=>$(input).addEventListener('input',()=>{$(output).textContent=`${val(input).toLocaleString('nb-NO')}${suffix}`;}));
 calculate();
+
+// Separate affordability calculator
+function loanFromPayment(monthly, annualRate, years) {
+  if (monthly <= 0 || years <= 0) return 0;
+  const r = annualRate / 100 / 12;
+  const n = years * 12;
+  return r === 0 ? monthly * n : monthly * (1 - Math.pow(1 + r, -n)) / r;
+}
+function calculateLoan() {
+  const income = val('annualIncome'), otherDebt = val('otherDebt'), budget = val('housingBudget');
+  const rate = val('loanCalcRate'), years = val('loanCalcYears');
+  const stressedRate = rate + ($('stressTest').checked ? 3 : 0);
+  const debtLimit = Math.max(0, income * 5 - otherDebt);
+  const loanAtCost = (cost) => Math.max(0, Math.min(debtLimit, loanFromPayment(Math.max(0, budget - cost), stressedRate, years)));
+  const cost = val('commonCost'), currentLoan = loanAtCost(cost);
+  const lowLoan = loanAtCost(2000), highLoan = loanAtCost(8000);
+  $('maxLoan').textContent = fmtNok(currentLoan);
+  $('purchasePower').textContent = fmtNok(currentLoan + val('loanEquity'));
+  $('calcPayment').textContent = fmtNok(annuityPayment(currentLoan, rate, years));
+  $('loanLimitText').textContent = currentLoan < debtLimit - 1000 ? 'Månedsbudsjettet og felleskostnadene setter grensen.' : 'Samlet gjeldsgrad setter grensen i dette estimatet.';
+  $('lowCostLoan').textContent = fmtNok(lowLoan); $('currentCostLoan').textContent = fmtNok(currentLoan); $('highCostLoan').textContent = fmtNok(highLoan);
+  $('currentCostLabel').textContent = `${fmtNumber(cost)} kr / md.`; $('commonCostOutput').textContent = `${fmtNumber(cost)} kr`;
+  const difference = Math.max(0, lowLoan - highLoan);
+  $('loanInsight').querySelector('p').innerHTML = difference > 0 ? `Med <strong>2 000 kr</strong> i stedet for <strong>8 000 kr</strong> i felleskostnader kan lånerommet øke med omtrent <strong>${fmtNok(difference)}</strong>.` : 'Inntektsgrensen er nå avgjørende, så lavere felleskostnader øker ikke lånerammen i dette estimatet – men gir bedre månedlig margin.';
+}
+function setView(view) {
+  $('returnView').hidden = view !== 'return'; $('loanView').hidden = view !== 'loan';
+  document.querySelectorAll('.app-tab').forEach((button) => { const active = button.dataset.view === view; button.classList.toggle('active', active); button.setAttribute('aria-pressed', active); });
+  if (view === 'loan') calculateLoan();
+}
+document.querySelectorAll('.app-tab').forEach((button) => button.addEventListener('click', () => setView(button.dataset.view)));
+['annualIncome','otherDebt','housingBudget','loanEquity','loanCalcRate','loanCalcYears','commonCost','stressTest'].forEach((id) => $(id).addEventListener('input', calculateLoan));
+$('loanCalcRate').addEventListener('input', () => { $('loanCalcRateOutput').textContent = `${val('loanCalcRate').toLocaleString('nb-NO')} %`; });
+$('loanCalcYears').addEventListener('input', () => { $('loanCalcYearsOutput').textContent = `${val('loanCalcYears')} år`; });
+calculateLoan();

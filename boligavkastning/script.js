@@ -47,6 +47,10 @@ function calculate(){
     $('loanBalance').textContent=`Restlån: ${fmtNok(balance)}`;
     $('totalCosts').textContent=fmtNok(ownerCosts+buyCosts+saleCosts);
     $('monthlyPayment').textContent=`Terminbeløp: ${fmtNok(payment)} / md.`;
+    const equityGain=fromSale-equity;
+    const equityReturn=equity>0?equityGain/equity*100:0;
+    $('equityReturn').textContent=equity>0?fmtPct(equityReturn):'–';
+    $('equityReturnNote').textContent=equity>0?`${fmtNok(equityGain)} verdiøkning etter salg og restlån`:'Legg inn egenkapital for å se avkastningen';
     details=[...details,['Lån ved kjøp',fmtNok(loan)],['Kjøpskostnader',fmtNok(buyCosts)],['Salgskostnader',fmtNok(saleCosts)],['Løpende kostnader og terminbeløp',fmtNok(ownerCosts)],['Restlån ved salg',fmtNok(balance)],['Netto resultat på egenkapital',fmtNok(profit)]];
   }
   $('profitLabel').textContent=mode==='simple'?'Verdiøkning':'Netto resultat på egenkapital';
@@ -85,18 +89,47 @@ function calculateLoan() {
   const income = val('annualIncome'), otherDebt = val('otherDebt'), budget = val('housingBudget');
   const rate = val('loanCalcRate'), years = val('loanCalcYears');
   const stressedRate = rate + ($('stressTest').checked ? 3 : 0);
-  const debtLimit = Math.max(0, income * 5 - otherDebt);
-  const loanAtCost = (cost) => Math.max(0, Math.min(debtLimit, loanFromPayment(Math.max(0, budget - cost), stressedRate, years)));
-  const cost = val('commonCost'), currentLoan = loanAtCost(cost);
-  const lowLoan = loanAtCost(2000), highLoan = loanAtCost(8000);
-  $('maxLoan').textContent = fmtNok(currentLoan);
-  $('purchasePower').textContent = fmtNok(currentLoan + val('loanEquity'));
-  $('calcPayment').textContent = fmtNok(annuityPayment(currentLoan, rate, years));
-  $('loanLimitText').textContent = currentLoan < debtLimit - 1000 ? 'Månedsbudsjettet og felleskostnadene setter grensen.' : 'Samlet gjeldsgrad setter grensen i dette estimatet.';
-  $('lowCostLoan').textContent = fmtNok(lowLoan); $('currentCostLoan').textContent = fmtNok(currentLoan); $('highCostLoan').textContent = fmtNok(highLoan);
-  $('currentCostLabel').textContent = `${fmtNumber(cost)} kr / md.`; $('commonCostOutput').textContent = `${fmtNumber(cost)} kr`;
-  const difference = Math.max(0, lowLoan - highLoan);
-  $('loanInsight').querySelector('p').innerHTML = difference > 0 ? `Med <strong>2 000 kr</strong> i stedet for <strong>8 000 kr</strong> i felleskostnader kan lånerommet øke med omtrent <strong>${fmtNok(difference)}</strong>.` : 'Inntektsgrensen er nå avgjørende, så lavere felleskostnader øker ikke lånerammen i dette estimatet – men gir bedre månedlig margin.';
+  const sharedDebt = val('sharedDebt'), sharedMonthly = val('sharedDebtMonthly'), commonCost = val('commonCost');
+  const fixedExpenses = val('fixedExpenses'), childAllowance = val('children') * 3500;
+  const purchaseCosts = val('purchaseCosts'), equity = val('loanEquity');
+  const debtLimit = Math.max(0, income * 5 - otherDebt - sharedDebt);
+  const availableForPrivateLoan = Math.max(0, budget - sharedMonthly - commonCost - fixedExpenses - childAllowance);
+  const paymentLimit = loanFromPayment(availableForPrivateLoan, stressedRate, years);
+  const maxLoan = Math.max(0, Math.min(debtLimit, paymentLimit));
+  const askingPrice = val('askingPrice'), totalPrice = askingPrice + sharedDebt;
+  const requiredPrivateLoan = Math.max(0, askingPrice + purchaseCosts - equity);
+  const requiredEquity = totalPrice * val('equityRequirement') / 100 + purchaseCosts;
+  const stressedPrivatePayment = annuityPayment(requiredPrivateLoan, stressedRate, years);
+  const actualPrivatePayment = annuityPayment(requiredPrivateLoan, rate, years);
+  const allMonthly = actualPrivatePayment + sharedMonthly + commonCost;
+  const stressedMargin = budget - fixedExpenses - childAllowance - sharedMonthly - commonCost - stressedPrivatePayment;
+  const debtOk = requiredPrivateLoan <= debtLimit + 1;
+  const paymentOk = requiredPrivateLoan <= paymentLimit + 1;
+  const equityOk = equity >= requiredEquity;
+  const caseOk = debtOk && paymentOk && equityOk;
+  const maxTotalPrice = maxLoan + equity + sharedDebt - purchaseCosts;
+
+  $('maxLoan').textContent = fmtNok(maxLoan);
+  $('purchasePower').textContent = fmtNok(Math.max(0, maxTotalPrice));
+  $('calcPayment').textContent = `${fmtNok(annuityPayment(maxLoan, rate, years))} / md.`;
+  $('stressRate').textContent = fmtPct(stressedRate);
+  const limits = [{name:'Samlet gjeldsgrad',value:debtLimit},{name:'Månedsbudsjettet',value:paymentLimit}].sort((a,b)=>a.value-b.value);
+  $('loanLimitText').textContent = `${limits[0].name} setter grensen. Fellesgjelden er regnet som gjeld.`;
+  $('caseTotalPrice').textContent = fmtNok(totalPrice);
+  $('caseMonthlyCost').textContent = `${fmtNok(allMonthly)} / md.`;
+  $('caseMargin').textContent = `${stressedMargin >= 0 ? '+' : '−'}${fmtNok(Math.abs(stressedMargin))}`;
+  $('caseMargin').classList.toggle('negative', stressedMargin < 0);
+  const verdict = $('caseVerdict');
+  verdict.classList.toggle('not-ok', !caseOk);
+  verdict.querySelector('span').textContent = caseOk ? '✓' : '!';
+  verdict.querySelector('strong').textContent = caseOk ? 'Boligen er innenfor estimert låneramme' : 'Boligen er utenfor estimert låneramme';
+  const reasons=[];
+  if(!debtOk) reasons.push(`gjeldsrammen mangler ${fmtNok(requiredPrivateLoan-debtLimit)}`);
+  if(!paymentOk) reasons.push(`betjeningsevnen mangler ${fmtNok(Math.abs(stressedMargin))} per måned`);
+  if(!equityOk) reasons.push(`egenkapitalen mangler ${fmtNok(requiredEquity-equity)}`);
+  verdict.querySelector('p').textContent = caseOk ? `Beregnet privat lån er ${fmtNok(requiredPrivateLoan)}. Du har ${fmtNok(stressedMargin)} i månedlig margin etter stresstesten.` : `Årsak: ${reasons.join(', ')}.`;
+  const debtImpact = Math.min(sharedDebt, Math.max(0, income * 5 - otherDebt));
+  $('loanInsight').querySelector('p').innerHTML = `Fellesgjelden på <strong>${fmtNok(sharedDebt)}</strong> reduserer gjeldsrammen med opptil <strong>${fmtNok(debtImpact)}</strong>. I tillegg bruker renter og avdrag <strong>${fmtNok(sharedMonthly)}</strong> av månedsbudsjettet, mens <strong>${fmtNok(commonCost)}</strong> er ren drift.`;
 }
 function setView(view) {
   $('returnView').hidden = view !== 'return'; $('loanView').hidden = view !== 'loan';
@@ -104,7 +137,7 @@ function setView(view) {
   if (view === 'loan') calculateLoan();
 }
 document.querySelectorAll('.app-tab').forEach((button) => button.addEventListener('click', () => setView(button.dataset.view)));
-['annualIncome','otherDebt','housingBudget','loanEquity','loanCalcRate','loanCalcYears','commonCost','stressTest'].forEach((id) => $(id).addEventListener('input', calculateLoan));
+['annualIncome','otherDebt','housingBudget','loanEquity','loanCalcRate','loanCalcYears','commonCost','stressTest','children','fixedExpenses','purchaseCosts','equityRequirement','askingPrice','sharedDebt','sharedDebtMonthly'].forEach((id) => $(id).addEventListener('input', calculateLoan));
 $('loanCalcRate').addEventListener('input', () => { $('loanCalcRateOutput').textContent = `${val('loanCalcRate').toLocaleString('nb-NO')} %`; });
 $('loanCalcYears').addEventListener('input', () => { $('loanCalcYearsOutput').textContent = `${val('loanCalcYears')} år`; });
 calculateLoan();

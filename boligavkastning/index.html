@@ -102,6 +102,7 @@
         <article class="metric"><span>Forventet salgspris</span><strong id="resultSalePrice">–</strong><small id="saleDifference">–</small></article>
         <article class="metric advanced-result" hidden><span>Igjen etter salg og lån</span><strong id="equityFromSale">–</strong><small id="loanBalance">–</small></article>
         <article class="metric advanced-result" hidden><span>Samlede kostnader</span><strong id="totalCosts">–</strong><small id="monthlyPayment">–</small></article>
+        <article class="metric equity-metric advanced-result" hidden><span>Avkastning på egenkapital</span><strong id="equityReturn">–</strong><small id="equityReturnNote">Kun egenkapitalen du satte inn</small></article>
       </div>
     </section>
 
@@ -123,8 +124,8 @@
           <div class="loan-grid">
             <label>Brutto årsinntekt<div class="input-suffix"><input type="number" id="annualIncome" value="1000000" min="0" step="10000"><span>kr</span></div></label>
             <label>Annen gjeld<div class="input-suffix"><input type="number" id="otherDebt" value="350000" min="0" step="10000"><span>kr</span></div></label>
-            <label>Til bolig per måned <button class="info-dot" type="button" title="Beløpet du kan bruke på renter, avdrag og felleskostnader." aria-label="Forklaring av boligbudsjett">?</button><div class="input-suffix"><input type="number" id="housingBudget" value="32000" min="0" step="500"><span>kr</span></div></label>
             <label>Egenkapital<div class="input-suffix"><input type="number" id="loanEquity" value="850000" min="0" step="10000"><span>kr</span></div></label>
+            <label>Til bolig per måned <button class="info-dot" type="button" title="Det du har igjen til renter, avdrag, fellesgjeld og felleskostnader." aria-label="Forklaring av boligbudsjett">?</button><div class="input-suffix"><input type="number" id="housingBudget" value="32000" min="0" step="500"><span>kr</span></div></label>
           </div>
           <div class="section-rule"></div>
           <div class="section-heading compact"><div><span class="step">2</span><h2>Lånet</h2></div></div>
@@ -133,17 +134,29 @@
             <div class="slider-field"><label for="loanCalcYears">Nedbetalingstid <output id="loanCalcYearsOutput">25 år</output></label><input type="range" id="loanCalcYears" value="25" min="10" max="30" step="1"></div>
           </div>
           <div class="stress-toggle"><div><strong>Robust beregning</strong><small>Tester om lånet tåler 3 prosentpoeng høyere rente</small></div><label class="switch"><input type="checkbox" id="stressTest" checked><span></span></label></div>
+          <details class="optional-inputs">
+            <summary>Legg til flere detaljer <span>Gir et mer banknært estimat</span></summary>
+            <div class="loan-grid optional-grid">
+              <label>Antall barn<div class="input-suffix"><input type="number" id="children" value="0" min="0" max="10" step="1"><span>stk.</span></div></label>
+              <label>Andre faste utgifter per måned<div class="input-suffix"><input type="number" id="fixedExpenses" value="0" min="0" step="500"><span>kr</span></div></label>
+              <label>Dokumentavgift og kjøpskostnader<div class="input-suffix"><input type="number" id="purchaseCosts" value="0" min="0" step="5000"><span>kr</span></div></label>
+              <label>Krav til egenkapital<div class="input-suffix"><input type="number" id="equityRequirement" value="10" min="0" max="100" step="1"><span>%</span></div></label>
+            </div>
+            <p class="field-help">Vi trekker et forsiktig standardbeløp på 3 500 kr per barn fra månedsbudsjettet. Juster andre faste utgifter med dine egne tall.</p>
+          </details>
         </div>
-        <aside class="loan-summary" aria-live="polite"><span class="result-label">Anslått makslån</span><strong id="maxLoan">–</strong><p id="loanLimitText">–</p><div class="summary-rule"></div><div class="summary-stat"><span>Omtrentlig kjøpsramme</span><b id="purchasePower">–</b></div><div class="summary-stat"><span>Terminbeløp per måned</span><b id="calcPayment">–</b></div><small class="summary-note">Et nøkternt estimat, ikke et lånetilbud.</small></aside>
+        <aside class="loan-summary" aria-live="polite"><span class="result-label">Anslått makslån</span><strong id="maxLoan">–</strong><p id="loanLimitText">–</p><div class="summary-rule"></div><div class="summary-stat"><span>Maks totalpris inkl. fellesgjeld</span><b id="purchasePower">–</b></div><div class="summary-stat"><span>Terminbeløp ved oppgitt rente</span><b id="calcPayment">–</b></div><div class="summary-stat"><span>Rente brukt i stresstest</span><b id="stressRate">–</b></div><small class="summary-note">Et nøkternt estimat, ikke et lånetilbud. Banken vurderer også forbruk og sikkerhet individuelt.</small></aside>
       </section>
       <section class="card scenario-card">
-        <div class="section-heading"><div><span class="step">3</span><h2>Sammenlign felleskostnader</h2></div><p>Se utslaget direkte på mulig låneramme.</p></div>
-        <div class="scenario-controls"><div class="slider-field cost-control"><label for="commonCost">Felleskostnader i boligen du vurderer <output id="commonCostOutput">4 500 kr</output></label><input type="range" id="commonCost" value="4500" min="0" max="12000" step="250"><div class="range-labels"><span>0 kr</span><span>12 000 kr</span></div></div></div>
-        <div class="scenario-grid">
-          <article class="scenario low"><span class="scenario-tag">Lavt nivå</span><h3>2 000 kr / md.</h3><strong id="lowCostLoan">–</strong><small>mulig lån</small></article>
-          <article class="scenario current"><span class="scenario-tag">Ditt valg</span><h3 id="currentCostLabel">4 500 kr / md.</h3><strong id="currentCostLoan">–</strong><small>mulig lån</small></article>
-          <article class="scenario high"><span class="scenario-tag">Høyt nivå</span><h3>8 000 kr / md.</h3><strong id="highCostLoan">–</strong><small>mulig lån</small></article>
+        <div class="section-heading"><div><span class="step">3</span><h2>Boligen du vurderer</h2></div><p>Fellesgjeld og drift holdes adskilt.</p></div>
+        <div class="case-grid">
+          <label>Prisantydning<div class="input-suffix"><input type="number" id="askingPrice" value="4200000" min="0" step="50000"><span>kr</span></div></label>
+          <label>Andel fellesgjeld<div class="input-suffix"><input type="number" id="sharedDebt" value="600000" min="0" step="10000"><span>kr</span></div></label>
+          <label>Fellesgjeld per måned <button class="info-dot" type="button" title="Renter og avdrag på fellesgjelden." aria-label="Forklaring av kostnad for fellesgjeld">?</button><div class="input-suffix"><input type="number" id="sharedDebtMonthly" value="3900" min="0" step="100"><span>kr</span></div></label>
+          <label>Faktiske felleskostnader per måned <button class="info-dot" type="button" title="Drift som forsikring, vedlikehold, kommunale avgifter og tjenester – uten renter og avdrag på fellesgjeld." aria-label="Forklaring av faktiske felleskostnader">?</button><div class="input-suffix"><input type="number" id="commonCost" value="3100" min="0" step="100"><span>kr</span></div></label>
         </div>
+        <div class="case-result" id="caseResult"><div><span>Totalpris</span><strong id="caseTotalPrice">–</strong><small>Prisantydning + fellesgjeld</small></div><div><span>Samlet boligkostnad</span><strong id="caseMonthlyCost">–</strong><small>Privat lån + fellesgjeld + drift</small></div><div><span>Månedsmargin i stresstest</span><strong id="caseMargin">–</strong><small>Mot ditt oppgitte boligbudsjett</small></div></div>
+        <div class="case-verdict" id="caseVerdict"><span aria-hidden="true">✓</span><div><strong>–</strong><p>–</p></div></div>
         <div class="insight" id="loanInsight"><span aria-hidden="true">✦</span><p>–</p></div>
       </section>
       <p class="disclaimer">Banken gjør en individuell vurdering. Estimatet forenkler krav til gjeldsgrad, betjeningsevne og egenkapital, og tar ikke med alle levekostnader.</p>

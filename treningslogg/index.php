@@ -9,8 +9,6 @@ $user_name = $user['navn'] ?? 'Bruker';
 
 $flash = '';
 $flash_type = 'success';
-$debug_details = [];
-$debug_mode = false;
 
 if (isset($_GET['success'])) {
     if ($_GET['success'] === 'measurement') {
@@ -21,19 +19,18 @@ if (isset($_GET['success'])) {
     }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ai_debug'])) {
-    $debug_mode = true;
-    $debug_result = test_openai_connection();
-    $flash = $debug_result['message'];
-    $flash_type = $debug_result['ok'] ? 'success' : 'error';
-    $debug_details = $debug_result['details'] ?? [];
-}
-
 $measurements = fetch_measurements($conn, (int) $_SESSION['user_id']);
 $total_entries = fetch_user_entry_count($conn, (int) $_SESSION['user_id']);
 $current_streak = fetch_user_entry_streak($conn, (int) $_SESSION['user_id']);
-$trend_analysis = get_recent_trend_analysis($conn, (int) $_SESSION['user_id'], 10, 86400, $debug_mode);
-$trend_debug = $trend_analysis['debug'] ?? null;
+$trend_analysis = get_recent_trend_analysis($conn, (int) $_SESSION['user_id']);
+$chart_series = [];
+foreach ($measurements as $chart_measurement) {
+    $chart_series[] = [
+        'id' => (int) $chart_measurement['id'],
+        'name' => $chart_measurement['name'],
+        'entries' => fetch_entries($conn, (int) $chart_measurement['id'], 500),
+    ];
+}
 $milestones = [10, 30, 50];
 $next_milestone = null;
 foreach ($milestones as $milestone) {
@@ -100,10 +97,6 @@ foreach ($measurements as $measurement) {
       </div>
       <div class="topbar-actions">
         <span class="user-pill">Hei, <?php echo htmlspecialchars($user_name, ENT_QUOTES, 'UTF-8'); ?></span>
-        <form method="post">
-          <input type="hidden" name="ai_debug" value="1" />
-          <button class="ghost" type="submit">AI-debug</button>
-        </form>
         <a class="ghost" href="logout.php">Logg ut</a>
       </div>
     </header>
@@ -111,13 +104,7 @@ foreach ($measurements as $measurement) {
     <?php if ($flash): ?>
       <div class="alert <?php echo htmlspecialchars($flash_type, ENT_QUOTES, 'UTF-8'); ?>">
         <?php echo htmlspecialchars($flash, ENT_QUOTES, 'UTF-8'); ?>
-        <?php if ($debug_details): ?>
-          <ul class="alert-details">
-            <?php foreach ($debug_details as $detail): ?>
-              <li><?php echo htmlspecialchars((string) $detail, ENT_QUOTES, 'UTF-8'); ?></li>
-            <?php endforeach; ?>
-          </ul>
-        <?php endif; ?>
+
       </div>
     <?php endif; ?>
 
@@ -141,6 +128,28 @@ foreach ($measurements as $measurement) {
         <?php endif; ?>
         <div class="pill neutral">Maks én registrering per dag per måling</div>
       </div>
+    </section>
+
+    <section class="progress-overview" aria-labelledby="progressTitle">
+      <div class="section-title">
+        <div><p class="eyebrow">Utvikling</p><h2 id="progressTitle">Se fremgangen din</h2></div>
+        <p class="subtle">Velg måling og periode for en tydeligere graf.</p>
+      </div>
+      <?php if ($chart_series): ?>
+        <div class="metric-tabs" role="group" aria-label="Velg måling">
+          <?php foreach ($chart_series as $index => $series): ?>
+            <button type="button" class="metric-tab <?php echo $index === 0 ? 'active' : ''; ?>" data-series="<?php echo (int) $series['id']; ?>"><?php echo htmlspecialchars($series['name'], ENT_QUOTES, 'UTF-8'); ?></button>
+          <?php endforeach; ?>
+        </div>
+        <div class="overview-chart-wrap">
+          <div class="chart-summary"><strong id="chartLatest">–</strong><span id="chartChange">Velg en periode</span></div>
+          <svg id="progressChart" viewBox="0 0 640 260" role="img" aria-label="Utvikling over tid"><g class="overview-grid"></g><path class="overview-area"></path><path class="overview-line"></path><g class="overview-points"></g><text class="chart-empty" x="320" y="135" text-anchor="middle">Ingen data i perioden</text></svg>
+        </div>
+        <div class="period-tabs" role="group" aria-label="Velg tidsperiode">
+          <button type="button" data-days="30">30 dager</button><button type="button" class="active" data-days="90">3 mnd</button><button type="button" data-days="365">1 år</button><button type="button" data-days="0">Alt</button>
+        </div>
+        <script type="application/json" id="chartData"><?php echo json_encode($chart_series, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?></script>
+      <?php else: ?><div class="empty-card">Opprett en måling for å se utviklingen din.</div><?php endif; ?>
     </section>
 
     <section class="measurements">
@@ -238,28 +247,6 @@ foreach ($measurements as $measurement) {
           <article class="trend-card">
             <p class="label">Samlet trend</p>
             <p class="trend-summary"><?php echo htmlspecialchars($trend_analysis['summary'], ENT_QUOTES, 'UTF-8'); ?></p>
-            <?php if ($trend_debug): ?>
-              <details class="ai-debug">
-                <summary>AI-debug detaljer</summary>
-                <div class="ai-debug-grid">
-                  <ul class="ai-debug-meta">
-                    <li>Endepunkt: <?php echo htmlspecialchars((string) ($trend_debug['endpoint'] ?? 'ukjent'), ENT_QUOTES, 'UTF-8'); ?></li>
-                    <li>HTTP-status: <?php echo htmlspecialchars((string) ($trend_debug['http_status'] ?? 'ukjent'), ENT_QUOTES, 'UTF-8'); ?></li>
-                    <?php if (!empty($trend_debug['curl_error'])): ?>
-                      <li>cURL-feil: <?php echo htmlspecialchars((string) $trend_debug['curl_error'], ENT_QUOTES, 'UTF-8'); ?></li>
-                    <?php endif; ?>
-                  </ul>
-                  <div>
-                    <p class="label">Request</p>
-                    <pre><?php echo htmlspecialchars(json_encode($trend_debug['request_payload'] ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8'); ?></pre>
-                  </div>
-                  <div>
-                    <p class="label">Response</p>
-                    <pre><?php echo htmlspecialchars((string) ($trend_debug['response_body'] ?? 'Ingen respons'), ENT_QUOTES, 'UTF-8'); ?></pre>
-                  </div>
-                </div>
-              </details>
-            <?php endif; ?>
           </article>
         <?php endif; ?>
       </div>
@@ -336,5 +323,6 @@ foreach ($measurements as $measurement) {
       </div>
     </section>
   </div>
+<script src="app.js"></script>
 </body>
 </html>

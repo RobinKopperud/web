@@ -98,27 +98,21 @@ if (!empty($orders)) {
 
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="no">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manual Crypto Order Tracker</title>
+    <title>Kryptooversikt</title>
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 <div class="container">
-    <section class="debug-panel" aria-live="polite">
-        <div class="debug-title">API debug</div>
-        <ul class="debug-list" id="apiDebugList">
-            <li><span class="debug-label">Live-priser:</span> <code>Ingen spørring utført ennå.</code></li>
-        </ul>
-    </section>
     <header>
-        <h1>Manual Crypto Order Tracker</h1>
-        <p class="subtitle">Separate lines for each BUY, easy partial closes, clear profit per order.</p>
+        <h1>Kryptooversikt</h1>
+        <p class="subtitle">Porteføljen din, live og samlet på ett sted.</p>
         <div class="user-meta">
-            <span>Signed in as <strong><?php echo h($currentUser['navn'] ?? $currentUser['epost'] ?? 'User'); ?></strong></span>
-            <a class="link" href="logout.php">Log out</a>
+            <span>Innlogget som <strong><?php echo h($currentUser['navn'] ?? $currentUser['epost'] ?? 'User'); ?></strong></span>
+            <a class="link" href="logout.php">Logg ut</a>
         </div>
     </header>
 
@@ -141,42 +135,42 @@ if (!empty($orders)) {
         </div>
         <div class="summary-grid" id="portfolioSummary">
             <div class="stat">
-                <p class="eyebrow">Total invested</p>
+                <p class="eyebrow">Investert</p>
                 <p class="mono" id="totalInvestedNok">-</p>
             </div>
             <div class="stat">
-                <p class="eyebrow">Realized P/L</p>
+                <p class="eyebrow">Realisert resultat</p>
                 <p class="mono" id="realizedNok">-</p>
             </div>
             <div class="stat">
-                <p class="eyebrow">Unrealized P/L</p>
+                <p class="eyebrow">Urealisert resultat</p>
                 <p class="mono" id="unrealizedNok">-</p>
             </div>
             <div class="stat">
-                <p class="eyebrow">Lifetime ROI</p>
+                <p class="eyebrow">Avkastning totalt</p>
                 <p class="mono" id="lifetimeRoi">-</p>
             </div>
         </div>
     </section>
 
     <section class="card view-section is-hidden" id="addOrderSection">
-        <h2>Add a new BUY order</h2>
+        <h2>Legg til kjøp</h2>
         <form method="POST" action="actions.php" class="form-grid">
             <input type="hidden" name="action" value="create_order">
             <div class="form-control">
-                <label for="asset">Asset</label>
+                <label for="asset">Valuta</label>
                 <input type="text" name="asset" id="asset" value="<?php echo $assetFilter ? h($assetFilter) : 'BTC'; ?>" required>
             </div>
             <div class="form-control">
-                <label for="quantity">Quantity</label>
+                <label for="quantity">Antall</label>
                 <input type="number" step="0.00000001" min="0" name="quantity" id="quantity" required>
             </div>
             <div class="form-control">
-                <label for="entry_price">Entry price per unit</label>
+                <label for="entry_price">Kjøpspris per enhet</label>
                 <input type="number" step="0.0001" min="0" name="entry_price" id="entry_price" required>
             </div>
             <div class="form-control">
-                <label for="currency">Price currency</label>
+                <label for="currency">Prisvaluta</label>
                 <select name="currency" id="currency" required>
                     <option value="USD">USD</option>
                     <option value="EUR">EUR</option>
@@ -185,16 +179,16 @@ if (!empty($orders)) {
                 <p class="hint">Brukes for entry price og alle closes. Kun USD, EUR og USDC er tillatt.</p>
             </div>
             <div class="form-control">
-                <label for="total_cost">Total cost (optional)</label>
+                <label for="total_cost">Totalbeløp (valgfritt)</label>
                 <input type="number" step="0.0001" min="0" name="total_cost" id="total_cost" placeholder="Auto-calculated">
                 <p class="hint">Fill any two of quantity, entry price, and total to auto-calculate the third.</p>
             </div>
             <div class="form-control">
-                <label for="fee">Fee (optional)</label>
+                <label for="fee">Gebyr (valgfritt)</label>
                 <input type="number" step="0.00000001" min="0" name="fee" id="fee" placeholder="0">
             </div>
             <div class="form-actions">
-                <button type="submit" class="btn primary">Add order</button>
+                <button type="submit" class="btn primary">Lagre kjøp</button>
             </div>
         </form>
     </section>
@@ -226,11 +220,11 @@ if (!empty($orders)) {
     <section class="card view-section is-hidden" id="ordersSection">
         <div class="price-row">
             <div>
-                <h2>Orders with live prices</h2>
+                <h2>Posisjoner</h2>
                 <p class="hint">Live-priser hentes fra Binance med symboler i formatet ASSETCURRENCY.</p>
             </div>
             <div class="price-actions">
-                <button type="button" class="btn" id="refreshPrices">Refresh now</button>
+                <button type="button" class="btn" id="refreshPrices">Oppdater</button>
                 <div class="live-pill" id="livePulse">Live</div>
             </div>
         </div>
@@ -280,12 +274,12 @@ if (!empty($orders)) {
                                 <p class="mono"><?php echo formatDisplay($totalCost); ?> <?php echo h(strtoupper($order['currency'] ?? 'USD')); ?></p>
                             </div>
                             <div class="order-stat">
-                                <p class="eyebrow">Unrealized P/L</p>
+                                <p class="eyebrow">Urealisert resultat</p>
                                 <p class="mono profit unrealized">-</p>
                             </div>
                         </div>
                         <div class="order-card__actions">
-                            <a class="btn ghost" href="order_detail.php?id=<?php echo (int)$order['id']; ?>">Details</a>
+                            <a class="btn ghost" href="order_detail.php?id=<?php echo (int)$order['id']; ?>">Detaljer</a>
                             <?php if (!$isClosed): ?>
                                 <button class="btn ghost preview-toggle" type="button" aria-expanded="false">
                                     Forhåndsvis salg

@@ -76,3 +76,12 @@ textarea { resize: vertical; }
     .shell { width: min(100% - 20px, 1180px); padding: 20px 0; }
     .card { padding: 18px; border-radius: 18px; }
 }
+
+/* Forenklet, mobilførst formuesoversikt */
+body { background: linear-gradient(180deg,#eef5ff 0,#f7f8fb 420px); }
+.shell { padding:20px 16px 64px; }
+.hero { gap:18px; }.hero h1{font-size:clamp(34px,10vw,52px);letter-spacing:-.045em}.hero>div>p:last-child{max-width:520px;line-height:1.6}
+.wealth-card { color:#fff; background:linear-gradient(135deg,#172554,#2563eb); border-radius:26px; padding:24px; box-shadow:0 22px 50px rgba(37,99,235,.25); margin:8px 0 20px; }
+.wealth-card .eyebrow{color:#bfdbfe}.wealth-card>strong{display:block;font-size:clamp(38px,11vw,62px);letter-spacing:-.05em;margin:8px 0 24px}.wealth-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:10px}.wealth-breakdown span{background:rgba(255,255,255,.12);padding:13px;border-radius:15px;font-weight:750}.wealth-breakdown small{display:block;color:#dbeafe;margin-bottom:4px;font-weight:500}
+.content-grid { grid-template-columns:1fr; }.card{border-radius:22px}.asset-form{gap:16px}.asset-form input,.asset-form select{min-height:50px;border-radius:13px}.asset-form .primary{width:100%;min-height:50px}.asset-row{border-radius:17px}.value-box .debt{color:#b42318}
+@media(min-width:800px){.shell{padding:40px 24px 72px}.content-grid{grid-template-columns:minmax(300px,.75fr) minmax(0,1.25fr)}.asset-form .primary{width:auto}}

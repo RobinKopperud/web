@@ -545,3 +545,18 @@ tr:hover { background: rgba(255, 255, 255, 0.02); }
     td.actions { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; gap: 8px; }
     .cell-stack { flex-direction: column; align-items: flex-start; }
 }
+
+/* Mobile-first refresh */
+body { background: radial-gradient(circle at top, #172554 0, var(--bg) 420px); }
+.container { padding: 20px 16px 96px; }
+.container > header { padding: 12px 4px 18px; }
+.container > header h1 { font-size: clamp(30px, 9vw, 46px); letter-spacing: -.04em; }
+.card { border-radius: 20px; padding: 18px; box-shadow: 0 16px 45px rgba(0,0,0,.18); }
+.top-nav { position: fixed; inset: auto 12px 12px; display: grid; grid-template-columns: repeat(5,1fr); gap: 4px; padding: 6px; margin: 0; border-radius: 18px; backdrop-filter: blur(16px); background: rgba(17,24,39,.92); }
+.top-nav .btn { padding: 10px 4px; border: 0; background: transparent; font-size: 11px; }
+.top-nav .nav-btn.is-active { border-radius: 13px; }
+.summary-grid { width: 100%; grid-template-columns: repeat(2,1fr); }
+.stat { min-width: 0; border-radius: 16px; }
+.stat .mono { overflow-wrap: anywhere; }
+.order-card { border-radius: 18px; padding: 18px; }
+@media (min-width: 760px) { .container { padding: 32px 24px 60px; } .top-nav { position: sticky; inset: auto; display:flex; margin-bottom:18px; } .top-nav .btn { padding:10px 14px; font-size:14px; } }

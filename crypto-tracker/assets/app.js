@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterForm = document.querySelector('.filters form');
     const assetFilterSelect = document.getElementById('filter_asset');
     const statusFilterRadios = document.querySelectorAll('input[name="status"]');
-    const apiDebugList = document.getElementById('apiDebugList');
     const topNavButtons = document.querySelectorAll('.nav-btn');
     const viewSections = document.querySelectorAll('.view-section');
     const ordersTable = document.getElementById('ordersTable');
@@ -27,35 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let livePrices = {};
     let symbolPrices = {};
     let fxRates = {};
-
-    const apiDebugMessages = {
-        prices: 'Ingen spørring utført ennå.',
-        resolution: 'Ingen oppdatering ennå.',
-    };
-
-    const apiDebugLabels = {
-        prices: 'Live-priser',
-        resolution: 'Pris-resolusjon',
-    };
-
-    function renderApiDebug() {
-        if (!apiDebugList) return;
-        apiDebugList.innerHTML = '';
-
-        Object.entries(apiDebugMessages).forEach(([type, message]) => {
-            const item = document.createElement('li');
-            const label = apiDebugLabels[type] || type;
-            item.innerHTML = `<span class="debug-label">${label}:</span> <code>${message}</code>`;
-            apiDebugList.appendChild(item);
-        });
-    }
-
-    function setApiDebugMessage(type, message) {
-        apiDebugMessages[type] = `${new Date().toLocaleTimeString()} – ${message}`;
-        renderApiDebug();
-    }
-
-    renderApiDebug();
 
     function formatNumber(value) {
         return Number.parseFloat(value).toFixed(8);
@@ -319,7 +289,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateOrderCards(priceMap = livePrices) {
         const cards = document.querySelectorAll('.order-card');
-        const resolutionLogs = [];
 
         cards.forEach(card => {
             if (card.classList.contains('is-hidden')) return;
@@ -336,18 +305,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentPrice = Number.isFinite(feedPrice) ? feedPrice : null;
             const displayCurrency = (feedCurrency || currency || '').toUpperCase();
 
-            if (!Number.isFinite(currentPrice)) {
-                resolutionLogs.push(`${assetSymbol}/${currency}: ingen pris (${resolutionSource})`);
-                console.debug('[live-price] Ingen pris tilgjengelig', {
-                    assetSymbol,
-                    requestedCurrency: currency,
-                    resolutionSource,
-                    priceMapSnapshot: priceMap?.[assetSymbol],
-                    symbolMapHit: symbolPrices?.[`${assetSymbol}${currency}`],
-                });
-            } else {
-                resolutionLogs.push(`${assetSymbol}/${displayCurrency}: ${formatNumber(currentPrice)} (${resolutionSource})`);
-            }
 
             if (liveEl) {
                 liveEl.textContent = Number.isFinite(currentPrice) ? formatWithCurrency(currentPrice, displayCurrency) : '-';
@@ -388,9 +345,6 @@ document.addEventListener('DOMContentLoaded', () => {
             .sort((a, b) => Number.parseFloat(b.dataset.returnPercent || '-Infinity') - Number.parseFloat(a.dataset.returnPercent || '-Infinity'))
             .forEach(card => ordersTable?.appendChild(card));
 
-        if (resolutionLogs.length) {
-            setApiDebugMessage('resolution', resolutionLogs.join(' · '));
-        }
 
         updatePortfolioSummary(priceMap);
         updateAssetAverages();
@@ -450,7 +404,6 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const queryString = params.toString();
             const path = queryString ? `prices.php?${queryString}` : 'prices.php';
-            setApiDebugMessage('prices', `GET ${path}`);
             const response = await fetch(path);
             if (!response.ok) {
                 throw new Error(`Feed error (${response.status})`);
@@ -459,11 +412,6 @@ document.addEventListener('DOMContentLoaded', () => {
             livePrices = data.prices || {};
             symbolPrices = data.symbol_prices || {};
             fxRates = data.fx_rates || {};
-            const binanceRequests = (data.binance_requests || []).map(url => `GET ${url}`);
-            const fxRequests = (data.fx_requests || []).map(url => url ? `GET ${url}` : 'Derived USDC=USD');
-            const binanceDisplay = binanceRequests.length ? binanceRequests.join(' · ') : 'Ingen Binance-spørringer registrert.';
-            const fxDisplay = fxRequests.length ? fxRequests.join(' · ') : 'Ingen FX-spørringer registrert.';
-            setApiDebugMessage('prices', `GET ${path} | Binance: ${binanceDisplay} | FX: ${fxDisplay}`);
             updateOrderCards(livePrices);
         } catch (error) {
             console.error(error);

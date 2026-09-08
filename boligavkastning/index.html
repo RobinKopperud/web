@@ -12,6 +12,23 @@
       <button type="button" class="app-tab active" data-view="return" aria-pressed="true"><span class="tab-icon" aria-hidden="true">↗</span><span><strong>Boligavkastning</strong><small>Hva boligen har gitt deg</small></span></button>
       <button type="button" class="app-tab" data-view="loan" aria-pressed="false"><span class="tab-icon" aria-hidden="true">⌂</span><span><strong>Lånekalkulator</strong><small>Hva felleskostnadene betyr</small></span></button>
     </nav>
+    <section class="scenario-toolbar card" aria-label="Scenarioverktøy">
+      <div class="scenario-presets">
+        <span>Hurtigscenario</span>
+        <button type="button" data-preset="cautious">Forsiktig</button>
+        <button type="button" data-preset="balanced">Balansert</button>
+        <button type="button" data-preset="optimistic">Optimistisk</button>
+      </div>
+      <div class="scenario-actions">
+        <label class="scenario-name"><span>Navn</span><input type="text" id="scenarioName" maxlength="40" placeholder="F.eks. leilighet sentrum"></label>
+        <button type="button" class="action-button primary-action" id="saveScenario">Lagre</button>
+        <label class="saved-scenarios"><span>Lagrede</span><select id="savedScenarios"><option value="">Velg scenario</option></select></label>
+        <button type="button" class="action-button" id="deleteScenario" disabled>Slett</button>
+        <button type="button" class="action-button" id="copySummary">Kopier sammendrag</button>
+        <button type="button" class="action-button" id="resetCalculator">Nullstill</button>
+      </div>
+      <p id="scenarioStatus" class="scenario-status" aria-live="polite"></p>
+    </section>
     <div id="returnView" class="app-view">
     <header class="hero">
       <div>
@@ -97,6 +114,7 @@
         <div class="result-divider"></div>
         <div class="result-row"><span>Gjennomsnitt per år</span><strong id="annualReturn">–</strong></div>
         <div class="result-row"><span>Eiertid</span><strong id="holdingPeriod">–</strong></div>
+        <p class="return-insight" id="returnInsight">Legg inn tallene dine for å se en kort vurdering.</p>
       </article>
       <div class="result-side">
         <article class="metric"><span>Forventet salgspris</span><strong id="resultSalePrice">–</strong><small id="saleDifference">–</small></article>

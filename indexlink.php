@@ -1,119 +1,33 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="no">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#152d24">
   <title>Mine sider</title>
   <style>
-    body {
-      margin: 0;
-      font-family: "Inter", Arial, sans-serif;
-      background: radial-gradient(circle at 20% 20%, #f3f4f6, #e5e7eb);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 32px 16px;
-    }
-    .container {
-      background: #fff;
-      border-radius: 20px;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.12);
-      max-width: 960px;
-      width: 100%;
-      padding: 32px;
-      display: grid;
-      gap: 16px;
-    }
-    h1 {
-      margin: 0;
-      font-size: 28px;
-      color: #0f172a;
-    }
-    p.lead {
-      margin: 6px 0 0;
-      color: #475569;
-    }
-    .grid {
-      display: grid;
-      gap: 16px;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    }
-    .card {
-      position: relative;
-      border: 1px solid #e2e8f0;
-      border-radius: 16px;
-      padding: 20px;
-      background: linear-gradient(135deg, #f8fafc, #ffffff);
-      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-    }
-    .card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
-      border-color: #cbd5e1;
-    }
-    .card h2 {
-      margin: 0 0 8px;
-      font-size: 20px;
-      color: #0f172a;
-    }
-    .card p {
-      margin: 0;
-      color: #475569;
-      line-height: 1.5;
-    }
-    .card a {
-      position: absolute;
-      inset: 0;
-      border-radius: 16px;
-    }
-    .tag { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: #2563eb; }
+    :root{color-scheme:light;--bg:#f4f6f3;--panel:#fff;--ink:#14211b;--muted:#647168;--line:#dce4de;--brand:#176b4d;--soft:#e9f5ee;--shadow:0 16px 50px rgba(18,59,44,.09)}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 80% 0,#d9eee1 0,transparent 32%),var(--bg);color:var(--ink);font-family:Inter,"Segoe UI",system-ui,sans-serif}.shell{width:min(1120px,calc(100% - 32px));margin:auto;padding:52px 0 64px}.hero{display:flex;justify-content:space-between;gap:30px;align-items:flex-end;margin-bottom:28px}.eyebrow{margin:0 0 8px;color:var(--brand);font-size:.75rem;font-weight:850;letter-spacing:.12em;text-transform:uppercase}h1{margin:0 0 12px;font-size:clamp(3rem,7vw,5.6rem);line-height:.95;letter-spacing:-.06em}.lead{max-width:620px;margin:0;color:var(--muted);font-size:1.05rem;line-height:1.6}.search{display:grid;gap:7px;width:min(340px,100%);color:var(--muted);font-size:.78rem;font-weight:800}.search input{min-height:50px;border:1px solid #bac9bf;border-radius:14px;padding:0 15px;background:#fff;color:var(--ink);font:inherit;box-shadow:var(--shadow)}.search input:focus{outline:3px solid #176b4d1f;border-color:var(--brand)}.section-heading{display:flex;justify-content:space-between;align-items:end;gap:16px;margin:28px 0 14px}.section-heading h2{margin:0;font-size:1.3rem}.section-heading span{color:var(--muted);font-size:.83rem}.recent{display:none;margin-bottom:18px;padding:16px 18px;border:1px solid #bdd6c6;border-radius:17px;background:var(--soft)}.recent.visible{display:flex;justify-content:space-between;align-items:center;gap:16px}.recent a{color:var(--brand);font-weight:850;text-decoration:none}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.app-card{position:relative;display:grid;gap:16px;min-height:245px;padding:22px;border:1px solid var(--line);border-radius:21px;background:rgba(255,255,255,.94);box-shadow:0 10px 34px rgba(18,59,44,.06);transition:transform .18s,border-color .18s,box-shadow .18s}.app-card:hover{transform:translateY(-3px);border-color:#aec8b8;box-shadow:var(--shadow)}.app-card[hidden]{display:none}.app-top{display:flex;justify-content:space-between;align-items:start;gap:10px}.icon{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:var(--tone,#176b4d);color:#fff;font-size:1.2rem;font-weight:900}.tag{padding:5px 8px;border-radius:999px;background:#eef2f0;color:#536159;font-size:.68rem;font-weight:850}.app-card h2{margin:0;font-size:1.35rem}.app-card p{margin:5px 0 0;color:var(--muted);line-height:1.5}.app-card>a{display:flex;justify-content:space-between;align-items:center;align-self:end;padding-top:14px;border-top:1px solid var(--line);color:var(--brand);font-weight:850;text-decoration:none}.empty{padding:28px;border:1px dashed #b8c6bd;border-radius:18px;text-align:center;color:var(--muted)}.footer{margin-top:30px;color:var(--muted);font-size:.78rem}
+    @media(max-width:850px){.hero{align-items:flex-start;flex-direction:column}.search{width:100%}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.shell{width:min(100% - 20px,1120px);padding-top:30px}.grid{grid-template-columns:1fr}.app-card{min-height:215px}.recent.visible{align-items:flex-start;flex-direction:column}}
   </style>
 </head>
 <body>
-  <div class="container">
-    <div>
-      <h1>Velg område</h1>
-      <p class="lead">Gå til borettslagssidene, sjekk kryptosporet, åpne treningsloggen eller prissammenligningsappen.</p>
-    </div>
-    <div class="grid">
-      <div class="card">
-        <div class="tag">🏢 Borettslag</div>
-        <h2>Borettslaget</h2>
-        <p>Tilgang til parkering og avfallsstasjoner samlet på ett sted.</p>
-        <a href="borettslag/index.html" aria-label="Gå til borettslaget"></a>
-      </div>
-      <div class="card">
-        <div class="tag" style="color:#6b21a8;">🪙 Krypto</div>
-        <h2>Crypto Tracker</h2>
-        <p>Åpner eksisterende oversikt over kryptovaluta-priser.</p>
-        <a href="crypto-tracker/index.php" aria-label="Gå til Crypto Tracker"></a>
-      </div>
-      <div class="card">
-        <div class="tag" style="color:#0f766e;">📏 Treningslogg</div>
-        <h2>Treningslogg</h2>
-        <p>En enkel, målebasert oversikt over kroppsmål og utvikling.</p>
-        <a href="treningslogg/index.php" aria-label="Gå til treningsloggen"></a>
-      </div>
-      <div class="card">
-        <div class="tag" style="color:#b45309;">🛒 Pris</div>
-        <h2>Prissammenligning</h2>
-        <p>Last opp tilbuds-PDF-er og sammenlign priser mellom to butikker.</p>
-        <a href="prissammenligning/index.php" aria-label="Gå til prissammenligning"></a>
-      </div>
-      <div class="card">
-        <div class="tag" style="color:#0f766e;">🏠 Analyse</div>
-        <h2>Boligavkastning</h2>
-        <p>Analyser avkastning på bolig og egenkapital direkte i nettleseren.</p>
-        <a href="boligavkastning/index.html" aria-label="Gå til boligavkastning"></a>
-      </div>
-      <div class="card">
-        <div class="tag" style="color:#2563eb;">💼 Verdier</div>
-        <h2>Mine verdier</h2>
-        <p>Logg bolig, krypto, cash og andre eiendeler med verdi, bank/leverandør og eierandel.</p>
-        <a href="eiendeler/index.php" aria-label="Gå til Mine verdier"></a>
-      </div>
-    </div>
-  </div>
+  <main class="shell">
+    <header class="hero"><div><p class="eyebrow">Personlig portal</p><h1>Mine sider.</h1><p class="lead">Alle verktøyene samlet i én rolig og søkbar startside.</p></div><label class="search"><span>Finn en app</span><input id="appSearch" type="search" placeholder="Søk på navn eller oppgave" autocomplete="off"></label></header>
+    <aside class="recent" id="recentApp"><div><p class="eyebrow">Sist brukt</p><strong id="recentName">–</strong></div><a id="recentLink" href="#">Fortsett →</a></aside>
+    <div class="section-heading"><h2>Apper og tjenester</h2><span id="appCount" aria-live="polite">6 apper</span></div>
+    <section class="grid" id="appGrid">
+      <article class="app-card" data-name="borettslag parkering avfall tjenester"><div class="app-top"><span class="icon">B</span><span class="tag">Borettslag</span></div><div><h2>Borettslaget</h2><p>Parkering, køplass, kontrakter og avfallsstasjoner.</p></div><a href="borettslag/index.html" data-app="Borettslaget">Åpne <span>→</span></a></article>
+      <article class="app-card" data-name="krypto investering portefølje bitcoin ordre"><div class="app-top"><span class="icon" style="--tone:#6b4fb3">K</span><span class="tag">Økonomi</span></div><div><h2>Kryptooversikt</h2><p>Portefølje, livepriser, kjøp, salg og investeringsjournal.</p></div><a href="crypto-tracker/index.php" data-app="Kryptooversikt">Åpne <span>→</span></a></article>
+      <article class="app-card" data-name="trening kroppsmål bilde utvikling logg"><div class="app-top"><span class="icon" style="--tone:#176e79">T</span><span class="tag">Helse</span></div><div><h2>Treningslogg</h2><p>Kroppsmål, trender, fremgangsbilder og historikk.</p></div><a href="treningslogg/index.php" data-app="Treningslogg">Åpne <span>→</span></a></article>
+      <article class="app-card" data-name="bolig avkastning lån kalkulator fellesgjeld"><div class="app-top"><span class="icon" style="--tone:#986323">H</span><span class="tag">Analyse</span></div><div><h2>Boligkalkulator</h2><p>Avkastning, lånerom, fellesgjeld og lagrede scenarier.</p></div><a href="boligavkastning/index.html" data-app="Boligkalkulator">Åpne <span>→</span></a></article>
+      <article class="app-card" data-name="eiendeler formue verdier gjeld økonomi"><div class="app-top"><span class="icon" style="--tone:#2759a5">V</span><span class="tag">Økonomi</span></div><div><h2>Mine verdier</h2><p>Eiendeler, gjeld, formuesfordeling og verdihistorikk.</p></div><a href="eiendeler/index.php" data-app="Mine verdier">Åpne <span>→</span></a></article>
+      <article class="app-card" data-name="pris sammenligning butikk tilbud pdf"><div class="app-top"><span class="icon" style="--tone:#68736d">P</span><span class="tag">Verktøy</span></div><div><h2>Prissammenligning</h2><p>Sammenlign varepriser fra tilbudsdokumenter.</p></div><a href="prissammenligning/index.php" data-app="Prissammenligning">Åpne <span>→</span></a></article>
+    </section>
+    <p class="empty" id="appEmpty" hidden>Ingen apper matcher søket.</p>
+    <footer class="footer">Tips: Startsidens «Sist brukt» lagres bare i denne nettleseren.</footer>
+  </main>
+  <script>
+    (()=>{const input=document.getElementById('appSearch'),cards=Array.from(document.querySelectorAll('.app-card')),count=document.getElementById('appCount'),empty=document.getElementById('appEmpty'),recent=document.getElementById('recentApp');const saved=JSON.parse(localStorage.getItem('portal-recent-app')||'null');if(saved?.name&&saved?.href){document.getElementById('recentName').textContent=saved.name;document.getElementById('recentLink').href=saved.href;recent.classList.add('visible')}input.addEventListener('input',()=>{const term=input.value.trim().toLocaleLowerCase('nb-NO');let visible=0;cards.forEach(card=>{const show=!term||card.dataset.name.includes(term);card.hidden=!show;if(show)visible++});count.textContent=`${visible} ${visible===1?'app':'apper'}`;empty.hidden=visible!==0});document.querySelectorAll('[data-app]').forEach(link=>link.addEventListener('click',()=>localStorage.setItem('portal-recent-app',JSON.stringify({name:link.dataset.app,href:link.getAttribute('href')}))))})();
+  </script>
 </body>
 </html>

@@ -13,6 +13,9 @@ CREATE TABLE IF NOT EXISTS orders (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     closed_at DATETIME NULL,
     realized_profit DECIMAL(18,8) NULL,
+    purchased_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    strategy VARCHAR(60) NULL,
+    notes TEXT NULL,
     CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 

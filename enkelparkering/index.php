@@ -43,7 +43,13 @@ $stmt->bind_param("i", $user['borettslag_id']);
 $stmt->execute();
 $anlegg = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $finnes_ladere_i_borettslag = false;
+$total_plasser = 0;
+$total_ledige = 0;
+$total_ledige_med_lader = 0;
 foreach ($anlegg as $anleggData) {
+    $total_plasser += (int)($anleggData['total'] ?? 0);
+    $total_ledige += (int)($anleggData['ledige'] ?? 0);
+    $total_ledige_med_lader += (int)($anleggData['ledige_med_lader'] ?? 0);
     if (!empty($anleggData['har_ladere'])) {
         $finnes_ladere_i_borettslag = true;
         break;
@@ -78,8 +84,19 @@ foreach ($anlegg as $anleggData) {
     </nav>
   </header>
 
+  <section class="parking-summary" aria-label="Parkeringsstatus">
+    <article><span>Ledige nå</span><strong><?= $total_ledige ?></strong><small>av <?= $total_plasser ?> plasser</small></article>
+    <article><span>Ledige med lader</span><strong><?= $total_ledige_med_lader ?></strong><small>på tvers av anlegg</small></article>
+    <article><span>Din køstatus</span><strong><?= $er_på_venteliste ? 'Aktiv' : 'Ikke i kø' ?></strong><a href="min_venteliste.php">Se detaljer →</a></article>
+  </section>
+
   <div class="search-container">
-    <input type="text" id="anleggSok" class="search-box" placeholder="Søk etter anlegg...">
+    <label class="search-label"><span>Søk etter anlegg</span><input type="search" id="anleggSok" class="search-box" placeholder="Navn eller type"></label>
+    <div class="facility-filters" role="group" aria-label="Filtrer anlegg">
+      <label><input type="checkbox" id="filterLedig"> Kun med ledig plass</label>
+      <label><input type="checkbox" id="filterLader"> Kun med ledig lader</label>
+    </div>
+    <span id="anleggCount" class="facility-count" aria-live="polite"></span>
   </div>
 
 
@@ -132,7 +149,7 @@ foreach ($anlegg as $anleggData) {
 
     <!-- Liste over anlegg -->
   <?php foreach ($anlegg as $a): ?>
-    <div class="facility-card" id="anlegg-<?= $a['id'] ?>">
+    <div class="facility-card" id="anlegg-<?= $a['id'] ?>" data-facility data-name="<?= htmlspecialchars($a['navn'] . ' ' . $a['type']) ?>" data-free="<?= (int)$a['ledige'] ?>" data-charger="<?= (int)$a['ledige_med_lader'] ?>">
       <h3><?= htmlspecialchars($a['navn']) ?></h3>
       <p>🏗 Type: <?= ucfirst($a['type']) ?></p>
       <p>🚗 Totalt: <?= $a['total'] ?></p>
@@ -165,6 +182,7 @@ foreach ($anlegg as $anleggData) {
         </form>
     </div>
   <?php endforeach; ?>
+    <p class="empty-facilities" id="emptyFacilities" hidden>Ingen anlegg matcher filtrene. Fjern ett filter eller prøv et annet søk.</p>
 </aside>
 
 </main>
@@ -177,14 +195,20 @@ foreach ($anlegg as $anleggData) {
     attribution: '&copy; OpenStreetMap'
   }).addTo(map);
 
-  var anlegg = <?= json_encode($anlegg) ?>;
+  var anlegg = <?= json_encode($anlegg, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, function (character) {
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[character];
+    });
+  }
 
   anlegg.forEach(function(a) {
     if (a.lat && a.lng) {
       let marker = L.marker([a.lat, a.lng]).addTo(map)
         .bindPopup(`
-          <strong>${a.navn}</strong><br>
-          🏗 Type: ${a.type}<br>
+          <strong>${escapeHtml(a.navn)}</strong><br>
+          🏗 Type: ${escapeHtml(a.type)}<br>
           🚗 Totalt: ${a.total}<br>
           ✅ Ledige: ${a.ledige}<br>
           🔴 Opptatt: ${a.opptatte}<br>
@@ -204,13 +228,24 @@ foreach ($anlegg as $anleggData) {
   });
 
   // Filtrering av anlegg
-  document.getElementById('anleggSok').addEventListener('input', function () {
-    var q = this.value.toLowerCase();
-    document.querySelectorAll('.facility-card').forEach(function (card) {
-      var navn = card.querySelector('h3').textContent.toLowerCase();
-      card.style.display = navn.includes(q) ? '' : 'none';
+  var anleggSok = document.getElementById('anleggSok');
+  var filterLedig = document.getElementById('filterLedig');
+  var filterLader = document.getElementById('filterLader');
+  function oppdaterAnleggFilter() {
+    var q = anleggSok.value.trim().toLowerCase();
+    var visible = 0;
+    document.querySelectorAll('[data-facility]').forEach(function (card) {
+      var match = (!q || card.dataset.name.toLocaleLowerCase('nb-NO').includes(q)) && (!filterLedig.checked || Number(card.dataset.free) > 0) && (!filterLader.checked || Number(card.dataset.charger) > 0);
+      card.hidden = !match;
+      if (match) visible += 1;
     });
-  });
+    document.getElementById('anleggCount').textContent = visible + (visible === 1 ? ' anlegg' : ' anlegg');
+    document.getElementById('emptyFacilities').hidden = visible !== 0;
+  }
+  anleggSok.addEventListener('input', oppdaterAnleggFilter);
+  filterLedig.addEventListener('change', oppdaterAnleggFilter);
+  filterLader.addEventListener('change', oppdaterAnleggFilter);
+  oppdaterAnleggFilter();
 
   (function visNarmesteLedigPlass() {
     var infoElement = document.getElementById('nearestSpotInfo');
@@ -264,11 +299,11 @@ foreach ($anlegg as $anleggData) {
         }
 
         var html = '';
-        html += '<strong>Nærmeste ledige plass:</strong> ' + naermest.navn + ' (' +
+        html += '<strong>Nærmeste ledige plass:</strong> ' + escapeHtml(naermest.navn) + ' (' +
           naermest.avstandKm.toFixed(2) + ' km unna, ' + naermest.ledige + ' ledig).';
         html += '<br>';
         if (naermestEl) {
-          html += '<strong>Nærmeste ledige el-plass:</strong> ' + naermestEl.navn + ' (' +
+          html += '<strong>Nærmeste ledige el-plass:</strong> ' + escapeHtml(naermestEl.navn) + ' (' +
             naermestEl.avstandKm.toFixed(2) + ' km unna, ' + naermestEl.ledigeMedLader + ' ledig med lader).';
         } else {
           html += '<strong>Nærmeste ledige el-plass:</strong> Ingen ledige el-plasser akkurat nå.';

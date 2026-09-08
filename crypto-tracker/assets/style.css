@@ -560,3 +560,18 @@ body { background: radial-gradient(circle at top, #172554 0, var(--bg) 420px); }
 .stat .mono { overflow-wrap: anywhere; }
 .order-card { border-radius: 18px; padding: 18px; }
 @media (min-width: 760px) { .container { padding: 32px 24px 60px; } .top-nav { position: sticky; inset: auto; display:flex; margin-bottom:18px; } .top-nav .btn { padding:10px 14px; font-size:14px; } }
+
+/* Journal, fordeling og raskere posisjonssøk */
+.form-control--wide { grid-column:1/-1; }
+.form-control textarea { width:100%; resize:vertical; }
+.allocation-panel { margin-top:20px; padding-top:18px; border-top:1px solid var(--border); }
+.allocation-list { display:grid; gap:12px; margin-top:12px; }
+.allocation-row>div { display:flex; justify-content:space-between; gap:12px; margin-bottom:6px; }
+.allocation-row span { color:var(--muted); font-size:.86rem; }
+.allocation-track { display:block; height:8px; overflow:hidden; border-radius:999px; background:#111827; }
+.allocation-track i { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--accent),#60a5fa); }
+.order-search { display:grid; gap:7px; margin:16px 0; color:var(--muted); font-weight:700; }
+.order-search input { width:100%; min-height:46px; }
+.journal-snippet { display:grid; gap:5px; margin:12px 0; padding:12px; border-radius:12px; background:#0b1221; }
+.journal-snippet span { color:var(--muted); line-height:1.45; }
+.journal-form { align-items:end; }

@@ -13,6 +13,23 @@
   --shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
 }
 
+/* Bildeopplasting og visuell fremdriftslogg */
+.optional { color: var(--muted); font-size: .78rem; font-weight: 600; }
+.photo-field { grid-column: 1 / -1; }
+.photo-picker { display:flex; align-items:center; gap:14px; min-height:86px; padding:12px; border:1.5px dashed #a8b7cd; border-radius:16px; background:#f8fafc; cursor:pointer; }
+.photo-picker input { position:absolute; inline-size:1px; block-size:1px; opacity:0; }
+.photo-picker img { width:64px; height:64px; object-fit:cover; border-radius:12px; }
+.photo-picker span { display:grid; gap:4px; }
+.photo-picker small { color:var(--muted); font-weight:500; }
+.photo-timeline { margin-top:32px; }
+.photo-grid { display:grid; grid-auto-flow:column; grid-auto-columns:minmax(180px, 240px); gap:14px; overflow-x:auto; padding:4px 2px 12px; scroll-snap-type:x proximity; }
+.photo-card { margin:0; border:1px solid var(--border); background:var(--card); border-radius:18px; overflow:hidden; scroll-snap-align:start; box-shadow:0 10px 30px rgba(15,23,42,.08); }
+.photo-card img { display:block; width:100%; aspect-ratio:4/5; object-fit:cover; }
+.photo-card figcaption { display:grid; gap:3px; padding:12px; }
+.photo-card figcaption span { color:var(--muted); font-size:.82rem; }
+.entry-date-wrap { display:flex; align-items:center; gap:10px; }
+.entry-thumb { width:42px; height:42px; object-fit:cover; border-radius:10px; }
+
 * {
   box-sizing: border-box;
   margin: 0;

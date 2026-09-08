@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const topNavButtons = document.querySelectorAll('.nav-btn');
     const viewSections = document.querySelectorAll('.view-section');
     const ordersTable = document.getElementById('ordersTable');
+    const orderSearch = document.getElementById('orderSearch');
 
     let livePrices = {};
     let symbolPrices = {};
@@ -108,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let totalInvestedNok = 0;
         let realizedNok = 0;
         let unrealizedNok = 0;
+        const allocation = {};
 
         document.querySelectorAll('.order-card').forEach(card => {
             if (card.classList.contains('is-hidden')) return;
@@ -133,6 +135,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const { price: livePrice, currency: liveCurrency } = resolveLivePrice(assetSymbol, currency, priceMap, symbolPrices);
                 const priceCurrency = (liveCurrency || currency || '').toUpperCase();
                 if (Number.isFinite(livePrice) && fxRates[priceCurrency]) {
+                    const marketValueNok = convertToNok(remaining * livePrice, priceCurrency);
+                    if (Number.isFinite(marketValueNok)) allocation[assetSymbol] = (allocation[assetSymbol] || 0) + marketValueNok;
                     const unrealizedNative = remaining * (livePrice - entryPrice);
                     const unrealizedNokValue = convertToNok(unrealizedNative, priceCurrency);
                     if (Number.isFinite(unrealizedNokValue)) {
@@ -148,6 +152,15 @@ document.addEventListener('DOMContentLoaded', () => {
         realizedEl.textContent = formatNok(realizedNok);
         unrealizedEl.textContent = formatNok(unrealizedNok);
         roiEl.textContent = formatPercent(lifetimeRoi);
+        const allocationEl = document.getElementById('allocationBreakdown');
+        if (allocationEl) {
+            const entries = Object.entries(allocation).sort((a, b) => b[1] - a[1]);
+            const totalMarketValue = entries.reduce((sum, entry) => sum + entry[1], 0);
+            allocationEl.innerHTML = entries.length ? entries.map(([asset, value]) => {
+                const share = totalMarketValue > 0 ? value / totalMarketValue * 100 : 0;
+                return `<div class="allocation-row"><div><strong>${asset}</strong><span>${formatNok(value)} · ${formatPercent(share)}</span></div><span class="allocation-track"><i style="width:${share.toFixed(2)}%"></i></span></div>`;
+            }).join('') : '<p class="muted">Ingen åpne posisjoner med tilgjengelig livepris.</p>';
+        }
     }
 
     function updateAssetAverages() {
@@ -196,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
             card.className = 'asset-average-card';
             card.innerHTML = `
                 <div>
-                    <p class="eyebrow">Asset</p>
+                    <p class="eyebrow">Valuta</p>
                     <p class="mono">${entry.asset}</p>
                 </div>
                 <div>
@@ -277,11 +290,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function applyFilters() {
         const assetValue = assetFilterSelect?.value.trim().toLowerCase() || '';
         const statusValue = Array.from(statusFilterRadios).find(radio => radio.checked)?.value || 'all';
+        const searchValue = orderSearch?.value.trim().toLowerCase() || '';
 
         document.querySelectorAll('.order-card').forEach(card => {
             const matchesAsset = !assetValue || card.dataset.asset?.toLowerCase() === assetValue;
             const matchesStatus = statusValue === 'all' || card.dataset.status === statusValue;
-            card.classList.toggle('is-hidden', !(matchesAsset && matchesStatus));
+            const matchesSearch = !searchValue || (card.dataset.search || '').includes(searchValue);
+            card.classList.toggle('is-hidden', !(matchesAsset && matchesStatus && matchesSearch));
         });
 
         updateOrderCards(livePrices);
@@ -314,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (remaining <= 0 && profitEl) {
-                profitEl.textContent = 'Closed';
+                profitEl.textContent = 'Lukket';
                 profitEl.classList.remove('positive', 'negative');
                 return;
             }
@@ -412,6 +427,8 @@ document.addEventListener('DOMContentLoaded', () => {
             livePrices = data.prices || {};
             symbolPrices = data.symbol_prices || {};
             fxRates = data.fx_rates || {};
+            const updated = document.getElementById('priceUpdated');
+            if (updated) updated.textContent = `Oppdatert ${new Date().toLocaleTimeString('nb-NO', {hour:'2-digit', minute:'2-digit'})}`;
             updateOrderCards(livePrices);
         } catch (error) {
             console.error(error);
@@ -443,6 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     refreshButton?.addEventListener('click', fetchLivePrices);
+    orderSearch?.addEventListener('input', applyFilters);
 
     function activateView(targetId) {
         viewSections.forEach(section => {
@@ -484,9 +502,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (closeFeeInput) {
             closeFeeInput.value = '';
         }
-        closeModalTitle.textContent = `Order #${id}`;
+        closeModalTitle.textContent = `Ordre #${id}`;
         closeModalAsset.textContent = asset;
-        closeRemainingHelper.textContent = `(Remaining: ${remaining})`;
+        closeRemainingHelper.textContent = `(Gjenstår: ${remaining})`;
         closeCurrencyBadge.textContent = currency;
         closeQuantityInput.focus();
     }
@@ -496,7 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const { orderId, asset, remaining, currency } = button.dataset;
             openCloseModal({
                 id: orderId,
-                asset: asset || 'Order',
+                asset: asset || 'Ordre',
                 remaining: remaining || '0',
                 currency: currency || 'USD',
             });

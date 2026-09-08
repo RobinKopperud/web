@@ -151,6 +151,10 @@ if (!empty($orders)) {
                 <p class="mono" id="lifetimeRoi">-</p>
             </div>
         </div>
+        <div class="allocation-panel">
+            <div class="price-row"><div><h3>Fordeling</h3><p class="hint">Markedsverdi for åpne posisjoner.</p></div><small id="priceUpdated">Venter på priser …</small></div>
+            <div id="allocationBreakdown" class="allocation-list"><p class="muted">Fordeling vises når priser er hentet.</p></div>
+        </div>
     </section>
 
     <section class="card view-section is-hidden" id="addOrderSection">
@@ -181,11 +185,23 @@ if (!empty($orders)) {
             <div class="form-control">
                 <label for="total_cost">Totalbeløp (valgfritt)</label>
                 <input type="number" step="0.0001" min="0" name="total_cost" id="total_cost" placeholder="Auto-calculated">
-                <p class="hint">Fill any two of quantity, entry price, and total to auto-calculate the third.</p>
+                <p class="hint">Fyll inn to av feltene antall, kjøpspris og totalbeløp, så beregnes det tredje.</p>
             </div>
             <div class="form-control">
                 <label for="fee">Gebyr (valgfritt)</label>
                 <input type="number" step="0.00000001" min="0" name="fee" id="fee" placeholder="0">
+            </div>
+            <div class="form-control">
+                <label for="purchased_at">Kjøpt</label>
+                <input type="datetime-local" name="purchased_at" id="purchased_at" value="<?php echo date('Y-m-d\TH:i'); ?>" required>
+            </div>
+            <div class="form-control">
+                <label for="strategy">Strategi (valgfritt)</label>
+                <input type="text" name="strategy" id="strategy" maxlength="60" placeholder="F.eks. månedlig sparing">
+            </div>
+            <div class="form-control form-control--wide">
+                <label for="notes">Investeringsnotat (valgfritt)</label>
+                <textarea name="notes" id="notes" rows="3" maxlength="2000" placeholder="Hvorfor kjøpte du, og hva er planen?"></textarea>
             </div>
             <div class="form-actions">
                 <button type="submit" class="btn primary">Lagre kjøp</button>
@@ -196,9 +212,9 @@ if (!empty($orders)) {
     <section class="card filters view-section is-hidden" id="filtersSection">
         <form method="GET" class="filter-row">
             <div class="form-control">
-                <label for="filter_asset">Filter asset</label>
+                <label for="filter_asset">Kryptovaluta</label>
                 <select name="asset" id="filter_asset">
-                    <option value="">All assets</option>
+                    <option value="">Alle valutaer</option>
                     <?php foreach ($assetOptions as $assetOption): ?>
                         <option value="<?php echo h($assetOption); ?>" <?php echo $assetFilter === $assetOption ? 'selected' : ''; ?>><?php echo h($assetOption); ?></option>
                     <?php endforeach; ?>
@@ -207,12 +223,12 @@ if (!empty($orders)) {
             <div class="form-control">
                 <label>Status</label>
                 <div class="pill-group">
-                    <label><input type="radio" name="status" value="open" <?php echo $statusFilter === 'open' ? 'checked' : ''; ?>> Open only</label>
-                    <label><input type="radio" name="status" value="all" <?php echo $statusFilter === 'all' ? 'checked' : ''; ?>> All orders</label>
+                    <label><input type="radio" name="status" value="open" <?php echo $statusFilter === 'open' ? 'checked' : ''; ?>> Kun åpne</label>
+                    <label><input type="radio" name="status" value="all" <?php echo $statusFilter === 'all' ? 'checked' : ''; ?>> Alle ordrer</label>
                 </div>
             </div>
             <div class="form-actions">
-                <button type="submit" class="btn">Apply filters</button>
+                <button type="submit" class="btn">Bruk filtre</button>
             </div>
         </form>
     </section>
@@ -228,6 +244,7 @@ if (!empty($orders)) {
                 <div class="live-pill" id="livePulse">Live</div>
             </div>
         </div>
+        <label class="order-search">Søk i posisjoner<input type="search" id="orderSearch" placeholder="Valuta, strategi eller notat"></label>
 
         <div id="ordersTable" class="order-grid">
             <?php if (!empty($orders)): ?>
@@ -244,33 +261,34 @@ if (!empty($orders)) {
                              data-remaining="<?php echo formatDecimal($order['remaining_quantity']); ?>"
                              data-asset="<?php echo h(strtolower($order['asset'])); ?>"
                              data-asset-symbol="<?php echo h($assetSymbol); ?>"
+                             data-search="<?php echo h(strtolower(($order['asset'] ?? '') . ' ' . ($order['strategy'] ?? '') . ' ' . ($order['notes'] ?? ''))); ?>"
                              data-status="<?php echo h(strtolower($order['status'])); ?>"
                              data-total-cost="<?php echo formatDecimal($totalCost); ?>"
                              data-realized-profit="<?php echo formatDecimal($realizedForOrder); ?>"
                              data-currency="<?php echo h(strtoupper($order['currency'] ?? 'USD')); ?>">
                         <header class="order-card__header">
                             <div>
-                                <p class="eyebrow">Order #<?php echo (int)$order['id']; ?></p>
+                                <p class="eyebrow">Ordre #<?php echo (int)$order['id']; ?></p>
                                 <h3><?php echo h($order['asset']); ?></h3>
-                                <span class="badge <?php echo strtolower($order['status']); ?>"><?php echo h($order['status']); ?></span>
+                            <span class="badge <?php echo strtolower($order['status']); ?>"><?php echo $order['status'] === 'OPEN' ? 'Åpen' : 'Lukket'; ?></span>
                             </div>
                             <div class="order-card__live">
-                                <p class="eyebrow">Live price</p>
+                                <p class="eyebrow">Livepris</p>
                                 <div class="order-live-price">-</div>
                                 <p class="chip"><?php echo h(strtoupper($order['currency'] ?? 'USD')); ?></p>
                             </div>
                         </header>
                         <div class="order-card__body">
                             <div class="order-stat">
-                                <p class="eyebrow">Quantity</p>
+                                <p class="eyebrow">Antall</p>
                                 <p class="mono"><?php echo formatDecimal($order['quantity']); ?></p>
                             </div>
                             <div class="order-stat">
-                                <p class="eyebrow">Entry price</p>
+                                <p class="eyebrow">Kjøpspris</p>
                                 <p class="mono"><?php echo formatDisplay($order['entry_price']); ?> <?php echo h(strtoupper($order['currency'] ?? 'USD')); ?></p>
                             </div>
                             <div class="order-stat">
-                                <p class="eyebrow">Total cost</p>
+                                <p class="eyebrow">Kostpris</p>
                                 <p class="mono"><?php echo formatDisplay($totalCost); ?> <?php echo h(strtoupper($order['currency'] ?? 'USD')); ?></p>
                             </div>
                             <div class="order-stat">
@@ -278,6 +296,9 @@ if (!empty($orders)) {
                                 <p class="mono profit unrealized">-</p>
                             </div>
                         </div>
+                        <?php if (!empty($order['strategy']) || !empty($order['notes'])): ?>
+                            <div class="journal-snippet"><strong><?php echo h($order['strategy'] ?: 'Notat'); ?></strong><?php if (!empty($order['notes'])): ?><span><?php echo h($order['notes']); ?></span><?php endif; ?></div>
+                        <?php endif; ?>
                         <div class="order-card__actions">
                             <a class="btn ghost" href="order_detail.php?id=<?php echo (int)$order['id']; ?>">Detaljer</a>
                             <?php if (!$isClosed): ?>
@@ -290,7 +311,7 @@ if (!empty($orders)) {
                                         data-remaining="<?php echo formatDecimal($order['remaining_quantity']); ?>"
                                         data-entry-price="<?php echo formatDecimal($order['entry_price']); ?>"
                                         data-currency="<?php echo h(strtoupper($order['currency'] ?? 'USD')); ?>">
-                                    Close
+                                    Registrer salg
                                 </button>
                             <?php endif; ?>
                         </div>
@@ -312,7 +333,7 @@ if (!empty($orders)) {
                     </article>
                 <?php endforeach; ?>
             <?php else: ?>
-                <p class="muted">No orders yet. Add your first BUY above.</p>
+                <p class="muted">Ingen ordrer ennå. Legg inn ditt første kjøp.</p>
             <?php endif; ?>
         </div>
     </section>
@@ -333,33 +354,33 @@ if (!empty($orders)) {
         <div class="modal-dialog">
             <div class="modal-header">
                 <div>
-                    <p class="eyebrow" id="closeModalAsset">Close order</p>
-                    <h3 id="closeModalTitle">Order</h3>
+                    <p class="eyebrow" id="closeModalAsset">Registrer salg</p>
+                    <h3 id="closeModalTitle">Ordre</h3>
                 </div>
-                <button type="button" class="icon-button" id="closeModalDismiss" aria-label="Close close order dialog">×</button>
+                <button type="button" class="icon-button" id="closeModalDismiss" aria-label="Lukk dialogen">×</button>
             </div>
             <form method="POST" action="actions.php" id="closeModalForm" class="modal-form">
                 <input type="hidden" name="action" value="close_order">
                 <input type="hidden" name="order_id" id="closeModalOrderId">
 
                 <div class="form-control">
-                    <label for="close_quantity_modal">Close quantity <span class="hint" id="closeRemainingHelper"></span></label>
+                    <label for="close_quantity_modal">Antall som selges <span class="hint" id="closeRemainingHelper"></span></label>
                     <input type="number" step="0.00000001" min="0" name="close_quantity" id="close_quantity_modal" required>
                 </div>
                 <div class="form-control">
-                    <label for="close_price_modal">Close price per unit</label>
+                    <label for="close_price_modal">Salgspris per enhet</label>
                     <div class="input-with-addon">
                         <input type="number" step="0.00000001" min="0" name="close_price" id="close_price_modal" required>
                         <span class="input-addon" id="closeCurrencyBadge">USD</span>
                     </div>
                 </div>
                 <div class="form-control">
-                    <label for="close_fee_modal">Close fee (optional)</label>
+                    <label for="close_fee_modal">Salgsgebyr (valgfritt)</label>
                     <input type="number" step="0.00000001" min="0" name="close_fee" id="close_fee_modal" placeholder="0">
                 </div>
                 <div class="form-actions modal-actions">
-                    <button type="button" class="btn" id="closeModalCancel">Cancel</button>
-                    <button type="submit" class="btn danger">Confirm close</button>
+                    <button type="button" class="btn" id="closeModalCancel">Avbryt</button>
+                    <button type="submit" class="btn danger">Bekreft salg</button>
                 </div>
             </form>
         </div>

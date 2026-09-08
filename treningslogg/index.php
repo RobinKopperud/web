@@ -23,6 +23,7 @@ $measurements = fetch_measurements($conn, (int) $_SESSION['user_id']);
 $total_entries = fetch_user_entry_count($conn, (int) $_SESSION['user_id']);
 $current_streak = fetch_user_entry_streak($conn, (int) $_SESSION['user_id']);
 $trend_analysis = get_recent_trend_analysis($conn, (int) $_SESSION['user_id']);
+$recent_photos = fetch_recent_entry_images($conn, (int) $_SESSION['user_id']);
 $chart_series = [];
 foreach ($measurements as $chart_measurement) {
     $chart_series[] = [
@@ -128,6 +129,25 @@ foreach ($measurements as $measurement) {
         <?php endif; ?>
         <div class="pill neutral">Maks én registrering per dag per måling</div>
       </div>
+    </section>
+
+    <section class="photo-timeline" aria-labelledby="photoTimelineTitle">
+      <div class="section-title">
+        <div><p class="eyebrow">Visuell logg</p><h2 id="photoTimelineTitle">Fremgang i bilder</h2></div>
+        <a class="ghost" href="registrering.php">Legg til dagens bilde</a>
+      </div>
+      <?php if (!$recent_photos): ?>
+        <div class="empty-card">Ingen bilder ennå. Du kan legge til ett bilde når du registrerer en måling.</div>
+      <?php else: ?>
+        <div class="photo-grid">
+          <?php foreach ($recent_photos as $photo): ?>
+            <figure class="photo-card">
+              <img src="image.php?entry=<?php echo (int)$photo['entry_id']; ?>" alt="Fremgangsbilde fra <?php echo htmlspecialchars($photo['image_date'], ENT_QUOTES, 'UTF-8'); ?>" loading="lazy" />
+              <figcaption><strong><?php echo htmlspecialchars($photo['measurement_name'], ENT_QUOTES, 'UTF-8'); ?></strong><span><?php echo htmlspecialchars($photo['image_date'], ENT_QUOTES, 'UTF-8'); ?> · <?php echo number_format((float) $photo['value'], 1, ',', ''); ?> cm</span></figcaption>
+            </figure>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
     </section>
 
     <section class="progress-overview" aria-labelledby="progressTitle">

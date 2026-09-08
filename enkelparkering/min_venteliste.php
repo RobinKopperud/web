@@ -156,9 +156,15 @@ if ($oppføring) {
           }
           $stmt->execute();
           $totalt = $stmt->get_result()->fetch_assoc();
+          $ko_total = max(1, (int)$totalt['totalt']);
+          $ko_fremdrift = max(5, min(100, (($ko_total - $posisjon + 1) / $ko_total) * 100));
           ?>
 
-          <p><strong>Din posisjon:</strong> <?= $posisjon ?> av <?= $totalt['totalt'] ?></p>
+          <div class="queue-rank" aria-label="Køposisjon <?= $posisjon ?> av <?= (int)$totalt['totalt'] ?>">
+            <div><span>Din køplass</span><strong>#<?= $posisjon ?></strong><small>av <?= (int)$totalt['totalt'] ?></small></div>
+            <span class="queue-track"><i style="width:<?= round($ko_fremdrift, 1) ?>%"></i></span>
+            <p><?= $posisjon === 1 ? 'Du er først i køen. Neste steg er et tilbud når en passende plass blir ledig.' : ($posisjon - 1) . ' ' . (($posisjon - 1) === 1 ? 'person er' : 'personer er') . ' foran deg. Du beholder plassen til du melder deg av eller får tilbud.' ?></p>
+          </div>
 
           <div class="contract-section">
             <h4>✉️ Tilbud og kontrakt</h4>

@@ -85,3 +85,25 @@ body { background: linear-gradient(180deg,#eef5ff 0,#f7f8fb 420px); }
 .wealth-card .eyebrow{color:#bfdbfe}.wealth-card>strong{display:block;font-size:clamp(38px,11vw,62px);letter-spacing:-.05em;margin:8px 0 24px}.wealth-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:10px}.wealth-breakdown span{background:rgba(255,255,255,.12);padding:13px;border-radius:15px;font-weight:750}.wealth-breakdown small{display:block;color:#dbeafe;margin-bottom:4px;font-weight:500}
 .content-grid { grid-template-columns:1fr; }.card{border-radius:22px}.asset-form{gap:16px}.asset-form input,.asset-form select{min-height:50px;border-radius:13px}.asset-form .primary{width:100%;min-height:50px}.asset-row{border-radius:17px}.value-box .debt{color:#b42318}
 @media(min-width:800px){.shell{padding:40px 24px 72px}.content-grid{grid-template-columns:minmax(300px,.75fr) minmax(0,1.25fr)}.asset-form .primary{width:auto}}
+
+/* Profesjonell oversikt, historikk og filtrering */
+.category-overview { margin-bottom:20px; box-shadow:0 12px 36px rgba(15,23,42,.07); }
+.section-heading { display:flex; justify-content:space-between; gap:16px; align-items:center; }
+.section-heading h2 { margin-bottom:0; }
+.section-heading>span { color:var(--muted); font-size:.9rem; }
+.category-bars { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px 24px; margin-top:18px; }
+.category-bar>div { display:flex; justify-content:space-between; gap:12px; font-size:.88rem; margin-bottom:7px; }
+.bar-track { display:block; height:8px; border-radius:999px; overflow:hidden; background:#e7eef8; }
+.bar-track i { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,#2563eb,#60a5fa); }
+.form-details { border:1px solid var(--line); border-radius:16px; padding:0 14px; }
+.form-details summary { cursor:pointer; padding:14px 0; font-weight:800; }
+.form-details summary span { display:block; color:var(--muted); font-size:.78rem; font-weight:500; margin-top:3px; }
+.detail-fields { display:grid; grid-template-columns:1fr 1fr; gap:14px; padding:0 0 16px; }
+.detail-fields .wide { grid-column:1/-1; }
+.list-tools { display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:10px; margin:18px 0; padding:14px; border-radius:16px; background:#f1f5f9; }
+.list-tools label { font-size:.78rem; }
+.list-tools input,.list-tools select { padding:10px 12px; border-radius:11px; }
+.history-delta { font-size:.8rem; font-weight:800; }
+.history-delta.up { color:#047857 !important; }.history-delta.down { color:#b91c1c !important; }
+.asset-row[hidden] { display:none; }
+@media(max-width:700px){.category-bars,.detail-fields,.list-tools{grid-template-columns:1fr}.detail-fields .wide{grid-column:auto}}

@@ -43,30 +43,61 @@ if ($action === 'create_order') {
     $entryPrice = $_POST['entry_price'] ?? '';
     $fee = $_POST['fee'] ?? '0';
     $currency = sanitize_currency($_POST['currency'] ?? 'USD');
+    $purchasedAtInput = trim($_POST['purchased_at'] ?? '');
+    $strategy = trim($_POST['strategy'] ?? '');
+    $notes = trim($_POST['notes'] ?? '');
+    $purchasedTimestamp = $purchasedAtInput !== '' ? strtotime($purchasedAtInput) : time();
 
     if ($currency === '') {
-        redirect_with_flash('error', 'Price currency must be USD, EUR, or USDC.');
+        redirect_with_flash('error', 'Prisvaluta må være USD, EUR eller USDC.');
     }
 
     if ($asset === '' || !is_numeric($quantity) || !is_numeric($entryPrice) || $quantity <= 0 || $entryPrice < 0) {
-        redirect_with_flash('error', 'Please provide a valid asset, quantity, and entry price.');
+        redirect_with_flash('error', 'Fyll inn gyldig kryptovaluta, antall og kjøpspris.');
+    }
+    if ($purchasedTimestamp === false || strlen($strategy) > 120 || strlen($notes) > 8000) {
+        redirect_with_flash('error', 'Kontroller kjøpsdato, strategi og notat.');
     }
 
     $quantity = (float)$quantity;
     $entryPrice = (float)$entryPrice;
     $fee = is_numeric($fee) ? (float)$fee : 0;
+    $purchasedAt = date('Y-m-d H:i:s', $purchasedTimestamp);
+    $strategy = $strategy !== '' ? $strategy : null;
+    $notes = $notes !== '' ? $notes : null;
 
-    $stmt = $conn->prepare("INSERT INTO orders (user_id, asset, side, quantity, entry_price, fee, currency, status, remaining_quantity, created_at, realized_profit) VALUES (?, ?, 'BUY', ?, ?, ?, ?, 'OPEN', ?, NOW(), NULL)");
+    $stmt = $conn->prepare("INSERT INTO orders (user_id, asset, side, quantity, entry_price, fee, currency, status, remaining_quantity, created_at, realized_profit, purchased_at, strategy, notes) VALUES (?, ?, 'BUY', ?, ?, ?, ?, 'OPEN', ?, NOW(), NULL, ?, ?, ?)");
     if (!$stmt) {
-        redirect_with_flash('error', 'Could not prepare insert statement.');
+        redirect_with_flash('error', 'Kunne ikke klargjøre lagringen.');
     }
 
-    $stmt->bind_param('isdddsd', $userId, $asset, $quantity, $entryPrice, $fee, $currency, $quantity);
+    $stmt->bind_param('isdddsdsss', $userId, $asset, $quantity, $entryPrice, $fee, $currency, $quantity, $purchasedAt, $strategy, $notes);
     if ($stmt->execute()) {
-        redirect_with_flash('success', 'Order added successfully.');
+        redirect_with_flash('success', 'Kjøpet ble lagret.');
     }
 
-    redirect_with_flash('error', 'Failed to save order.');
+    redirect_with_flash('error', 'Kunne ikke lagre kjøpet.');
+}
+
+if ($action === 'update_journal') {
+    $orderId = (int)($_POST['order_id'] ?? 0);
+    $strategy = trim($_POST['strategy'] ?? '');
+    $notes = trim($_POST['notes'] ?? '');
+    $purchasedAtInput = trim($_POST['purchased_at'] ?? '');
+    $purchasedTimestamp = strtotime($purchasedAtInput);
+    if ($orderId <= 0 || $purchasedTimestamp === false || strlen($strategy) > 120 || strlen($notes) > 8000) {
+        redirect_with_flash('error', 'Kontroller journalfeltene.', 'order_detail.php?id=' . $orderId);
+    }
+    $purchasedAt = date('Y-m-d H:i:s', $purchasedTimestamp);
+    $strategy = $strategy !== '' ? $strategy : null;
+    $notes = $notes !== '' ? $notes : null;
+    $stmt = $conn->prepare('UPDATE orders SET purchased_at = ?, strategy = ?, notes = ? WHERE id = ? AND user_id = ?');
+    if (!$stmt) {
+        redirect_with_flash('error', 'Kunne ikke oppdatere journalen.', 'order_detail.php?id=' . $orderId);
+    }
+    $stmt->bind_param('sssii', $purchasedAt, $strategy, $notes, $orderId, $userId);
+    $stmt->execute();
+    redirect_with_flash($stmt->affected_rows >= 0 ? 'success' : 'error', $stmt->affected_rows >= 0 ? 'Journalen ble oppdatert.' : 'Kunne ikke oppdatere journalen.', 'order_detail.php?id=' . $orderId);
 }
 
 if ($action === 'close_order') {
@@ -76,7 +107,7 @@ if ($action === 'close_order') {
     $closeFee = $_POST['close_fee'] ?? '0';
 
     if ($orderId <= 0 || !is_numeric($closeQuantity) || !is_numeric($closePrice) || $closeQuantity <= 0 || $closePrice < 0) {
-        redirect_with_flash('error', 'Please provide valid closing data.');
+        redirect_with_flash('error', 'Fyll inn gyldig antall og salgspris.');
     }
 
     $closeQuantity = (float)$closeQuantity;
@@ -91,15 +122,15 @@ if ($action === 'close_order') {
     $order = $orderResult->fetch_assoc();
 
     if (!$order) {
-        redirect_with_flash('error', 'Order not found.');
+        redirect_with_flash('error', 'Fant ikke ordren.');
     }
 
     if ($order['status'] === 'CLOSED') {
-        redirect_with_flash('error', 'Order is already closed.');
+        redirect_with_flash('error', 'Ordren er allerede lukket.');
     }
 
     if ($closeQuantity > (float)$order['remaining_quantity']) {
-        redirect_with_flash('error', 'Close quantity exceeds remaining amount.');
+        redirect_with_flash('error', 'Salgsantallet er høyere enn gjenstående antall.');
     }
 
     $originalCostBasis = ($order['quantity'] * $order['entry_price']) + $order['fee'];
@@ -148,7 +179,7 @@ if ($action === 'close_order') {
     }
 
     if ($update->execute()) {
-        redirect_with_flash('success', 'Order updated with closing trade.');
+        redirect_with_flash('success', 'Salget ble registrert.');
     }
 
     redirect_with_flash('error', 'Failed to update order.');

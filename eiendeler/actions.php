@@ -25,6 +25,23 @@ function clean_category(string $category): string
     return in_array($category, ['property', 'crypto', 'cash', 'other'], true) ? $category : 'other';
 }
 
+function save_valuation_snapshot(mysqli $conn, int $assetId, int $userId, string $valuationDate, float $grossValue, float $loanAmount, float $ownershipPercent): void
+{
+    $table = $conn->query("SHOW TABLES LIKE 'asset_valuations'");
+    if (!$table || $table->num_rows === 0) {
+        return;
+    }
+    $stmt = $conn->prepare(
+        'INSERT INTO asset_valuations (asset_id, user_id, valuation_date, gross_value, loan_amount, ownership_percent)
+         VALUES (?, ?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE gross_value = VALUES(gross_value), loan_amount = VALUES(loan_amount), ownership_percent = VALUES(ownership_percent)'
+    );
+    if ($stmt) {
+        $stmt->bind_param('iisddd', $assetId, $userId, $valuationDate, $grossValue, $loanAmount, $ownershipPercent);
+        $stmt->execute();
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redirect_with_flash('error', 'Ugyldig forespørsel.');
 }
@@ -44,7 +61,9 @@ if ($action === 'save_asset') {
     $valuationDate = trim($_POST['valuation_date'] ?? '');
     $notes = trim($_POST['notes'] ?? '');
 
-    if ($name === '' || !is_numeric($grossValue) || (float)$grossValue < 0 || !is_numeric($loanAmount) || (float)$loanAmount < 0 || !is_numeric($ownershipPercent)) {
+    $parsedValuationDate = DateTime::createFromFormat('Y-m-d', $valuationDate ?: date('Y-m-d'));
+    $valuationDateValid = $parsedValuationDate !== false && $parsedValuationDate->format('Y-m-d') === ($valuationDate ?: date('Y-m-d'));
+    if ($name === '' || !$valuationDateValid || !is_numeric($grossValue) || (float)$grossValue < 0 || !is_numeric($loanAmount) || (float)$loanAmount < 0 || !is_numeric($ownershipPercent)) {
         redirect_with_flash('error', 'Fyll ut navn, verdi, lån og eierandel med gyldige tall.');
     }
 
@@ -54,7 +73,7 @@ if ($action === 'save_asset') {
     $assetType = $assetType !== '' ? $assetType : null;
     $provider = $provider !== '' ? $provider : null;
     $notes = $notes !== '' ? $notes : null;
-    $valuationDate = $valuationDate !== '' ? $valuationDate : null;
+    $valuationDate = $valuationDate !== '' ? $valuationDate : date('Y-m-d');
 
     if ($assetId > 0) {
         $stmt = $conn->prepare('UPDATE assets SET category = ?, asset_type = ?, name = ?, provider = ?, gross_value = ?, loan_amount = ?, ownership_percent = ?, currency = ?, valuation_date = ?, notes = ? WHERE id = ? AND user_id = ?');
@@ -70,6 +89,13 @@ if ($action === 'save_asset') {
         }
         $stmt->bind_param('issssdddsss', $userId, $category, $assetType, $name, $provider, $grossValue, $loanAmount, $ownershipPercent, $currency, $valuationDate, $notes);
         $ok = $stmt->execute();
+        if ($ok) {
+            $assetId = (int)$stmt->insert_id;
+        }
+    }
+
+    if ($ok) {
+        save_valuation_snapshot($conn, $assetId, $userId, $valuationDate, $grossValue, $loanAmount, $ownershipPercent);
     }
 
     redirect_with_flash($ok ? 'success' : 'error', $ok ? 'Eiendelen ble lagret.' : 'Kunne ikke lagre eiendelen.');

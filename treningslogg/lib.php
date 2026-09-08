@@ -53,6 +53,68 @@ function fetch_entries(mysqli $conn, int $measurement_id, int $limit = 12): arra
     return array_reverse($entries);
 }
 
+function training_images_table_available(mysqli $conn): bool
+{
+    static $available = null;
+    if ($available !== null) {
+        return $available;
+    }
+
+    $result = $conn->query("SHOW TABLES LIKE 'treningslogg_entry_images'");
+    $available = $result && $result->num_rows > 0;
+    return $available;
+}
+
+function fetch_entry_images_for_measurement(mysqli $conn, int $measurement_id, int $user_id): array
+{
+    if (!training_images_table_available($conn)) {
+        return [];
+    }
+
+    $stmt = $conn->prepare(
+        'SELECT i.entry_id, i.image_date, i.file_name, i.mime_type
+         FROM treningslogg_entry_images i
+         JOIN treningslogg_entries e ON i.entry_id = e.id
+         JOIN treningslogg_measurements m ON e.measurement_id = m.id
+         WHERE m.id = ? AND m.user_id = ?'
+    );
+    if (!$stmt) {
+        return [];
+    }
+    $stmt->bind_param('ii', $measurement_id, $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $images = [];
+    while ($result && ($row = $result->fetch_assoc())) {
+        $images[(int) $row['entry_id']] = $row;
+    }
+    return $images;
+}
+
+function fetch_recent_entry_images(mysqli $conn, int $user_id, int $limit = 8): array
+{
+    if (!training_images_table_available($conn)) {
+        return [];
+    }
+
+    $stmt = $conn->prepare(
+        'SELECT i.entry_id, i.image_date, i.file_name, m.name AS measurement_name, e.value
+         FROM treningslogg_entry_images i
+         JOIN treningslogg_entries e ON i.entry_id = e.id
+         JOIN treningslogg_measurements m ON e.measurement_id = m.id
+         WHERE i.user_id = ?
+         ORDER BY i.image_date DESC, i.id DESC
+         LIMIT ?'
+    );
+    if (!$stmt) {
+        return [];
+    }
+    $stmt->bind_param('ii', $user_id, $limit);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+}
+
 function fetch_user_entry_count(mysqli $conn, int $user_id): int
 {
     $stmt = $conn->prepare(

@@ -48,51 +48,67 @@ foreach ($closures as $closure) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="no">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order #<?php echo (int)$order['id']; ?> details</title>
+    <title>Ordre #<?php echo (int)$order['id']; ?> · detaljer</title>
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 <div class="container">
     <header>
-        <h1>Order #<?php echo (int)$order['id']; ?> details</h1>
-        <p class="subtitle"><a href="index.php" class="link">← Back to list</a></p>
+        <h1>Ordre #<?php echo (int)$order['id']; ?></h1>
+        <p class="subtitle"><a href="index.php" class="link">← Tilbake til oversikten</a></p>
     </header>
 
+    <?php $flash = $_SESSION['flash'] ?? null; unset($_SESSION['flash']); ?>
+    <?php if ($flash): ?><div class="alert <?php echo h($flash['type']); ?>"><?php echo h($flash['message']); ?></div><?php endif; ?>
+
+    <section class="card">
+        <h2>Investeringsjournal</h2>
+        <p class="muted">Ta vare på begrunnelsen, planen og faktisk kjøpsdato.</p>
+        <form method="POST" action="actions.php" class="form-grid journal-form">
+            <input type="hidden" name="action" value="update_journal">
+            <input type="hidden" name="order_id" value="<?php echo (int)$order['id']; ?>">
+            <div class="form-control"><label for="purchased_at">Kjøpt</label><input type="datetime-local" id="purchased_at" name="purchased_at" value="<?php echo h(date('Y-m-d\TH:i', strtotime($order['purchased_at'] ?? $order['created_at']))); ?>" required></div>
+            <div class="form-control"><label for="strategy">Strategi</label><input type="text" id="strategy" name="strategy" maxlength="60" value="<?php echo h($order['strategy'] ?? ''); ?>"></div>
+            <div class="form-control form-control--wide"><label for="notes">Notat</label><textarea id="notes" name="notes" maxlength="2000" rows="4"><?php echo h($order['notes'] ?? ''); ?></textarea></div>
+            <div class="form-actions"><button class="btn primary" type="submit">Lagre journal</button></div>
+        </form>
+    </section>
+
     <section class="card danger">
-        <h2>Delete order</h2>
-        <p>If this order was created by mistake, you can delete it. All closure history for the order will also be removed.</p>
-        <form method="POST" action="actions.php" onsubmit="return confirm('Delete this order and its history? This cannot be undone.');">
+        <h2>Slett ordre</h2>
+        <p>Bruk dette bare hvis ordren ble opprettet ved en feil. Hele salgshistorikken blir også slettet.</p>
+        <form method="POST" action="actions.php" onsubmit="return confirm('Slette ordren og hele historikken? Dette kan ikke angres.');">
             <input type="hidden" name="action" value="delete_order">
             <input type="hidden" name="order_id" value="<?php echo (int)$order['id']; ?>">
-            <button type="submit" class="btn danger">Delete order</button>
+            <button type="submit" class="btn danger">Slett ordre</button>
         </form>
     </section>
 
     <section class="card">
-        <h2>Order summary</h2>
+        <h2>Ordresammendrag</h2>
         <div class="detail-grid">
-            <div><strong>Asset:</strong> <?php echo h($order['asset']); ?></div>
-            <div><strong>Status:</strong> <span class="badge <?php echo strtolower($order['status']); ?>"><?php echo h($order['status']); ?></span></div>
-            <div><strong>Quantity:</strong> <?php echo formatDecimal($order['quantity']); ?></div>
-            <div><strong>Remaining:</strong> <?php echo formatDecimal($order['remaining_quantity']); ?></div>
-            <div><strong>Entry price:</strong> <?php echo formatDecimal($order['entry_price']); ?> <?php echo h($order['currency'] ?? 'USD'); ?></div>
-            <div><strong>Currency:</strong> <?php echo h($order['currency'] ?? 'USD'); ?></div>
-            <div><strong>Fee:</strong> <?php echo formatDecimal($order['fee']); ?> <?php echo h($order['currency'] ?? 'USD'); ?></div>
-            <div><strong>Total cost basis:</strong> <?php echo formatDecimal(($order['quantity'] * $order['entry_price']) + $order['fee']); ?> <?php echo h($order['currency'] ?? 'USD'); ?></div>
-            <div><strong>Realized profit:</strong> <?php echo $order['status'] === 'CLOSED' ? formatDecimal($order['realized_profit']) . ' ' . h($order['currency'] ?? 'USD') : '-'; ?></div>
-            <div><strong>Created at:</strong> <?php echo h($order['created_at']); ?></div>
-            <div><strong>Closed at:</strong> <?php echo h($order['closed_at']); ?></div>
+            <div><strong>Valuta:</strong> <?php echo h($order['asset']); ?></div>
+            <div><strong>Status:</strong> <span class="badge <?php echo strtolower($order['status']); ?>"><?php echo $order['status'] === 'OPEN' ? 'Åpen' : 'Lukket'; ?></span></div>
+            <div><strong>Antall:</strong> <?php echo formatDecimal($order['quantity']); ?></div>
+            <div><strong>Gjenstår:</strong> <?php echo formatDecimal($order['remaining_quantity']); ?></div>
+            <div><strong>Kjøpspris:</strong> <?php echo formatDecimal($order['entry_price']); ?> <?php echo h($order['currency'] ?? 'USD'); ?></div>
+            <div><strong>Prisvaluta:</strong> <?php echo h($order['currency'] ?? 'USD'); ?></div>
+            <div><strong>Gebyr:</strong> <?php echo formatDecimal($order['fee']); ?> <?php echo h($order['currency'] ?? 'USD'); ?></div>
+            <div><strong>Kostgrunnlag:</strong> <?php echo formatDecimal(($order['quantity'] * $order['entry_price']) + $order['fee']); ?> <?php echo h($order['currency'] ?? 'USD'); ?></div>
+            <div><strong>Realisert resultat:</strong> <?php echo $order['status'] === 'CLOSED' ? formatDecimal($order['realized_profit']) . ' ' . h($order['currency'] ?? 'USD') : '-'; ?></div>
+            <div><strong>Opprettet:</strong> <?php echo h($order['created_at']); ?></div>
+            <div><strong>Lukket:</strong> <?php echo h($order['closed_at']); ?></div>
         </div>
     </section>
 
     <section class="card">
-        <h2>Closure history</h2>
+        <h2>Salgshistorikk</h2>
         <?php if (empty($closures)): ?>
-            <p class="muted">No closures recorded yet.</p>
+            <p class="muted">Ingen salg er registrert ennå.</p>
         <?php else: ?>
             <div class="table-wrapper">
                 <table>

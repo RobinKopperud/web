@@ -26,6 +26,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($entry_id <= 0) {
             $error = 'Ugyldig registrering valgt.';
         } else {
+            $entry_image_file = null;
+            if (training_images_table_available($conn)) {
+                $imageStmt = $conn->prepare(
+                    'SELECT i.file_name FROM treningslogg_entry_images i
+                     JOIN treningslogg_entries e ON i.entry_id = e.id
+                     JOIN treningslogg_measurements m ON e.measurement_id = m.id
+                     WHERE e.id = ? AND m.id = ? AND m.user_id = ? LIMIT 1'
+                );
+                if ($imageStmt) {
+                    $imageStmt->bind_param('iii', $entry_id, $measurement_id, $_SESSION['user_id']);
+                    $imageStmt->execute();
+                    $imageRow = $imageStmt->get_result()->fetch_assoc();
+                    $entry_image_file = $imageRow['file_name'] ?? null;
+                }
+            }
             $stmt = $conn->prepare(
                 'DELETE e FROM treningslogg_entries e
                  JOIN treningslogg_measurements m ON e.measurement_id = m.id
@@ -35,6 +50,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bind_param('iii', $entry_id, $measurement_id, $_SESSION['user_id']);
                 $stmt->execute();
                 if ($stmt->affected_rows > 0) {
+                    if ($entry_image_file) {
+                        $imagePath = __DIR__ . '/uploads/' . basename($entry_image_file);
+                        if (is_file($imagePath)) {
+                            @unlink($imagePath);
+                        }
+                    }
                     header('Location: measurement.php?id=' . $measurement_id . '&success=deleted');
                     exit;
                 }
@@ -51,6 +72,7 @@ if (($_GET['success'] ?? '') === 'deleted') {
 }
 
 $all_entries = fetch_entries($conn, $measurement_id, 300);
+$entry_images = fetch_entry_images_for_measurement($conn, $measurement_id, (int) $_SESSION['user_id']);
 $last_entry = fetch_last_entry($conn, $measurement_id);
 $delta = fetch_delta_30_days($conn, $measurement_id);
 $range = $_GET['range'] ?? '90';
@@ -222,7 +244,12 @@ $delta_class = $delta_value === null ? 'neutral' : ($delta_value < 0 ? 'positive
             <?php foreach (array_reverse($entries) as $entry): ?>
               <li class="entry-row" data-entry-id="<?php echo (int) $entry['id']; ?>">
                 <div class="entry-surface">
-                  <span><?php echo htmlspecialchars($entry['entry_date'], ENT_QUOTES, 'UTF-8'); ?></span>
+                  <span class="entry-date-wrap">
+                    <?php if (isset($entry_images[(int) $entry['id']])): ?>
+                      <img class="entry-thumb" src="image.php?entry=<?php echo (int)$entry['id']; ?>" alt="Bilde fra registreringen" loading="lazy" />
+                    <?php endif; ?>
+                    <span><?php echo htmlspecialchars($entry['entry_date'], ENT_QUOTES, 'UTF-8'); ?></span>
+                  </span>
                   <strong><?php echo number_format((float) $entry['value'], 1, ',', ''); ?> cm</strong>
                 </div>
                 <form class="entry-delete" method="post" action="measurement.php?id=<?php echo $measurement_id; ?>&range=<?php echo urlencode($range); ?>">

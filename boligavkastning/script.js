@@ -58,6 +58,8 @@ function calculate(){
   $('mainProfitPct').textContent=valid?`${fmtPct(profitPct)} totalt`:'Kontroller datoene';
   $('annualReturn').textContent=valid?fmtPct(mode==='simple'?annual:(profitPct>-100?((Math.pow(1+profitPct/100,1/years)-1)*100):0)):'–';
   $('holdingPeriod').textContent=valid?`${years.toLocaleString('nb-NO',{maximumFractionDigits:1})} år`:'–';
+  const shownAnnual=mode==='simple'?annual:(profitPct>-100?((Math.pow(1+profitPct/100,1/years)-1)*100):0);
+  $('returnInsight').textContent=!valid?'Kontroller datoene før resultatet kan vurderes.':shownAnnual<0?'Scenarioet gir negativ beregnet avkastning. Test pris, rente og kostnader.':shownAnnual<3?'Lav beregnet årsavkastning. Sammenlign gjerne med et mer forsiktig og et mer optimistisk scenario.':shownAnnual<6?'Moderat beregnet årsavkastning. Kostnader og salgstidspunkt har stor betydning.':'Sterk beregnet årsavkastning. Kontroller at salgspris og kostnader fortsatt er realistiske.';
   $('resultSalePrice').textContent=fmtNok(sale);
   $('saleDifference').textContent=`${appreciation>=0?'+':''}${fmtNok(appreciation)} fra kjøp`;
   $('details').innerHTML=details.map(([key,value])=>`<div><span>${key}</span><strong>${value}</strong></div>`).join('');
@@ -141,3 +143,71 @@ document.querySelectorAll('.app-tab').forEach((button) => button.addEventListene
 $('loanCalcRate').addEventListener('input', () => { $('loanCalcRateOutput').textContent = `${val('loanCalcRate').toLocaleString('nb-NO')} %`; });
 $('loanCalcYears').addEventListener('input', () => { $('loanCalcYearsOutput').textContent = `${val('loanCalcYears')} år`; });
 calculateLoan();
+
+// Scenarier, hurtigvalg og delbart sammendrag
+const scenarioFields = [
+  'purchasePrice','salePrice','purchaseDate','saleDate','equity','buyCostPct','interestRate','loanYears','monthlyCommonCosts','otherCostsYear','costGrowthPct','sellCostPct',
+  'annualIncome','otherDebt','housingBudget','loanEquity','loanCalcRate','loanCalcYears','commonCost','children','fixedExpenses','purchaseCosts','equityRequirement','askingPrice','sharedDebt','sharedDebtMonthly'
+];
+const scenarioStorageKey = 'boligkalkulator-scenarios-v1';
+let activeView = 'return';
+const captureScenario = () => ({
+  fields: Object.fromEntries(scenarioFields.map(id => [id, $(id).value])),
+  stressTest: $('stressTest').checked,
+  mode,
+  view: activeView
+});
+const initialScenario = captureScenario();
+const readScenarios = () => { try { return JSON.parse(localStorage.getItem(scenarioStorageKey) || '{}'); } catch { return {}; } };
+const writeScenarios = (scenarios) => localStorage.setItem(scenarioStorageKey, JSON.stringify(scenarios));
+const setScenarioStatus = (message) => { $('scenarioStatus').textContent = message; window.clearTimeout(setScenarioStatus.timer); setScenarioStatus.timer = window.setTimeout(() => $('scenarioStatus').textContent = '', 3500); };
+const applyScenario = (scenario) => {
+  if (!scenario?.fields) return;
+  scenarioFields.forEach(id => { if (scenario.fields[id] !== undefined) $(id).value = scenario.fields[id]; });
+  $('stressTest').checked = scenario.stressTest !== false;
+  $('salePriceRange').value = Math.min(15000000, Math.max(500000, val('salePrice')));
+  setMode(scenario.mode === 'advanced' ? 'advanced' : 'simple');
+  setView(scenario.view === 'loan' ? 'loan' : 'return');
+  activeView = scenario.view === 'loan' ? 'loan' : 'return';
+  document.querySelectorAll('input').forEach(input => input.dispatchEvent(new Event('input', {bubbles:true})));
+};
+const refreshScenarioOptions = (selected = '') => {
+  const scenarios = readScenarios();
+  $('savedScenarios').replaceChildren(new Option('Velg scenario', ''));
+  Object.keys(scenarios).sort((a,b)=>a.localeCompare(b,'nb')).forEach(name => $('savedScenarios').add(new Option(name, name)));
+  $('savedScenarios').value = selected;
+  $('deleteScenario').disabled = !selected;
+};
+document.querySelectorAll('.app-tab').forEach(button => button.addEventListener('click', () => { activeView = button.dataset.view; }));
+document.querySelectorAll('[data-preset]').forEach(button => button.addEventListener('click', () => {
+  const preset = button.dataset.preset;
+  const years = Math.max(1, yearsBetween());
+  const annualGrowth = preset === 'cautious' ? 0.02 : preset === 'optimistic' ? 0.06 : 0.04;
+  $('salePrice').value = Math.round(val('purchasePrice') * Math.pow(1 + annualGrowth, years) / 50000) * 50000;
+  $('interestRate').value = preset === 'cautious' ? 7 : preset === 'optimistic' ? 4.5 : 5.5;
+  $('costGrowthPct').value = preset === 'cautious' ? 4 : preset === 'optimistic' ? 2 : 3;
+  $('salePriceRange').value = Math.min(15000000, Math.max(500000, val('salePrice')));
+  ['salePrice','interestRate','costGrowthPct'].forEach(id => $(id).dispatchEvent(new Event('input', {bubbles:true})));
+  setScenarioStatus(`${button.textContent}-scenario er lagt inn.`);
+}));
+$('saveScenario').addEventListener('click', () => {
+  const name = $('scenarioName').value.trim();
+  if (!name) { $('scenarioName').focus(); setScenarioStatus('Gi scenarioet et navn først.'); return; }
+  const scenarios = readScenarios(); scenarios[name] = captureScenario(); writeScenarios(scenarios); refreshScenarioOptions(name); setScenarioStatus(`«${name}» er lagret i denne nettleseren.`);
+});
+$('savedScenarios').addEventListener('change', () => {
+  const name = $('savedScenarios').value; $('deleteScenario').disabled = !name;
+  if (name) { $('scenarioName').value = name; applyScenario(readScenarios()[name]); setScenarioStatus(`«${name}» er lastet.`); }
+});
+$('deleteScenario').addEventListener('click', () => {
+  const name = $('savedScenarios').value; if (!name) return;
+  const scenarios = readScenarios(); delete scenarios[name]; writeScenarios(scenarios); refreshScenarioOptions(); $('scenarioName').value=''; setScenarioStatus(`«${name}» er slettet.`);
+});
+$('resetCalculator').addEventListener('click', () => { applyScenario(initialScenario); $('scenarioName').value=''; $('savedScenarios').value=''; $('deleteScenario').disabled=true; setScenarioStatus('Kalkulatoren er nullstilt.'); });
+$('copySummary').addEventListener('click', async () => {
+  const summary = activeView === 'loan'
+    ? `Boligscenario: makslån ${$('maxLoan').textContent}, totalpris ${$('caseTotalPrice').textContent}, samlet boligkostnad ${$('caseMonthlyCost').textContent}, margin ${$('caseMargin').textContent}.`
+    : `Boligscenario: kjøp ${fmtNok(val('purchasePrice'))}, salg ${fmtNok(val('salePrice'))}, resultat ${$('mainProfit').textContent}, gjennomsnitt ${$('annualReturn').textContent} per år.`;
+  try { await navigator.clipboard.writeText(summary); setScenarioStatus('Sammendraget er kopiert.'); } catch { setScenarioStatus('Nettleseren tillot ikke kopiering.'); }
+});
+refreshScenarioOptions();

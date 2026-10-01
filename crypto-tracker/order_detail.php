@@ -2,6 +2,7 @@
 session_start();
 include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/performance_data.php';
 
 ensure_logged_in();
 $userId = (int)($_SESSION['user_id'] ?? 0);
@@ -78,6 +79,17 @@ foreach ($closures as $closure) {
         </form>
     </section>
 
+    <section class="card" id="orderPerformanceDetail" data-performance="<?php echo h(json_encode(performance_order_data($order, $closures))); ?>">
+        <h2>Avkastning og eiertid</h2>
+        <div class="order-performance">
+            <div><p class="eyebrow">Avkastning totalt</p><p class="mono profit order-total-return">–</p></div>
+            <div><p class="eyebrow">Avkastning per år</p><p class="mono profit order-annual-return">–</p></div>
+            <div><p class="eyebrow">Eiertid</p><p class="mono order-holding-period">–</p></div>
+            <p class="hint order-performance-note" role="status">Venter på beregning …</p>
+        </div>
+        <p class="hint">Avkastning per år tar hensyn til eiertid og eventuelle delsalg. Annualisert avkastning er ikke en prognose.</p>
+    </section>
+
     <section class="card danger">
         <h2>Slett ordre</h2>
         <p>Bruk dette bare hvis ordren ble opprettet ved en feil. Hele salgshistorikken blir også slettet.</p>
@@ -148,5 +160,8 @@ foreach ($closures as $closure) {
         <?php endif; ?>
     </section>
 </div>
+<script src="assets/performance.js"></script>
+<script src="assets/performance-ui.js"></script>
 </body>
 </html>
+

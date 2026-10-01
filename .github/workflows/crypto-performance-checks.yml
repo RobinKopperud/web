@@ -1,0 +1,29 @@
+name: Crypto performance checks
+
+on:
+  pull_request:
+    paths:
+      - 'crypto-tracker/**'
+      - '.github/workflows/crypto-performance-checks.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'crypto-tracker/**'
+      - '.github/workflows/crypto-performance-checks.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check PHP syntax
+        run: |
+          for file in crypto-tracker/*.php; do php -l "$file"; done
+      - name: Check JavaScript syntax
+        run: |
+          for file in crypto-tracker/assets/*.js; do node --check "$file"; done
+      - name: Test return calculations and missing data
+        run: node --test crypto-tracker/tests/*.test.js

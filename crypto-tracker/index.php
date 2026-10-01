@@ -2,6 +2,7 @@
 session_start();
 include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/performance_data.php';
 
 ensure_logged_in();
 $currentUser = fetch_current_user($conn);
@@ -74,6 +75,7 @@ if ($ordersStmt) {
 }
 
 $closureProfits = [];
+$performanceClosures = performance_closures($conn, $userId);
 
 if (!empty($orders)) {
     $orderIds = array_column($orders, 'id');
@@ -149,6 +151,19 @@ if (!empty($orders)) {
             <div class="stat">
                 <p class="eyebrow">Avkastning totalt</p>
                 <p class="mono" id="lifetimeRoi">-</p>
+            </div>
+        </div>
+        <div class="performance-overview">
+            <div class="summary-grid">
+                <div class="stat annual-stat"><p class="eyebrow">Årlig avkastning</p><p class="mono profit" id="portfolioAnnualReturn">–</p><p class="hint">Tar hensyn til tidspunkt for kjøp og salg (XIRR).</p></div>
+                <div class="stat"><p class="eyebrow">Samlet resultat</p><p class="mono profit" id="portfolioTotalProfit">–</p><p class="hint">Realisert og urealisert resultat.</p></div>
+            </div>
+            <p class="hint" id="performanceStatus" role="status">Venter på priser …</p>
+            <p class="performance-example">10 % over 2 år tilsvarer <strong>4,88 % per år</strong>.</p>
+            <p class="hint">NOK-tall bruker dagens valutakurser. Avkastning per år er annualisert, ikke en prognose. Korte eierperioder kan gi store årlige utslag.</p>
+            <div class="performance-charts">
+                <section aria-labelledby="orderReturnTitle"><h3 id="orderReturnTitle">Avkastning og tid</h3><p class="hint">Samlet avkastning sammenlignet med avkastning per år. Ordrene beregnes i sin prisvaluta.</p><div id="orderReturnChart" class="performance-chart">Venter på beregning …</div></section>
+                <section aria-labelledby="yearProfitTitle"><h3 id="yearProfitTitle">Realisert resultat per år</h3><p class="hint">Resultat fra registrerte salg, gruppert etter salgsår (UTC). Inkluderer ikke verdiendring i åpne posisjoner.</p><div id="yearProfitChart" class="performance-chart">Ingen registrerte salg.</div></section>
             </div>
         </div>
         <div class="allocation-panel">
@@ -256,6 +271,7 @@ if (!empty($orders)) {
                     $realizedForOrder = $closureProfits[(int)$order['id']] ?? 0.0;
                     ?>
                     <article class="order-card <?php echo $isClosed ? 'status-closed' : 'status-open'; ?>"
+                             data-performance="<?php echo h(json_encode(performance_order_data($order, $performanceClosures === null ? null : ($performanceClosures[(int)$order['id']] ?? [])))); ?>"
                              data-entry-price="<?php echo formatDecimal($order['entry_price']); ?>"
                              data-quantity="<?php echo formatDecimal($order['quantity']); ?>"
                              data-remaining="<?php echo formatDecimal($order['remaining_quantity']); ?>"
@@ -295,6 +311,12 @@ if (!empty($orders)) {
                                 <p class="eyebrow">Urealisert resultat</p>
                                 <p class="mono profit unrealized">-</p>
                             </div>
+                        </div>
+                        <div class="order-performance">
+                            <div><p class="eyebrow">Avkastning totalt</p><p class="mono profit order-total-return">–</p></div>
+                            <div><p class="eyebrow">Avkastning per år</p><p class="mono profit order-annual-return">–</p></div>
+                            <div><p class="eyebrow">Eiertid</p><p class="mono order-holding-period">–</p></div>
+                            <p class="hint order-performance-note">Venter på beregning …</p>
                         </div>
                         <?php if (!empty($order['strategy']) || !empty($order['notes'])): ?>
                             <div class="journal-snippet"><strong><?php echo h($order['strategy'] ?: 'Notat'); ?></strong><?php if (!empty($order['notes'])): ?><span><?php echo h($order['notes']); ?></span><?php endif; ?></div>
@@ -386,6 +408,9 @@ if (!empty($orders)) {
         </div>
     </div>
 </div>
+<script src="assets/performance.js"></script>
+<script src="assets/performance-ui.js"></script>
 <script src="assets/app.js"></script>
 </body>
 </html>
+

@@ -602,3 +602,8 @@ body { background: radial-gradient(circle at top, #172554 0, var(--bg) 420px); }
 .journal-snippet { display:grid; gap:5px; margin:12px 0; padding:12px; border-radius:12px; background:#0b1221; }
 .journal-snippet span { color:var(--muted); line-height:1.45; }
 .journal-form { align-items:end; }
+
+.integrated-filters .filter-row { display: grid; grid-template-columns: minmax(130px,1fr) minmax(170px,1fr) minmax(160px,1fr); align-items: end; gap: 16px; }
+.integrated-filters .form-actions { grid-column: 1 / -1; justify-content: flex-end; flex-wrap: wrap; }
+.integrated-filters input[type="search"] { width: 100%; }
+@media(max-width:700px) { .integrated-filters .filter-row { grid-template-columns: 1fr; } }

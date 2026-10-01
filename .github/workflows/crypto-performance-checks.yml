@@ -27,3 +27,5 @@ jobs:
           for file in crypto-tracker/assets/*.js; do node --check "$file"; done
       - name: Test return calculations and missing data
         run: node --test crypto-tracker/tests/*.test.js
+      - name: Test server-side purchase input
+        run: php crypto-tracker/tests/order_input_test.php

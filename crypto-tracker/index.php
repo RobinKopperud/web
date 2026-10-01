@@ -30,7 +30,7 @@ unset($_SESSION['flash']);
 
 // Fetch available assets for filter dropdown scoped to the user's open orders
 $assetOptions = [];
-$assetStmt = $conn->prepare("SELECT DISTINCT asset FROM orders WHERE user_id = ? AND status = 'OPEN' ORDER BY asset");
+$assetStmt = $conn->prepare("SELECT DISTINCT asset FROM orders WHERE user_id = ? ORDER BY asset");
 if ($assetStmt) {
     $assetStmt->bind_param('i', $userId);
     $assetStmt->execute();
@@ -50,16 +50,6 @@ $filterSql = "WHERE user_id = ?";
 $filterTypes = 'i';
 $filterValues = [$userId];
 
-if ($assetFilter !== '') {
-    $filterSql .= " AND asset = ?";
-    $filterTypes .= 's';
-    $filterValues[] = $assetFilter;
-}
-
-if ($statusFilter === 'open') {
-    $filterSql .= " AND status = 'OPEN'";
-}
-
 $ordersQuery = "SELECT * FROM orders $filterSql ORDER BY created_at DESC";
 $ordersStmt = $conn->prepare($ordersQuery);
 if ($ordersStmt) {
@@ -74,30 +64,6 @@ if ($ordersStmt) {
     $orders = [];
 }
 
-$closureProfits = [];
-$performanceClosures = performance_closures($conn, $userId);
-
-if (!empty($orders)) {
-    $orderIds = array_column($orders, 'id');
-    $placeholders = implode(',', array_fill(0, count($orderIds), '?'));
-    $profitQuery = "SELECT oc.order_id, oc.currency, COALESCE(SUM(oc.profit), 0) AS realized_profit FROM order_closures oc JOIN ord"
-        . "ers o ON oc.order_id = o.id WHERE o.user_id = ? AND oc.order_id IN ($placeholders) GROUP BY oc.order_id, oc.currency";
-    $profitStmt = $conn->prepare($profitQuery);
-
-    if ($profitStmt) {
-        $types = 'i' . str_repeat('i', count($orderIds));
-        $bindParams = array_merge([$userId], $orderIds);
-        $profitStmt->bind_param($types, ...$bindParams);
-        $profitStmt->execute();
-        $profitResult = $profitStmt->get_result();
-        if ($profitResult) {
-            while ($row = $profitResult->fetch_assoc()) {
-                $closureProfits[(int)$row['order_id']] = (float)$row['realized_profit'];
-            }
-        }
-    }
-}
-
 ?>
 <!DOCTYPE html>
 <html lang="no">
@@ -105,7 +71,7 @@ if (!empty($orders)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kryptooversikt</title>
-    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="assets/style.css?v=<?php echo filemtime(__DIR__ . '/assets/style.css'); ?>">
 </head>
 <body>
 <div class="container">
@@ -122,11 +88,36 @@ if (!empty($orders)) {
         <div class="alert <?php echo h($flash['type']); ?>"><?php echo h($flash['message']); ?></div>
     <?php endif; ?>
 
+    <section class="card integrated-filters" aria-label="Filtrer oversikten">
+        <form method="GET" class="filter-row" id="integratedFilters">
+            <div class="form-control">
+                <label for="filter_asset">Kryptovaluta</label>
+                <select name="asset" id="filter_asset">
+                    <option value="">Alle valutaer</option>
+                    <?php foreach ($assetOptions as $assetOption): ?>
+                        <option value="<?php echo h($assetOption); ?>" <?php echo $assetFilter === $assetOption ? 'selected' : ''; ?>><?php echo h($assetOption); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-control">
+                <label>Status</label>
+                <div class="pill-group">
+                    <label><input type="radio" name="status" value="open" <?php echo $statusFilter === 'open' ? 'checked' : ''; ?>> Kun åpne</label>
+                    <label><input type="radio" name="status" value="all" <?php echo $statusFilter === 'all' ? 'checked' : ''; ?>> Alle ordrer</label>
+                </div>
+            </div>
+            <div class="form-control"><label for="orderSearch">Søk i ordre</label><input type="search" name="q" id="orderSearch" placeholder="Valuta, strategi eller notat" value="<?php echo h($_GET['q'] ?? ''); ?>"></div>
+            <div class="form-actions">
+                <button type="submit" class="btn">Bruk filtre</button><button type="reset" class="btn ghost">Nullstill</button><button type="button" class="btn" id="refreshPrices">Oppdater priser</button>
+            </div>
+        </form>
+    </section>
+
+
     <nav class="top-nav card" aria-label="Visning">
         <button type="button" class="btn nav-btn is-active" data-target="portfolioSection">Portefølje</button>
         <button type="button" class="btn nav-btn" data-target="ordersSection">Ordre</button>
         <button type="button" class="btn nav-btn" data-target="addOrderSection">Legg inn ordre</button>
-        <button type="button" class="btn nav-btn" data-target="filtersSection">Filtre</button>
         <button type="button" class="btn nav-btn" data-target="averagesSection">Gjennomsnitt</button>
     </nav>
 
@@ -155,12 +146,12 @@ if (!empty($orders)) {
         </div>
         <div class="performance-overview">
             <div class="summary-grid">
-                <div class="stat annual-stat"><p class="eyebrow">Årlig avkastning</p><p class="mono profit" id="portfolioAnnualReturn">–</p><p class="hint">Tar hensyn til tidspunkt for kjøp og salg (XIRR).</p></div>
+                <div class="stat annual-stat"><p class="eyebrow">Årlig avkastning</p><p class="mono profit" id="portfolioAnnualReturn">–</p><p class="hint">Ordre med minst ett års eiertid. Tar hensyn til kjøps- og salgsdato.</p></div>
                 <div class="stat"><p class="eyebrow">Samlet resultat</p><p class="mono profit" id="portfolioTotalProfit">–</p><p class="hint">Realisert og urealisert resultat.</p></div>
             </div>
             <p class="hint" id="performanceStatus" role="status">Venter på priser …</p>
             <p class="performance-example">10 % over 2 år tilsvarer <strong>4,88 % per år</strong>.</p>
-            <p class="hint">NOK-tall bruker dagens valutakurser. Avkastning per år er annualisert, ikke en prognose. Korte eierperioder kan gi store årlige utslag.</p>
+            <p class="hint">NOK-tall bruker dagens valutakurser. Avkastning per år er annualisert, ikke en prognose. Ordre med under ett års eiertid vises med samlet avkastning, uten omregning til et år.</p>
             <div class="performance-charts">
                 <section aria-labelledby="orderReturnTitle"><h3 id="orderReturnTitle">Avkastning og tid</h3><p class="hint">Samlet avkastning sammenlignet med avkastning per år. Ordrene beregnes i sin prisvaluta.</p><div id="orderReturnChart" class="performance-chart">Venter på beregning …</div></section>
                 <section aria-labelledby="yearProfitTitle"><h3 id="yearProfitTitle">Realisert resultat per år</h3><p class="hint">Resultat fra registrerte salg, gruppert etter salgsår (UTC). Inkluderer ikke verdiendring i åpne posisjoner.</p><div id="yearProfitChart" class="performance-chart">Ingen registrerte salg.</div></section>
@@ -182,11 +173,11 @@ if (!empty($orders)) {
             </div>
             <div class="form-control">
                 <label for="quantity">Antall</label>
-                <input type="number" step="0.00000001" min="0" name="quantity" id="quantity" required>
+                <input type="number" step="0.00000001" min="0" name="quantity" id="quantity">
             </div>
             <div class="form-control">
                 <label for="entry_price">Kjøpspris per enhet</label>
-                <input type="number" step="0.0001" min="0" name="entry_price" id="entry_price" required>
+                <input type="number" step="any" min="0" name="entry_price" id="entry_price">
             </div>
             <div class="form-control">
                 <label for="currency">Prisvaluta</label>
@@ -195,11 +186,11 @@ if (!empty($orders)) {
                     <option value="EUR">EUR</option>
                     <option value="USDC">USDC</option>
                 </select>
-                <p class="hint">Brukes for entry price og alle closes. Kun USD, EUR og USDC er tillatt.</p>
+                <p class="hint">Prisvaluta for kjøp og salg.</p>
             </div>
             <div class="form-control">
                 <label for="total_cost">Totalbeløp (valgfritt)</label>
-                <input type="number" step="0.0001" min="0" name="total_cost" id="total_cost" placeholder="Auto-calculated">
+                <input type="number" step="any" min="0" name="total_cost" id="total_cost" placeholder="Beregnes automatisk">
                 <p class="hint">Fyll inn to av feltene antall, kjøpspris og totalbeløp, så beregnes det tredje.</p>
             </div>
             <div class="form-control">
@@ -224,30 +215,6 @@ if (!empty($orders)) {
         </form>
     </section>
 
-    <section class="card filters view-section is-hidden" id="filtersSection">
-        <form method="GET" class="filter-row">
-            <div class="form-control">
-                <label for="filter_asset">Kryptovaluta</label>
-                <select name="asset" id="filter_asset">
-                    <option value="">Alle valutaer</option>
-                    <?php foreach ($assetOptions as $assetOption): ?>
-                        <option value="<?php echo h($assetOption); ?>" <?php echo $assetFilter === $assetOption ? 'selected' : ''; ?>><?php echo h($assetOption); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="form-control">
-                <label>Status</label>
-                <div class="pill-group">
-                    <label><input type="radio" name="status" value="open" <?php echo $statusFilter === 'open' ? 'checked' : ''; ?>> Kun åpne</label>
-                    <label><input type="radio" name="status" value="all" <?php echo $statusFilter === 'all' ? 'checked' : ''; ?>> Alle ordrer</label>
-                </div>
-            </div>
-            <div class="form-actions">
-                <button type="submit" class="btn">Bruk filtre</button>
-            </div>
-        </form>
-    </section>
-
     <section class="card view-section is-hidden" id="ordersSection">
         <div class="price-row">
             <div>
@@ -255,11 +222,9 @@ if (!empty($orders)) {
                 <p class="hint">Live-priser hentes fra Binance med symboler i formatet ASSETCURRENCY.</p>
             </div>
             <div class="price-actions">
-                <button type="button" class="btn" id="refreshPrices">Oppdater</button>
                 <div class="live-pill" id="livePulse">Live</div>
             </div>
         </div>
-        <label class="order-search">Søk i posisjoner<input type="search" id="orderSearch" placeholder="Valuta, strategi eller notat"></label>
 
         <div id="ordersTable" class="order-grid">
             <?php if (!empty($orders)): ?>
@@ -268,13 +233,13 @@ if (!empty($orders)) {
                     $totalCost = ($order['quantity'] * $order['entry_price']) + $order['fee'];
                     $isClosed = $order['status'] === 'CLOSED';
                     $assetSymbol = strtoupper($order['asset']);
-                    $realizedForOrder = $closureProfits[(int)$order['id']] ?? 0.0;
+                    $realizedForOrder = (float)($order['realized_profit'] ?? 0);
                     ?>
                     <article class="order-card <?php echo $isClosed ? 'status-closed' : 'status-open'; ?>"
-                             data-performance="<?php echo h(json_encode(performance_order_data($order, $performanceClosures === null ? null : ($performanceClosures[(int)$order['id']] ?? [])))); ?>"
+                             data-performance="<?php echo h(json_encode(performance_order_data($order))); ?>"
                              data-entry-price="<?php echo formatDecimal($order['entry_price']); ?>"
                              data-quantity="<?php echo formatDecimal($order['quantity']); ?>"
-                             data-remaining="<?php echo formatDecimal($order['remaining_quantity']); ?>"
+                             data-remaining="<?php echo formatDecimal($isClosed ? 0 : $order['quantity']); ?>"
                              data-asset="<?php echo h(strtolower($order['asset'])); ?>"
                              data-asset-symbol="<?php echo h($assetSymbol); ?>"
                              data-search="<?php echo h(strtolower(($order['asset'] ?? '') . ' ' . ($order['strategy'] ?? '') . ' ' . ($order['notes'] ?? ''))); ?>"
@@ -330,7 +295,7 @@ if (!empty($orders)) {
                                 <button class="btn secondary open-close-modal" type="button"
                                         data-order-id="<?php echo (int)$order['id']; ?>"
                                         data-asset="<?php echo h($order['asset']); ?>"
-                                        data-remaining="<?php echo formatDecimal($order['remaining_quantity']); ?>"
+                                        data-remaining="<?php echo formatDecimal($isClosed ? 0 : $order['quantity']); ?>"
                                         data-entry-price="<?php echo formatDecimal($order['entry_price']); ?>"
                                         data-currency="<?php echo h(strtoupper($order['currency'] ?? 'USD')); ?>">
                                     Registrer salg
@@ -385,10 +350,7 @@ if (!empty($orders)) {
                 <input type="hidden" name="action" value="close_order">
                 <input type="hidden" name="order_id" id="closeModalOrderId">
 
-                <div class="form-control">
-                    <label for="close_quantity_modal">Antall som selges <span class="hint" id="closeRemainingHelper"></span></label>
-                    <input type="number" step="0.00000001" min="0" name="close_quantity" id="close_quantity_modal" required>
-                </div>
+                <p class="hint" id="closeRemainingHelper">Hele ordren selges.</p>
                 <div class="form-control">
                     <label for="close_price_modal">Salgspris per enhet</label>
                     <div class="input-with-addon">
@@ -408,9 +370,10 @@ if (!empty($orders)) {
         </div>
     </div>
 </div>
-<script src="assets/performance.js"></script>
-<script src="assets/performance-ui.js"></script>
-<script src="assets/app.js"></script>
+<script src="assets/performance.js?v=<?php echo filemtime(__DIR__ . '/assets/performance.js'); ?>"></script>
+<script src="assets/performance-ui.js?v=<?php echo filemtime(__DIR__ . '/assets/performance-ui.js'); ?>"></script>
+<script src="assets/order-entry.js?v=<?php echo filemtime(__DIR__ . '/assets/order-entry.js'); ?>"></script>
+<script src="assets/app.js?v=<?php echo filemtime(__DIR__ . '/assets/app.js'); ?>"></script>
 </body>
 </html>
 

@@ -363,6 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updatePortfolioSummary(priceMap);
         updateAssetAverages();
+        globalThis.CryptoPerformanceUI.update(livePrices, symbolPrices, fxRates);
     }
 
     function updatePreviewProfit(card) {
@@ -561,3 +562,4 @@ document.addEventListener('DOMContentLoaded', () => {
     activateView('portfolioSection');
     setInterval(fetchLivePrices, 60000);
 });
+

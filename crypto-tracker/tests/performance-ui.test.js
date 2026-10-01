@@ -16,7 +16,7 @@ function fixture(orders) {
     return {nodes,update:context.globalThis.CryptoPerformanceUI?.update};
 }
 const purchasedAt = Date.now()-365.25*86400000;
-const order={id:1,asset:'BTC',currency:'USD',cost:100,quantity:10,remaining:10,purchasedAt,closures:[]};
+const order={id:1,asset:'BTC',currency:'USD',cost:100,quantity:10,status:'OPEN',purchasedAt};
 test('portfolio annual return and total return use all cash flows',()=>{
     const {nodes,update}=fixture([order]);
     assert.ok(update, 'performance UI missing');

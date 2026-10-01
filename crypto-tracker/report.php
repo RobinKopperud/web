@@ -28,9 +28,8 @@ $closedOrders = 0;
 foreach ($orders as $order) {
     $cost = ($order['quantity'] * $order['entry_price']) + $order['fee'];
     $totalInvested += $cost;
-    if ($order['remaining_quantity'] > 0) {
-        $allocation = ($order['remaining_quantity'] / $order['quantity']);
-        $openCostBasis += $cost * $allocation;
+    if ($order['status'] === 'OPEN') {
+        $openCostBasis += $cost;
         $openOrders++;
     } else {
         $closedOrders++;
@@ -38,7 +37,7 @@ foreach ($orders as $order) {
 }
 
 $realizedProfit = 0.0;
-$realizedStmt = $conn->prepare('SELECT COALESCE(SUM(oc.profit), 0) AS realized FROM order_closures oc JOIN orders o ON oc.order_id = o.id WHERE o.user_id = ?');
+$realizedStmt = $conn->prepare("SELECT COALESCE(SUM(realized_profit), 0) AS realized FROM orders WHERE user_id = ? AND status = 'CLOSED'");
 if ($realizedStmt) {
     $realizedStmt->bind_param('i', $userId);
     $realizedStmt->execute();
@@ -50,7 +49,7 @@ if ($realizedStmt) {
 }
 
 $last30dProfit = 0.0;
-$profit30Stmt = $conn->prepare('SELECT COALESCE(SUM(oc.profit), 0) AS profit_30d FROM order_closures oc JOIN orders o ON oc.order_id = o.id WHERE o.user_id = ? AND oc.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)');
+$profit30Stmt = $conn->prepare("SELECT COALESCE(SUM(realized_profit), 0) AS profit_30d FROM orders WHERE user_id = ? AND status = 'CLOSED' AND closed_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
 if ($profit30Stmt) {
     $profit30Stmt->bind_param('i', $userId);
     $profit30Stmt->execute();
@@ -163,3 +162,4 @@ function generateSimplePdf(array $lines): string
 
     return $pdf;
 }
+

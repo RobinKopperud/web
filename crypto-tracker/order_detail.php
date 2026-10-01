@@ -54,7 +54,7 @@ foreach ($closures as $closure) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ordre #<?php echo (int)$order['id']; ?> · detaljer</title>
-    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="assets/style.css?v=<?php echo filemtime(__DIR__ . '/assets/style.css'); ?>">
 </head>
 <body>
 <div class="container">
@@ -79,7 +79,7 @@ foreach ($closures as $closure) {
         </form>
     </section>
 
-    <section class="card" id="orderPerformanceDetail" data-performance="<?php echo h(json_encode(performance_order_data($order, $closures))); ?>">
+    <section class="card" id="orderPerformanceDetail" data-performance="<?php echo h(json_encode(performance_order_data($order))); ?>">
         <h2>Avkastning og eiertid</h2>
         <div class="order-performance">
             <div><p class="eyebrow">Avkastning totalt</p><p class="mono profit order-total-return">–</p></div>
@@ -87,7 +87,7 @@ foreach ($closures as $closure) {
             <div><p class="eyebrow">Eiertid</p><p class="mono order-holding-period">–</p></div>
             <p class="hint order-performance-note" role="status">Venter på beregning …</p>
         </div>
-        <p class="hint">Avkastning per år tar hensyn til eiertid og eventuelle delsalg. Annualisert avkastning er ikke en prognose.</p>
+        <p class="hint">Avkastning per år vises for ordre med minst ett års eiertid.</p>
     </section>
 
     <section class="card danger">
@@ -160,8 +160,8 @@ foreach ($closures as $closure) {
         <?php endif; ?>
     </section>
 </div>
-<script src="assets/performance.js"></script>
-<script src="assets/performance-ui.js"></script>
+<script src="assets/performance.js?v=<?php echo filemtime(__DIR__ . '/assets/performance.js'); ?>"></script>
+<script src="assets/performance-ui.js?v=<?php echo filemtime(__DIR__ . '/assets/performance-ui.js'); ?>"></script>
 </body>
 </html>
 

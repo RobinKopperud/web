@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModal = document.getElementById('closeModal');
     const closeModalForm = document.getElementById('closeModalForm');
     const closeOrderIdInput = document.getElementById('closeModalOrderId');
-    const closeQuantityInput = document.getElementById('close_quantity_modal');
     const closePriceInput = document.getElementById('close_price_modal');
     const closeFeeInput = document.getElementById('close_fee_modal');
     const closeModalTitle = document.getElementById('closeModalTitle');
@@ -16,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeCurrencyBadge = document.getElementById('closeCurrencyBadge');
     const closeModalDismiss = document.getElementById('closeModalDismiss');
     const closeModalCancel = document.getElementById('closeModalCancel');
-    const filterForm = document.querySelector('.filters form');
+    const filterForm = document.getElementById('integratedFilters');
     const assetFilterSelect = document.getElementById('filter_asset');
     const statusFilterRadios = document.querySelectorAll('input[name="status"]');
     const topNavButtons = document.querySelectorAll('.nav-btn');
@@ -54,9 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function computeRemainingCostBasis({ remaining, quantity, entryPrice, totalCost }) {
         if (!Number.isFinite(remaining) || remaining <= 0) return null;
-        if (Number.isFinite(totalCost) && Number.isFinite(quantity) && quantity > 0) {
-            return totalCost * (remaining / quantity);
-        }
+        if (Number.isFinite(totalCost)) return totalCost;
         if (Number.isFinite(entryPrice)) {
             return remaining * entryPrice;
         }
@@ -262,29 +259,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    let enteredOrderFields = [];
     function updateMissingOrderField(changedField) {
-        if (!quantityInput || !entryPriceInput || !totalCostInput) return;
-
-        const quantity = parsePositiveNumber(quantityInput.value);
-        const entryPrice = parsePositiveNumber(entryPriceInput.value);
-        const totalCost = parsePositiveNumber(totalCostInput.value);
-
-        if (changedField !== 'quantity' && entryPrice !== null && totalCost !== null) {
-            const computedQuantity = totalCost / entryPrice;
-            quantityInput.value = Number.isFinite(computedQuantity) ? formatNumber(computedQuantity) : '';
-            return;
-        }
-
-        if (changedField !== 'entry_price' && quantity !== null && totalCost !== null) {
-            const computedEntry = totalCost / quantity;
-            entryPriceInput.value = Number.isFinite(computedEntry) ? computedEntry.toFixed(4) : '';
-            return;
-        }
-
-        if (changedField !== 'total_cost' && quantity !== null && entryPrice !== null) {
-            const computedTotal = quantity * entryPrice;
-            totalCostInput.value = Number.isFinite(computedTotal) ? computedTotal.toFixed(4) : '';
-        }
+        const fields = {quantity:quantityInput, entry_price:entryPriceInput, total_cost:totalCostInput};
+        if (Object.values(fields).some(field=>!field)) return;
+        enteredOrderFields = enteredOrderFields.filter(key=>key!==changedField);
+        if (parsePositiveNumber(fields[changedField].value)!==null) enteredOrderFields.push(changedField);
+        const values = Object.fromEntries(Object.entries(fields).map(([key,field])=>[key,parsePositiveNumber(field.value)]));
+        const result = globalThis.CryptoOrderEntry.solve(values,enteredOrderFields);
+        const pair = enteredOrderFields.filter(key=>values[key]!==null).slice(-2);
+        if (pair.length<2) return;
+        const computed = Object.keys(fields).find(key=>!pair.includes(key));
+        fields[computed].value = Number.isFinite(result[computed]) ? String(Number(result[computed].toFixed(8))) : '';
+        fields[computed].dataset.computed = 'true';
+        pair.forEach(key=>delete fields[key].dataset.computed);
     }
 
     function applyFilters() {
@@ -401,18 +389,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    let priceController = null;
     async function fetchLivePrices() {
-        const statusValue = Array.from(statusFilterRadios).find(radio => radio.checked)?.value || 'open';
+        priceController?.abort();
+        const controller = new AbortController();
+        priceController = controller;
+        const timeout = setTimeout(()=>controller.abort(), 45000);
+        const statusEl = document.getElementById('priceUpdated');
+        if (statusEl) statusEl.textContent = 'Henter priser …';
         const params = new URLSearchParams();
-        const selectedAsset = assetFilterSelect?.value.trim();
 
-        if (selectedAsset) {
-            params.set('asset', selectedAsset);
-        }
 
-        if (statusValue) {
-            params.set('status', statusValue);
-        }
+
+        params.set('status', 'all');
 
         livePulse?.classList.add('active');
         refreshButton?.setAttribute('disabled', 'disabled');
@@ -420,11 +409,13 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const queryString = params.toString();
             const path = queryString ? `prices.php?${queryString}` : 'prices.php';
-            const response = await fetch(path);
+            const response = await fetch(path, {signal:controller.signal, cache:'no-store'});
             if (!response.ok) {
                 throw new Error(`Feed error (${response.status})`);
             }
             const data = await response.json();
+            if (controller !== priceController) return;
+            if (data.error) throw new Error(data.error);
             livePrices = data.prices || {};
             symbolPrices = data.symbol_prices || {};
             fxRates = data.fx_rates || {};
@@ -432,8 +423,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (updated) updated.textContent = `Oppdatert ${new Date().toLocaleTimeString('nb-NO', {hour:'2-digit', minute:'2-digit'})}`;
             updateOrderCards(livePrices);
         } catch (error) {
-            console.error(error);
+            if (controller !== priceController) return;
+            const message = error.name === 'AbortError' ? 'Prishentingen tok for lang tid. Trykk Oppdater for å prøve igjen.' : 'Kunne ikke hente priser. Trykk Oppdater for å prøve igjen.';
+            if (statusEl) statusEl.textContent = message;
+            const performanceStatus = document.getElementById('performanceStatus');
+            if (performanceStatus) performanceStatus.textContent = message;
         } finally {
+            clearTimeout(timeout);
+            if (controller !== priceController) return;
             refreshButton?.removeAttribute('disabled');
             setTimeout(() => livePulse?.classList.remove('active'), 800);
         }
@@ -450,14 +447,16 @@ document.addEventListener('DOMContentLoaded', () => {
     [assetFilterSelect, ...statusFilterRadios].forEach(element => {
         element?.addEventListener('change', () => {
             applyFilters();
-            fetchLivePrices();
         });
+    });
+
+    filterForm?.addEventListener('reset', () => {
+        setTimeout(()=>{if(assetFilterSelect)assetFilterSelect.value='';statusFilterRadios.forEach(r=>r.checked=r.value==='all');if(orderSearch)orderSearch.value='';applyFilters();},0);
     });
 
     filterForm?.addEventListener('submit', (event) => {
         event.preventDefault();
         applyFilters();
-        fetchLivePrices();
     });
 
     refreshButton?.addEventListener('click', fetchLivePrices);
@@ -497,17 +496,15 @@ document.addEventListener('DOMContentLoaded', () => {
         closeModal.setAttribute('aria-hidden', 'false');
 
         closeOrderIdInput.value = id;
-        closeQuantityInput.value = remaining;
-        closeQuantityInput.max = remaining;
         closePriceInput.value = '';
         if (closeFeeInput) {
             closeFeeInput.value = '';
         }
         closeModalTitle.textContent = `Ordre #${id}`;
         closeModalAsset.textContent = asset;
-        closeRemainingHelper.textContent = `(Gjenstår: ${remaining})`;
+        closeRemainingHelper.textContent = `Hele ordren: ${remaining}`;
         closeCurrencyBadge.textContent = currency;
-        closeQuantityInput.focus();
+        closePriceInput.focus();
     }
 
     document.querySelectorAll('.open-close-modal').forEach(button => {

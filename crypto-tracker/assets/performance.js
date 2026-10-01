@@ -65,22 +65,24 @@ globalThis.CryptoPerformance = (() => {
     }
 
     function orderPerformance(order, price, now = Date.now()) {
-        const unavailable = {totalReturn:null, annualReturn:null, days:null, flows:[], marketValue:null};
-        const {cost, quantity, remaining, purchasedAt, closures} = order;
-        if (order.historyAvailable === false || !(cost>0) || !(quantity>0) || remaining<0 || remaining>quantity || !Number.isFinite(purchasedAt) || purchasedAt>now || !Array.isArray(closures)) return unavailable;
-        if (closures.some(c => !Number.isFinite(c.date) || c.date<purchasedAt || c.date>now || !Number.isFinite(c.amount) || c.amount<0 || !Number.isFinite(c.quantity) || c.quantity<=0)) return unavailable;
-        const soldQuantity = closures.reduce((sum,c)=>sum+c.quantity,0);
-        if (Math.abs(soldQuantity-(quantity-remaining)) > Math.max(1e-8,quantity*1e-10)) return unavailable;
-        const end = remaining>0 ? now : Math.max(purchasedAt, ...closures.map(c=>c.date));
+        const unavailable = {totalReturn:null, annualReturn:null, annualEligible:false, days:null, flows:[], marketValue:null};
+        const {cost, quantity, purchasedAt, status, soldAt, realizedProfit} = order;
+        if (order.validQuantity === false || !(cost>0) || !(quantity>0) || !Number.isFinite(purchasedAt) || purchasedAt>now || !['OPEN','CLOSED'].includes(status)) return unavailable;
+        const closed = status === 'CLOSED';
+        const end = closed ? soldAt : now;
+        if (!Number.isFinite(end) || end<purchasedAt || end>now) return unavailable;
         const days = (end-purchasedAt)/86400000;
-        if (remaining>0 && (!Number.isFinite(price) || price<0) || remaining===0 && !closures.length) return {...unavailable, days};
-        const marketValue = remaining>0 ? remaining*price : 0;
-        const proceeds = closures.reduce((sum,c)=>sum+c.amount,0);
-        const totalReturn = ((proceeds+marketValue-cost)/cost)*100;
-        const flows = [{date:purchasedAt,amount:-cost}, ...closures.map(c=>({date:c.date,amount:c.amount}))];
-        if (remaining>0) flows.push({date:now,amount:marketValue});
-        const annualReturn = closures.length ? xirr(flows) : annualized(totalReturn,days);
-        return {totalReturn, annualReturn, days, flows, marketValue};
+        const anniversary = new Date(purchasedAt);
+        anniversary.setUTCFullYear(anniversary.getUTCFullYear()+1);
+        const annualEligible = end >= anniversary.getTime();
+        if (closed ? !Number.isFinite(realizedProfit) : !Number.isFinite(price) || price<0) return {...unavailable,days,annualEligible};
+        const marketValue = closed ? 0 : quantity*price;
+        const proceeds = closed ? cost+realizedProfit : marketValue;
+        if (proceeds<0) return {...unavailable,days,annualEligible};
+        const totalReturn = (proceeds-cost)/cost*100;
+        const annualReturn = annualEligible ? annualized(totalReturn,days) : null;
+        const flows = [{date:purchasedAt,amount:-cost},{date:end,amount:proceeds}];
+        return {totalReturn,annualReturn,annualEligible,days,flows,marketValue};
     }
-    return {annualized, xirr, orderPerformance};
+    return {annualized,xirr,orderPerformance};
 })();

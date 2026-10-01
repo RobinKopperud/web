@@ -20,9 +20,9 @@ globalThis.CryptoPerformanceUI = (() => {
     }
     function cardSummary(card, order, result) {
         const values = [
-            ['.unrealized',Number.isFinite(result.marketValue) ? (order.remaining>0 ? `${number(result.marketValue-order.cost*order.remaining/order.quantity)} ${order.currency}` : 'Lukket') : '–',order.remaining>0 ? result.marketValue-order.cost*order.remaining/order.quantity : null],
+            ['.unrealized',Number.isFinite(result.marketValue) ? (order.status==='OPEN' ? `${number(result.marketValue-order.cost)} ${order.currency}` : 'Lukket') : '–',order.status==='OPEN' ? result.marketValue-order.cost : null],
             ['.order-total-return',percent(result.totalReturn),result.totalReturn],
-            ['.order-annual-return',percent(result.annualReturn),result.annualReturn],
+            ['.order-annual-return',Number.isFinite(result.days) && !result.annualEligible ? 'Under 1 år' : percent(result.annualReturn),result.annualReturn],
             ['.order-holding-period',Number.isFinite(result.days) ? `${Math.floor(result.days).toLocaleString('nb-NO')} dager` : '–',null],
         ];
         values.forEach(([selector,value,signed]) => {
@@ -35,11 +35,10 @@ globalThis.CryptoPerformanceUI = (() => {
         const note = card.querySelector('.order-performance-note');
         if (note) {
             const bought = Number.isFinite(order.purchasedAt) ? `Kjøpt ${dateLabel(order.purchasedAt)}.` : 'Kjøpsdato mangler.';
-            const end = order.remaining===0 && order.closures.length ? ` Siste salg ${dateLabel(Math.max(...order.closures.map(c=>c.date)))}.` : ' Eiertid frem til i dag.';
-            const method = order.closures.length ? ' Årlig avkastning tar hensyn til salgstidspunktene (XIRR).' : ' Årlig avkastning beregnes med rentes rente.';
-            const unavailable = !Number.isFinite(result.totalReturn) ? ' Mangler gyldig dato, salgshistorikk eller livepris i ordrenes prisvaluta.' : !Number.isFinite(result.annualReturn) ? ' Årlig avkastning kan ikke beregnes entydig for disse kontantstrømmene.' : '';
-            const short = result.days<365.25 ? ' Under ett års eiertid: årlig avkastning er omregnet til ett år.' : '';
-            note.textContent = bought+end+method+unavailable+short;
+            const end = order.status==='CLOSED' && Number.isFinite(order.soldAt) ? ` Solgt ${dateLabel(order.soldAt)}.` : ' Eiertid frem til i dag.';
+            const unavailable = !Number.isFinite(result.totalReturn) ? ' Mangler gyldig kjøps-/salgsdato eller livepris.' : '';
+            const short = Number.isFinite(result.days) && !result.annualEligible ? ' Avkastning per år vises etter ett års eiertid.' : '';
+            note.textContent = bought+end+unavailable+short;
         }
     }
     function element(tag, className, content) {
@@ -93,54 +92,60 @@ globalThis.CryptoPerformanceUI = (() => {
             cardSummary(card,order,result);
             return {order,result};
         }).filter(Boolean);
-        let invested=0, realized=0, market=0, remainingCost=0;
-        let complete=entries.length===cards.length && entries.every(({order})=>order.historyAvailable!==false), fxComplete=complete;
-        const flows=[], years=new Map();
+        let invested=0,realized=0,market=0,openCost=0;
+        let complete=entries.length===cards.length,fxComplete=complete,annualComplete=true;
+        const flows=[],years=new Map();
+        let annualCount=0;
         entries.forEach(({order,result})=>{
+            if (!Number.isFinite(result.days)) annualComplete=false;
             const rate=fx[order.currency];
-            if (!Number.isFinite(rate) || rate<=0) { complete=false; fxComplete=false; return; }
+            if (!Number.isFinite(rate) || rate<=0) {complete=false;fxComplete=false;if(result.annualEligible)annualComplete=false;return;}
             invested+=order.cost*rate;
-            remainingCost+=order.cost*(order.remaining/order.quantity)*rate;
-            order.closures.forEach(sale=>{
-                realized+=sale.profit*rate;
-                if (Number.isFinite(sale.date) && Number.isFinite(sale.profit)) {
-                    const year=new Date(sale.date).getUTCFullYear();
-                    years.set(year,(years.get(year)||0)+sale.profit*rate);
-                }
-            });
+            if (order.status==='OPEN') openCost+=order.cost*rate;
+            else if (Number.isFinite(order.realizedProfit) && Number.isFinite(order.soldAt)) {
+                realized+=order.realizedProfit*rate;
+                const year=new Date(order.soldAt).getUTCFullYear();
+                years.set(year,(years.get(year)||0)+order.realizedProfit*rate);
+            } else complete=false;
             if (!Number.isFinite(result.totalReturn)) complete=false;
-            else {
-                market+=result.marketValue*rate;
-                result.flows.forEach(flow=>flows.push({date:flow.date,amount:flow.amount*rate}));
+            else market+=result.marketValue*rate;
+            if (result.annualEligible) {
+                annualCount++;
+                if (!Number.isFinite(result.totalReturn)) annualComplete=false;
+                else result.flows.forEach(flow=>flows.push({date:flow.date,amount:flow.amount*rate}));
             }
         });
         const hasOrders=entries.length>0;
-        const unrealized=complete && hasOrders ? market-remainingCost : null;
+        const unrealized=complete && hasOrders ? market-openCost : null;
         const totalProfit=Number.isFinite(unrealized) ? realized+unrealized : null;
         const totalReturn=Number.isFinite(totalProfit) && invested>0 ? totalProfit/invested*100 : null;
-        const annualReturn=complete && hasOrders ? xirr(flows) : null;
+        const annualReturn=annualComplete && annualCount>0 ? xirr(flows) : null;
         text('totalInvestedNok',fxComplete && hasOrders ? nok(invested) : '–');
-        text('realizedNok',fxComplete && hasOrders ? nok(realized) : '–',realized);
+        text('realizedNok',complete && hasOrders ? nok(realized) : '–',realized);
         text('unrealizedNok',nok(unrealized),unrealized);
         text('lifetimeRoi',percent(totalReturn),totalReturn);
-        text('portfolioAnnualReturn',percent(annualReturn),annualReturn);
+        text('portfolioAnnualReturn',annualCount===0 && complete && hasOrders ? 'Under 1 år' : percent(annualReturn),annualReturn);
         text('portfolioTotalProfit',nok(totalProfit),totalProfit);
-        text('performanceStatus',!hasOrders ? 'Ingen ordrer i dette utvalget.' : !complete ? 'Mangler livepris, valutakurs eller gyldig historikk. Samlet avkastning vises når alle ordrer kan beregnes.' : !Number.isFinite(annualReturn) ? 'Årlig avkastning kan ikke beregnes entydig for kontantstrømmene i utvalget.' : `${entries.length} ordrer i utvalget · avkastning per år beregnet fra daterte kjøp og salg.`);
+        text('performanceStatus',!hasOrders ? 'Ingen ordrer i dette utvalget.' : !complete ? 'Mangler livepris, valutakurs eller gyldig ordrehistorikk. Oppdater prisene for å prøve igjen.' : `${entries.length} ordrer i utvalget · ${annualCount} med minst ett års eiertid.`);
         chart('orderReturnChart',entries.map(({order,result})=>({label:`${order.asset} #${order.id} · ${Number.isFinite(result.days)?Math.floor(result.days).toLocaleString('nb-NO'):'–'} dager`,values:[result.totalReturn,result.annualReturn]})),['Totalt','Per år'],percent);
         const yearRows=[...years].sort((a,b)=>a[0]-b[0]).map(([year,profit])=>({label:String(year),values:[profit]}));
         chart('yearProfitChart',fxComplete ? yearRows : [],['Realisert'],nok);
         if (!fxComplete) text('yearProfitChart','Mangler valutakurs eller salgshistorikk. Årsresultatet vises når alle nødvendige data er tilgjengelige.');
     }
     document.addEventListener('DOMContentLoaded',async()=>{
+        update();
         const detail=document.getElementById('orderPerformanceDetail');
         if (!detail?.dataset.performance) return;
         const order=readOrder(detail);
         if (!order) return;
         cardSummary(detail,order,orderPerformance(order,null));
-        if (order.remaining<=0) return;
+        if (order.status==='CLOSED') return;
         try {
             const params=new URLSearchParams({asset:order.asset,status:'all'});
-            const response=await fetch(`prices.php?${params}`);
+            const controller=new AbortController();
+            const timeout=setTimeout(()=>controller.abort(),45000);
+            let response;
+            try {response=await fetch(`prices.php?${params}`,{signal:controller.signal,cache:'no-store'});} finally {clearTimeout(timeout);}
             if (!response.ok) throw new Error('price request failed');
             const data=await response.json();
             cardSummary(detail,order,orderPerformance(order,priceFor(order,data.prices,data.symbol_prices)));

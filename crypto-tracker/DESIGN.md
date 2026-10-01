@@ -46,8 +46,8 @@ Reuse existing stat corners. Signed chart bars have a fixed zero baseline and no
 
 ## Components
 
-assets/performance.js owns calculation rules. assets/performance-ui.js owns repeated formatting, signed bars, missing-data states and order summaries. PHP provides escaped user-owned data. Existing navigation, forms and journal remain in their current owners.
+assets/performance.js owns calculation rules. assets/performance-ui.js owns repeated formatting, signed bars, missing-data states and order summaries. PHP provides escaped user-owned data. order-entry.js and order_input.php resolve purchase pairs. Existing navigation, forms and journal remain in their current owners.
 
 ## Do's and Don'ts
 
-Show explicit values beside every chart bar. Explain short holding periods. Show unavailable results as a dash with a reason. Keep annualized return distinct from realized calendar-year result. Do not infer historical valuations, add new fee information, or rebrand the app for this feature.
+Show explicit values beside every chart bar. Show “Under 1 år” for short holding periods without extrapolation. Show unavailable results as a dash with a reason. Keep annualized return distinct from realized calendar-year result. Do not infer historical valuations, add new fee information, or rebrand the app for this feature.

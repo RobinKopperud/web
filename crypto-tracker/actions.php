@@ -2,6 +2,7 @@
 session_start();
 include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/order_input.php';
 
 ensure_logged_in();
 $userId = (int)($_SESSION['user_id'] ?? 0);
@@ -39,8 +40,10 @@ $action = $_POST['action'] ?? '';
 
 if ($action === 'create_order') {
     $asset = trim($_POST['asset'] ?? '');
-    $quantity = $_POST['quantity'] ?? '';
-    $entryPrice = $_POST['entry_price'] ?? '';
+    $purchase = resolve_order_input($_POST);
+    if ($purchase === null) redirect_with_flash('error', 'Fyll inn to av antall, pris per enhet og totalbeløp. Verdiene må stemme overens.');
+    $quantity = $purchase['quantity'];
+    $entryPrice = $purchase['entry_price'];
     $fee = $_POST['fee'] ?? '0';
     $currency = sanitize_currency($_POST['currency'] ?? 'USD');
     $purchasedAtInput = trim($_POST['purchased_at'] ?? '');
@@ -102,20 +105,19 @@ if ($action === 'update_journal') {
 
 if ($action === 'close_order') {
     $orderId = isset($_POST['order_id']) ? (int)$_POST['order_id'] : 0;
-    $closeQuantity = $_POST['close_quantity'] ?? '';
     $closePrice = $_POST['close_price'] ?? '';
     $closeFee = $_POST['close_fee'] ?? '0';
 
-    if ($orderId <= 0 || !is_numeric($closeQuantity) || !is_numeric($closePrice) || $closeQuantity <= 0 || $closePrice < 0) {
+    if ($orderId <= 0 || !is_numeric($closePrice) || !is_finite((float)$closePrice) || $closePrice < 0) {
         redirect_with_flash('error', 'Fyll inn gyldig antall og salgspris.');
     }
 
-    $closeQuantity = (float)$closeQuantity;
     $closePrice = (float)$closePrice;
     $closeFee = is_numeric($closeFee) ? (float)$closeFee : 0;
 
-    // Fetch order to close
-    $fetch = $conn->prepare('SELECT * FROM orders WHERE id = ? AND user_id = ?');
+    $conn->begin_transaction();
+    // Lock the order so a duplicate submission cannot sell it twice.
+    $fetch = $conn->prepare('SELECT * FROM orders WHERE id = ? AND user_id = ? FOR UPDATE');
     $fetch->bind_param('ii', $orderId, $userId);
     $fetch->execute();
     $orderResult = $fetch->get_result();
@@ -129,14 +131,14 @@ if ($action === 'close_order') {
         redirect_with_flash('error', 'Ordren er allerede lukket.');
     }
 
-    if ($closeQuantity > (float)$order['remaining_quantity']) {
-        redirect_with_flash('error', 'Salgsantallet er høyere enn gjenstående antall.');
+    if (abs((float)$order['remaining_quantity'] - (float)$order['quantity']) > 0.00000001) {
+        $conn->rollback();
+        redirect_with_flash('error', 'Ordren har inkonsistent mengde. Korriger ordren før salg.');
     }
-
-    $originalCostBasis = ($order['quantity'] * $order['entry_price']) + $order['fee'];
-    $allocatedCost = ($closeQuantity / $order['quantity']) * $originalCostBasis;
-    $proceeds = ($closeQuantity * $closePrice) - $closeFee;
-    $profit = $proceeds - $allocatedCost;
+    $closeQuantity = (float)$order['quantity'];
+    $cost = $closeQuantity * (float)$order['entry_price'] + (float)$order['fee'];
+    $proceeds = $closeQuantity * $closePrice - $closeFee;
+    $profit = $proceeds - $cost;
 
     $orderCurrency = sanitize_currency($order['currency'] ?? 'USD');
 
@@ -154,34 +156,17 @@ if ($action === 'close_order') {
         redirect_with_flash('error', 'Failed to record closure.');
     }
 
-    // Update order state
-    $newRemaining = round((float)$order['remaining_quantity'] - $closeQuantity, 8);
-    if ($newRemaining < 0) {
-        $newRemaining = 0;
+    $update = $conn->prepare("UPDATE orders SET remaining_quantity = 0, status = 'CLOSED', closed_at = NOW(), realized_profit = ? WHERE id = ? AND user_id = ?");
+    if (!$update) {
+        $conn->rollback();
+        redirect_with_flash('error', 'Kunne ikke lagre salget.');
     }
-
-    $status = $newRemaining <= 0 ? 'CLOSED' : 'OPEN';
-    $closedAt = $status === 'CLOSED' ? date('Y-m-d H:i:s') : null;
-    $realizedProfit = null;
-
-    if ($status === 'CLOSED') {
-        $sumStmt = $conn->prepare('SELECT COALESCE(SUM(profit), 0) as total_profit FROM order_closures WHERE order_id = ?');
-        $sumStmt->bind_param('i', $orderId);
-        $sumStmt->execute();
-        $sumResult = $sumStmt->get_result()->fetch_assoc();
-        $realizedProfit = $sumResult['total_profit'];
-
-        $update = $conn->prepare('UPDATE orders SET remaining_quantity = ?, status = ?, closed_at = ?, realized_profit = ? WHERE id = ?');
-        $update->bind_param('dssdi', $newRemaining, $status, $closedAt, $realizedProfit, $orderId);
-    } else {
-        $update = $conn->prepare('UPDATE orders SET remaining_quantity = ? WHERE id = ?');
-        $update->bind_param('di', $newRemaining, $orderId);
-    }
-
+    $update->bind_param('dii', $profit, $orderId, $userId);
     if ($update->execute()) {
-        redirect_with_flash('success', 'Salget ble registrert.');
+        $conn->commit();
+        redirect_with_flash('success', 'Hele ordren ble solgt.');
     }
-
+    $conn->rollback();
     redirect_with_flash('error', 'Failed to update order.');
 }
 
@@ -230,3 +215,4 @@ if ($action === 'delete_order') {
 }
 
 redirect_with_flash('error', 'Unknown action.');
+

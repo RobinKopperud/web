@@ -69,14 +69,40 @@ if ($action === 'create_order') {
     $strategy = $strategy !== '' ? $strategy : null;
     $notes = $notes !== '' ? $notes : null;
 
-    $stmt = $conn->prepare("INSERT INTO orders (user_id, asset, side, quantity, entry_price, fee, currency, status, remaining_quantity, created_at, realized_profit, purchased_at, strategy, notes) VALUES (?, ?, 'BUY', ?, ?, ?, ?, 'OPEN', ?, NOW(), NULL, ?, ?, ?)");
-    if (!$stmt) {
-        redirect_with_flash('error', 'Kunne ikke klargjøre lagringen.');
-    }
+    try {
+        $schema = $conn->query('SHOW COLUMNS FROM orders');
+        if (!$schema) throw new RuntimeException('Could not inspect order columns.');
+        $available = array_column($schema->fetch_all(MYSQLI_ASSOC), 'Field');
+        // Historical installations use created_at as their purchase date.
+        $createdAt = in_array('purchased_at', $available, true) ? date('Y-m-d H:i:s') : $purchasedAt;
+        $fields = ['user_id', 'asset', 'quantity', 'entry_price', 'fee', 'currency', 'remaining_quantity', 'created_at'];
+        $values = [$userId, $asset, $quantity, $entryPrice, $fee, $currency, $quantity, $createdAt];
+        $types = 'isdddsds';
+        $omitted = [];
+        foreach (['purchased_at' => $purchasedAt, 'strategy' => $strategy, 'notes' => $notes] as $field => $value) {
+            if (in_array($field, $available, true)) {
+                $fields[] = $field;
+                $values[] = $value;
+                $types .= 's';
+            } elseif ($field !== 'purchased_at' && $value !== null) {
+                $omitted[] = $field === 'strategy' ? 'strategi' : 'notat';
+            }
+        }
+        $placeholders = implode(', ', array_fill(0, count($values), '?'));
+        $stmt = $conn->prepare("INSERT INTO orders (side, status, realized_profit, " . implode(', ', $fields) . ") VALUES ('BUY', 'OPEN', NULL, $placeholders)");
+        if (!$stmt) {
+            redirect_with_flash('error', 'Kunne ikke klargjøre lagringen.');
+        }
 
-    $stmt->bind_param('isdddsdsss', $userId, $asset, $quantity, $entryPrice, $fee, $currency, $quantity, $purchasedAt, $strategy, $notes);
-    if ($stmt->execute()) {
-        redirect_with_flash('success', 'Kjøpet ble lagret.');
+        $stmt->bind_param($types, ...$values);
+        if ($stmt->execute()) {
+            $message = 'Kjøpet ble lagret.';
+            if ($omitted) $message .= ' Følgende opplysninger ble ikke lagret fordi de ikke støttes her: ' . implode(', ', $omitted) . '.';
+            redirect_with_flash('success', $message);
+        }
+    } catch (RuntimeException $error) {
+        error_log('Crypto purchase storage failed: ' . $error->getMessage());
+        redirect_with_flash('error', 'Kunne ikke lagre kjøpet. Prøv igjen, eller kontakt administrator hvis feilen fortsetter.');
     }
 
     redirect_with_flash('error', 'Kunne ikke lagre kjøpet.');
@@ -215,4 +241,5 @@ if ($action === 'delete_order') {
 }
 
 redirect_with_flash('error', 'Unknown action.');
+
 

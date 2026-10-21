@@ -17,6 +17,18 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: crypto-test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
     steps:
       - uses: actions/checkout@v4
       - name: Check PHP syntax
@@ -29,3 +41,6 @@ jobs:
         run: node --test crypto-tracker/tests/*.test.js
       - name: Test server-side purchase input
         run: php crypto-tracker/tests/order_input_test.php
+      - name: Test purchase storage on older and current schemas
+        run: php crypto-tracker/tests/order_storage_test.php
+

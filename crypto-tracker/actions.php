@@ -3,6 +3,7 @@ session_start();
 include_once $_SERVER['DOCUMENT_ROOT'] . '/db.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/order_input.php';
+require_once __DIR__ . '/order_schema.php';
 
 ensure_logged_in();
 $userId = (int)($_SESSION['user_id'] ?? 0);
@@ -69,14 +70,20 @@ if ($action === 'create_order') {
     $strategy = $strategy !== '' ? $strategy : null;
     $notes = $notes !== '' ? $notes : null;
 
-    $stmt = $conn->prepare("INSERT INTO orders (user_id, asset, side, quantity, entry_price, fee, currency, status, remaining_quantity, created_at, realized_profit, purchased_at, strategy, notes) VALUES (?, ?, 'BUY', ?, ?, ?, ?, 'OPEN', ?, NOW(), NULL, ?, ?, ?)");
-    if (!$stmt) {
-        redirect_with_flash('error', 'Kunne ikke klargjøre lagringen.');
-    }
+    try {
+        ensure_order_journal_schema($conn);
+        $stmt = $conn->prepare("INSERT INTO orders (user_id, asset, side, quantity, entry_price, fee, currency, status, remaining_quantity, created_at, realized_profit, purchased_at, strategy, notes) VALUES (?, ?, 'BUY', ?, ?, ?, ?, 'OPEN', ?, NOW(), NULL, ?, ?, ?)");
+        if (!$stmt) {
+            redirect_with_flash('error', 'Kunne ikke klargjøre lagringen.');
+        }
 
-    $stmt->bind_param('isdddsdsss', $userId, $asset, $quantity, $entryPrice, $fee, $currency, $quantity, $purchasedAt, $strategy, $notes);
-    if ($stmt->execute()) {
-        redirect_with_flash('success', 'Kjøpet ble lagret.');
+        $stmt->bind_param('isdddsdsss', $userId, $asset, $quantity, $entryPrice, $fee, $currency, $quantity, $purchasedAt, $strategy, $notes);
+        if ($stmt->execute()) {
+            redirect_with_flash('success', 'Kjøpet ble lagret.');
+        }
+    } catch (RuntimeException $error) {
+        error_log('Crypto purchase storage failed: ' . $error->getMessage());
+        redirect_with_flash('error', 'Kunne ikke lagre kjøpet. Prøv igjen, eller kontakt administrator hvis feilen fortsetter.');
     }
 
     redirect_with_flash('error', 'Kunne ikke lagre kjøpet.');
@@ -215,4 +222,5 @@ if ($action === 'delete_order') {
 }
 
 redirect_with_flash('error', 'Unknown action.');
+
 
